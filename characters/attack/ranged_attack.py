@@ -1,23 +1,17 @@
+from characters.attack.attack import Attack
 import arcade
 import math
-
 projectile_sprite = 'resources/images/projectile_placeholder.png'
-
-class Attack:
+class RangedAttack(Attack):
     def __init__(self, player_sprite,stats):
-        self.player = player_sprite
-        self.stats = stats
-        self.up_pressed = False
-        self.down_pressed = False
-        self.left_pressed = False
-        self.right_pressed = False
+        super().__init__(player_sprite,stats)
         self.projectile_list = arcade.SpriteList()
         self.ticks = 0
         self.attack_cooldown = 0
 
     def update(self):
         self.ticks += 1
-        self.attack_cooldown +=1
+        self.attack_cooldown += 1
 
         if self.right_pressed and self.up_pressed:
             self.spawn_projectile(0 + 45)
@@ -45,33 +39,13 @@ class Attack:
 
         self.projectile_list.update()
 
-    def on_key_press(self, key):
-        if key == arcade.key.UP:
-            self.up_pressed = True
-        elif key == arcade.key.DOWN:
-            self.down_pressed = True
-        elif key == arcade.key.LEFT:
-            self.left_pressed = True
-        elif key == arcade.key.RIGHT:
-            self.right_pressed = True
-    
-    def on_key_release(self, key):
-        if key == arcade.key.UP:
-            self.up_pressed = False
-        elif key == arcade.key.DOWN:
-            self.down_pressed = False
-        elif key == arcade.key.LEFT:
-            self.left_pressed = False
-        elif key == arcade.key.RIGHT:
-            self.right_pressed = False
-
-    #fragile to framrate
+    # fragile to framrate
     def spawn_projectile(self, projectile_deg):
         if self.attack_cooldown < self.stats.get_projectile_cooldown():
             return
         self.attack_cooldown = 0
 
-        projectile = arcade.Sprite(projectile_sprite, scale = 0.05)
+        projectile = arcade.Sprite(projectile_sprite, scale=0.05)
 
         start_x = self.player.center_x
         start_y = self.player.center_y
@@ -79,21 +53,19 @@ class Attack:
         projectile.center_y = start_y
 
         projectile.angle = projectile_deg
+        radians = math.radians(projectile_deg)
         projectile.range = self.stats.get_projectile_range()
 
         speed = self.stats.get_projectile_speed()
-        radians = math.radians(projectile_deg)
 
-        projectile.change_x = math.cos(radians) * speed
-        projectile.change_y = math.sin(radians) * speed
+        speedx = math.sqrt(speed ** 2 + abs(self.player.change_x ** 2) + 1)
+        speedy = math.sqrt(speed ** 2 + abs(self.player.change_y ** 2) + 1)
+
+        projectile.change_x = math.cos(radians) * speedx
+        projectile.change_y = math.sin(radians) * speedy
 
         # Add the projectile to the appropriate lists
         self.projectile_list.append(projectile)
 
     def on_draw(self):
         self.projectile_list.draw()
-
-
-
-
-
