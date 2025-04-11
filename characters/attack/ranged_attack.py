@@ -58,8 +58,8 @@ class RangedAttack(Attack):
 
         speed = self.stats.get_projectile_speed()
 
-        speedx = math.sqrt(speed ** 2 + abs(self.player.change_x ** 2) + 1)
-        speedy = math.sqrt(speed ** 2 + abs(self.player.change_y ** 2) + 1)
+        speedx = math.sqrt(speed ** 2 + abs(self.player.change_x ** 2))
+        speedy = math.sqrt(speed ** 2 + abs(self.player.change_y ** 2))
 
         projectile.change_x = math.cos(radians) * speedx
         projectile.change_y = math.sin(radians) * speedy

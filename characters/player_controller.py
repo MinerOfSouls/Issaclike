@@ -1,4 +1,5 @@
 import arcade
+import math
 class PlayerController:
     def __init__(self, player_sprite,stats):
         self.stats = stats
@@ -25,20 +26,34 @@ class PlayerController:
         else:
             self.player.change_y = 0
 
-        # Apply input-based acceleration
+        dx = 0
+        dy = 0
         if self.w_pressed and not self.s_pressed:
-            self.player.change_y += self.stats.get_acceleration()
+            dy = 1
         elif self.s_pressed and not self.w_pressed:
-            self.player.change_y -= self.stats.get_acceleration()
-
+            dy = -1
         if self.a_pressed and not self.d_pressed:
-            self.player.change_x -= self.stats.get_acceleration()
+            dx = -1
         elif self.d_pressed and not self.a_pressed:
-            self.player.change_x += self.stats.get_acceleration()
+            dx = 1
 
-        self.player.change_x = max(-self.stats.get_max_speed(), min(self.stats.get_max_speed(), self.player.change_x))
-        self.player.change_y = max(-self.stats.get_max_speed(), min(self.stats.get_max_speed(), self.player.change_y))
+        # Normalize diagonal movement
+        if dx != 0 and dy != 0:
+            # Calculate normalization factor (1/sqrt(2))
+            norm_factor = 1 / math.sqrt(2)
+            dx *= norm_factor
+            dy *= norm_factor
 
+        self.player.change_x += dx * self.stats.get_acceleration()
+        self.player.change_y += dy * self.stats.get_acceleration()
+
+        current_speed = math.sqrt(self.player.change_x ** 2 + self.player.change_y ** 2)
+        max_speed = self.stats.get_max_speed()
+
+        if current_speed > max_speed:
+            scale_factor = max_speed / current_speed
+            self.player.change_x *= scale_factor
+            self.player.change_y *= scale_factor
     def on_key_press(self, key):
         if key == arcade.key.W:
             self.w_pressed = True
