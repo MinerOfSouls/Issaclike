@@ -23,7 +23,7 @@ class GameView(arcade.View):
 
 
     def setup(self):
-        self.map = Map(5)
+        self.map = Map(10)
         self.player_list = arcade.SpriteList()
         self.player_sprite = Player("resources/images/player_sprite_placeholder.png", scale= SPRITE_SCALING)
         self.player_sprite.center_x = WINDOW_WIDTH / 2

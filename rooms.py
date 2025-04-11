@@ -164,13 +164,13 @@ class Map:
         if len(intersection) ==  0:
             return False
         door = intersection[0]
-        if int(door.left) == 0:
+        if int(door.left) == 0 and player_sprite.center_x < door.right:
             return "west"
-        elif int(door.left) ==  WINDOW_WIDTH - SPRITE_SIZE:
+        elif int(door.left) ==  WINDOW_WIDTH - SPRITE_SIZE and player_sprite.center_x > door.left:
             return "east"
-        elif int(door.bottom) == 0:
+        elif int(door.bottom) == 0 and player_sprite.center_y < door.top:
             return "south"
-        elif int(door.bottom) == WINDOW_HEIGHT - SPRITE_SIZE:
+        elif int(door.bottom) == WINDOW_HEIGHT - SPRITE_SIZE and player_sprite.center_y > door.bottom:
             return "north"
         else:
             return False
