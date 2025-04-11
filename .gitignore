@@ -4,3 +4,4 @@
 /characters/__pycache__
 /characters/Abilieties/__pycache__
 /.idea
+*.pyc
