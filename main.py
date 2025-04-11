@@ -19,14 +19,11 @@ class GameView(arcade.View):
         self.stats = None
         self.attack = None
         self.special_ability = None
+        self.coliders = None
 
 
     def setup(self):
-        self.map = Map(2)
-        self.physics_engine = arcade.PhysicsEngineSimple(
-            self.map.get_current_walls(),
-            self.map.get_current_doors()
-        )
+        self.map = Map(5)
         self.player_list = arcade.SpriteList()
         self.player_sprite = Player("resources/images/player_sprite_placeholder.png", scale= SPRITE_SCALING)
         self.player_sprite.center_x = WINDOW_WIDTH / 2
@@ -39,6 +36,13 @@ class GameView(arcade.View):
         self.attack = RangedAttack(self.player_sprite,self.stats)
 
         self.player_controller = PlayerController(self.player_sprite,self.stats)
+
+        self.coliders = self.map.get_coliders()
+
+        self.physics_engine = arcade.PhysicsEngineSimple(
+            self.player_sprite,
+            self.coliders
+        )
 
     def on_draw(self) -> bool | None:
         self.clear()
@@ -58,10 +62,12 @@ class GameView(arcade.View):
         return None
 
     def on_update(self, delta_time):
+        self.physics_engine.update()
         self.player_controller.update()
         self.player_list.update(delta_time)
         self.attack.update()
         self.special_ability.update()
+        self.map.change_room(self.player_sprite)
 
     def on_key_press(self, key, modifiers):
         self.player_controller.on_key_press(key)
