@@ -45,14 +45,14 @@ class RangedAttack(Attack):
             return
         self.attack_cooldown = 0
 
-        projectile = arcade.Sprite(projectile_sprite, scale=0.05)
+        projectile = arcade.Sprite(projectile_sprite, scale=0.03)
 
         start_x = self.player.center_x
         start_y = self.player.center_y
         projectile.center_x = start_x
         projectile.center_y = start_y
 
-        projectile.angle = projectile_deg
+        projectile.angle = 360 - projectile_deg
         radians = math.radians(projectile_deg)
         projectile.range = self.stats.get_projectile_range()
 

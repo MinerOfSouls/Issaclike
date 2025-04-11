@@ -1,8 +1,8 @@
 class PlayerStatsController:
     # todo naprawić gettery to nie java a python nie trzeba sie aż tak bawić
-    ACCELERATION_RATE = 0.5
-    FRICTION = 0.2
-    def __init__(self, max_speed=4, damage=1, projectile_speed=4, projectile_cooldown=50, luck=0, range=400):
+    ACCELERATION_RATE = 0.3
+    FRICTION = 0.1
+    def __init__(self, max_speed=2.5, damage=1, projectile_speed=4, projectile_cooldown=50, luck=0, range=400):
         self.max_speed = max_speed
         self.damage = damage
         self.projectile_speed = projectile_speed
