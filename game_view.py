@@ -1,4 +1,6 @@
 import arcade
+from arcade import LRBT
+from draw_ui import DrawUI
 
 from characters.player import Player
 from rooms import Map
@@ -19,7 +21,14 @@ class GameView(arcade.View):
         self.stats = None
         self.attack = None
         self.special_ability = None
-        self.coliders = None
+        self.colliders = None
+        self.UI = None
+
+        self.camera = arcade.Camera2D(
+            position=(0, 0),
+            projection=LRBT(left=0, right=WINDOW_WIDTH, bottom=0, top=WINDOW_HEIGHT),
+            viewport=self.window.rect
+        )
 
 
     def setup(self):
@@ -30,6 +39,7 @@ class GameView(arcade.View):
         self.player_sprite.center_y = WINDOW_HEIGHT / 2
         self.player_list.append(self.player_sprite)
         self.stats = PlayerStatsController()
+        self.UI = DrawUI(self.stats)
 
         self.special_ability = MageSpecialAbility(self.player_sprite)
 
@@ -37,11 +47,11 @@ class GameView(arcade.View):
 
         self.player_controller = PlayerController(self.player_sprite,self.stats)
 
-        self.coliders = self.map.get_coliders()
+        self.colliders = self.map.get_coliders()
 
         self.physics_engine = arcade.PhysicsEngineSimple(
             self.player_sprite,
-            self.coliders
+            self.colliders
         )
 
     def on_draw(self) -> bool | None:
@@ -49,16 +59,7 @@ class GameView(arcade.View):
         self.map.draw()
         self.player_list.draw()
         self.attack.on_draw()
-        # Inside your drawing code (like in your game's on_draw method):
-        arcade.draw_text(
-            f"Velocity: ({self.player_sprite.change_x:.1f}, {self.player_sprite.change_y:.1f})",
-            self.player_sprite.center_x,  # X position (centered on player)
-            self.player_sprite.center_y + 50,  # Y position (50 pixels above player)
-            arcade.color.BLACK,
-            12,  # Font size
-            anchor_x="center",  # Center the text horizontally
-            font_name=("Arial", "Courier New")  # Font options
-        )
+        self.UI.on_draw()
         return None
 
     def on_update(self, delta_time):
@@ -68,6 +69,7 @@ class GameView(arcade.View):
         self.attack.update()
         self.special_ability.update()
         self.map.change_room(self.player_sprite)
+        self.UI.on_update()
 
     def on_key_press(self, key, modifiers):
         self.player_controller.on_key_press(key)

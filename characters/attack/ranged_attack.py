@@ -41,7 +41,7 @@ class RangedAttack(Attack):
 
     # fragile to framrate
     def spawn_projectile(self, projectile_deg):
-        if self.attack_cooldown < self.stats.get_projectile_cooldown():
+        if self.attack_cooldown < self.stats.projectile_cooldown:
             return
         self.attack_cooldown = 0
 
@@ -54,9 +54,9 @@ class RangedAttack(Attack):
 
         projectile.angle = 360 - projectile_deg
         radians = math.radians(projectile_deg)
-        projectile.range = self.stats.get_projectile_range()
+        projectile.range = self.stats.range
 
-        speed = self.stats.get_projectile_speed()
+        speed = self.stats.projectile_speed
 
         speedx = math.sqrt(speed ** 2 + abs(self.player.change_x ** 2))
         speedy = math.sqrt(speed ** 2 + abs(self.player.change_y ** 2))

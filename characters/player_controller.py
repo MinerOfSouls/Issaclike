@@ -11,18 +11,18 @@ class PlayerController:
 
 
     def update(self):
-        # Apply self.stats.get_friction()
-        if self.player.change_x > self.stats.get_friction():
-            self.player.change_x -= self.stats.get_friction()
-        elif self.player.change_x < -self.stats.get_friction():
-            self.player.change_x += self.stats.get_friction()
+        # Apply self.stats.friction
+        if self.player.change_x > self.stats.friction:
+            self.player.change_x -= self.stats.friction
+        elif self.player.change_x < -self.stats.friction:
+            self.player.change_x += self.stats.friction
         else:
             self.player.change_x = 0
 
-        if self.player.change_y > self.stats.get_friction():
-            self.player.change_y -= self.stats.get_friction()
-        elif self.player.change_y < -self.stats.get_friction():
-            self.player.change_y += self.stats.get_friction()
+        if self.player.change_y > self.stats.friction:
+            self.player.change_y -= self.stats.friction
+        elif self.player.change_y < -self.stats.friction:
+            self.player.change_y += self.stats.friction
         else:
             self.player.change_y = 0
 
@@ -44,11 +44,11 @@ class PlayerController:
             dx *= norm_factor
             dy *= norm_factor
 
-        self.player.change_x += dx * self.stats.get_acceleration()
-        self.player.change_y += dy * self.stats.get_acceleration()
+        self.player.change_x += dx * self.stats.acceleration
+        self.player.change_y += dy * self.stats.acceleration
 
         current_speed = math.sqrt(self.player.change_x ** 2 + self.player.change_y ** 2)
-        max_speed = self.stats.get_max_speed()
+        max_speed = self.stats.max_speed
 
         if current_speed > max_speed:
             scale_factor = max_speed / current_speed

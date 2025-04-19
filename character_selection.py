@@ -65,7 +65,7 @@ class CharacterSelection(arcade.View):
         button = self.buttons[self.selected_index]
         # Get the button position
         x = button.center_x
-        y = button.center_y - button.width /2 -15
+        y = button.center_y - button.width / 2  - 10
 
         arcade.draw_triangle_filled(
             x, y,
