@@ -1,5 +1,5 @@
 import arcade
-from character_selection import CharacterSelection
+from views.character_selection import CharacterSelection
 import arcade.gui
 
 

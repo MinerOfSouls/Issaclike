@@ -1,6 +1,5 @@
 import arcade
-from game_view import GameView
-from start_screen import StartScreenView
+from views.start_screen import StartScreenView
 from parameters import *
 def main():
     window = arcade.Window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE)
