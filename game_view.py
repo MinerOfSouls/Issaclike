@@ -9,6 +9,8 @@ from characters.player_controller import PlayerController
 from characters.stats import PlayerStatsController
 from characters.attack.ranged_attack import RangedAttack
 from characters.Abilieties.mage_special_ability import MageSpecialAbility
+from animations.coin import Coin
+from physics_handler import PhysicsHandler
 
 class GameView(arcade.View):
     def __init__(self):
@@ -22,12 +24,16 @@ class GameView(arcade.View):
         self.attack = None
         self.special_ability = None
         self.UI = None
+        self.physics_handler = None
+
+        self.coin_list = arcade.SpriteList()
 
         self.camera = arcade.Camera2D(
             position=(0, 0),
             projection=LRBT(left=0, right=WINDOW_WIDTH, bottom=0, top=WINDOW_HEIGHT),
             viewport=self.window.rect
         )
+        self.coin = None
 
 
     def setup(self):
@@ -44,7 +50,7 @@ class GameView(arcade.View):
 
         self.special_ability = MageSpecialAbility(self.player_sprite)
 
-        self.attack = RangedAttack(self.player_sprite,self.stats)
+
 
         self.player_controller = PlayerController(self.player_sprite,self.stats)
 
@@ -68,6 +74,14 @@ class GameView(arcade.View):
         self.map.on_setup()
 
         self.map.rooms[self.map.current_room].add_to_physics(self.physics_engine)
+        self.attack = RangedAttack(self.player_sprite, self.stats, self.physics_engine)
+
+        self.coin = Coin(self.physics_engine,self.stats)
+        self.coin.position = 200, 200
+        self.coin_list.append(self.coin)
+        self.coin.on_setup()
+        self.physics_handler = PhysicsHandler(self.physics_engine,self.stats)
+        self.physics_handler.on_setup()
 
     def on_draw(self) -> bool | None:
         self.clear()
@@ -75,13 +89,7 @@ class GameView(arcade.View):
         self.player_list.draw()
         self.attack.on_draw()
         self.UI.on_draw()
-
-        for wall in self.map.get_current_walls():
-            wall.draw_hit_box()
-
-        for door in self.map.get_current_doors():
-            door.draw_hit_box()
-        self.player_sprite.draw_hit_box()
+        self.coin_list.draw()
         return None
 
     def on_update(self, delta_time):
@@ -89,8 +97,8 @@ class GameView(arcade.View):
         self.player_list.update(delta_time)
         self.attack.update()
         self.special_ability.update()
-        # self.map.change_room(self.player_sprite)
         self.UI.on_update()
+        self.coin_list.update()
         self.physics_engine.step()
 
 

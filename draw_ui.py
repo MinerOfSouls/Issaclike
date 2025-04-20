@@ -83,6 +83,19 @@ class DrawUI:
         self.sprite_list.draw()
         self.batch.draw()
     def on_update(self):
+        start_x = 40
+        start_y = WINDOW_HEIGHT- 60
+        self.coin_count = arcade.Text(
+            self.stats.get_coin_number(),
+            start_x,
+            start_y,
+            arcade.color.BLACK,
+            DEFAULT_FONT_SIZE,
+            font_name="Kenney Blocks",
+            batch=self.batch,
+        )
+
+
         self.sprite_list.update()
         self.batch.draw()
 
