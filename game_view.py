@@ -1,5 +1,5 @@
 import arcade
-from arcade import LRBT
+from arcade import LRBT, PymunkPhysicsEngine
 from draw_ui import DrawUI
 
 from characters.player import Player
@@ -17,11 +17,10 @@ class GameView(arcade.View):
         self.player_list = None
         self.player_sprite = None
         self.player_controller = None
-        self.physics_engine = None
+        self.physics_engine: PymunkPhysicsEngine | None = None
         self.stats = None
         self.attack = None
         self.special_ability = None
-        self.colliders = None
         self.UI = None
 
         self.camera = arcade.Camera2D(
@@ -32,12 +31,14 @@ class GameView(arcade.View):
 
 
     def setup(self):
-        self.map = Map(10)
         self.player_list = arcade.SpriteList()
+
+        #player
         self.player_sprite = Player("resources/images/player_sprite_placeholder.png", scale= SPRITE_SCALING)
         self.player_sprite.center_x = WINDOW_WIDTH / 2
         self.player_sprite.center_y = WINDOW_HEIGHT / 2
         self.player_list.append(self.player_sprite)
+
         self.stats = PlayerStatsController()
         self.UI = DrawUI(self.stats)
 
@@ -47,12 +48,26 @@ class GameView(arcade.View):
 
         self.player_controller = PlayerController(self.player_sprite,self.stats)
 
-        self.colliders = self.map.get_coliders()
-
-        self.physics_engine = arcade.PhysicsEngineSimple(
-            self.player_sprite,
-            self.colliders
+        #physics engine setup
+        damping = 0.7
+        gravity = (0,0)
+        self.physics_engine = PymunkPhysicsEngine(
+            damping=damping,
+            gravity=gravity,
         )
+        self.physics_engine.add_sprite(
+            self.player_sprite,
+            friction=1.0,
+            moment_of_inertia=PymunkPhysicsEngine.MOMENT_INF,
+            damping=0.01,
+            collision_type="player",
+            max_velocity=400,
+            elasticity=0.0
+        )
+        self.map = Map(10,self.physics_engine)
+        self.map.on_setup()
+
+        self.map.rooms[self.map.current_room].add_to_physics(self.physics_engine)
 
     def on_draw(self) -> bool | None:
         self.clear()
@@ -60,16 +75,24 @@ class GameView(arcade.View):
         self.player_list.draw()
         self.attack.on_draw()
         self.UI.on_draw()
+
+        for wall in self.map.get_current_walls():
+            wall.draw_hit_box()
+
+        for door in self.map.get_current_doors():
+            door.draw_hit_box()
+        self.player_sprite.draw_hit_box()
         return None
 
     def on_update(self, delta_time):
-        self.physics_engine.update()
-        self.player_controller.update()
+        self.player_controller.on_update(self.physics_engine)
         self.player_list.update(delta_time)
         self.attack.update()
         self.special_ability.update()
-        self.map.change_room(self.player_sprite)
+        # self.map.change_room(self.player_sprite)
         self.UI.on_update()
+        self.physics_engine.step()
+
 
     def on_key_press(self, key, modifiers):
         self.player_controller.on_key_press(key)
