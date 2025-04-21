@@ -1,13 +1,16 @@
 import arcade
 import math
 class PlayerController:
-    def __init__(self, player_sprite,stats):
+    def __init__(self, player_sprite, stats, engine: arcade.PymunkPhysicsEngine):
         self.stats = stats
         self.player = player_sprite
         self.a_pressed = False
         self.d_pressed = False
         self.w_pressed = False
         self.s_pressed = False
+
+        self.physics_engine = engine
+
 
 
     def on_update(self,physics_engine) -> None:

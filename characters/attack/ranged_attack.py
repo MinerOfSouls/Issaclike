@@ -1,3 +1,7 @@
+from types import NoneType
+
+from arcade import PymunkPhysicsEngine
+
 from characters.attack.attack import Attack
 import arcade
 import math
@@ -39,10 +43,11 @@ class RangedAttack(Attack):
                 self.projectile.spawn_projectile(270)
                 self.attack_cooldown = 0
 
+
         for projectile in self.projectile_list:
             projectile_body = self.physics_engine.get_physics_object(projectile).body
             vel_x, vel_y = projectile_body.velocity
-            vel_magnitude = math.sqrt(vel_x ** 2 + vel_y ** 2)
+            vel_magnitude = math.sqrt(vel_x ** 2 + vel_y ** 2
 
             # If velocity is too low, remove the projectile
             min_velocity = 30.0  # Adjust this threshold as needed
