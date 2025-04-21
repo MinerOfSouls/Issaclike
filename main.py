@@ -19,7 +19,6 @@ class GameView(arcade.View):
         self.stats = None
         self.attack = None
         self.special_ability = None
-        self.coliders = None
 
 
     def setup(self):
@@ -31,43 +30,47 @@ class GameView(arcade.View):
         self.player_list.append(self.player_sprite)
         self.stats = PlayerStatsController()
 
+        self.physics_engine = arcade.PymunkPhysicsEngine()
+
+        self.physics_engine.add_sprite(
+            self.player_sprite,
+            damping = self.stats.get_friction(),
+            moment_of_inertia=arcade.PymunkPhysicsEngine.MOMENT_INF,
+            max_velocity=1000,
+            body_type=0,
+            collision_type="player"
+        )
+
+        self.map.update_engine(self.physics_engine)
+
+        def door_interact_handler(*args):
+            if self.map.change_room(self.player_sprite, self.physics_engine):
+                return True
+            else:
+                return False
+
+        self.physics_engine.add_collision_handler("player", "door", pre_handler=door_interact_handler)
+
+        self.player_controller = PlayerController(self.player_sprite, self.stats, self.physics_engine)
+
         self.special_ability = MageSpecialAbility(self.player_sprite)
 
-        self.attack = RangedAttack(self.player_sprite,self.stats)
-
-        self.player_controller = PlayerController(self.player_sprite,self.stats)
-
-        self.coliders = self.map.get_coliders()
-
-        self.physics_engine = arcade.PhysicsEngineSimple(
-            self.player_sprite,
-            self.coliders
-        )
+        self.attack = RangedAttack(self.player_sprite, self.stats, self.physics_engine)
 
     def on_draw(self) -> bool | None:
         self.clear()
         self.map.draw()
         self.player_list.draw()
         self.attack.on_draw()
-        # Inside your drawing code (like in your game's on_draw method):
-        arcade.draw_text(
-            f"Velocity: ({self.player_sprite.change_x:.1f}, {self.player_sprite.change_y:.1f})",
-            self.player_sprite.center_x,  # X position (centered on player)
-            self.player_sprite.center_y + 50,  # Y position (50 pixels above player)
-            arcade.color.BLACK,
-            12,  # Font size
-            anchor_x="center",  # Center the text horizontally
-            font_name=("Arial", "Courier New")  # Font options
-        )
         return None
 
     def on_update(self, delta_time):
-        self.physics_engine.update()
+        self.physics_engine.step(delta_time)
+        self.physics_engine.resync_sprites()
         self.player_controller.update()
         self.player_list.update(delta_time)
         self.attack.update()
         self.special_ability.update()
-        self.map.change_room(self.player_sprite)
 
     def on_key_press(self, key, modifiers):
         self.player_controller.on_key_press(key)

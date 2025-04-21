@@ -1,5 +1,8 @@
 import arcade
 import random
+
+from arcade import PymunkPhysicsEngine
+
 from parameters import *
 
 random.seed(1234)
@@ -30,72 +33,88 @@ NEXT_ROOM_POSITIONS = {
 class Room:
     #wall_sprites is a dictionary based on position with keys:
     #"north", "east", "west", "south" and values being paths to sprite pngs
-    def __init__(self, room_type, enemies, wall_sprites: dict, floor, door_sprites: dict):
+    def __init__(self, room_type, enemies, wall_sprites: dict, floor, doors, door_sprites):
         self.floor = arcade.load_texture(floor)
         self.enemies = enemies
         self.wall_list = arcade.SpriteList()
         self.doors = arcade.SpriteList()
         self.completed = False
 
+        def draw_wall(x, y):
+            if y == 0:
+                wall = arcade.Sprite(
+                    wall_sprites["south"],
+                    scale=SPRITE_SCALING)
+            elif y == WINDOW_HEIGHT - SPRITE_SIZE:
+                wall = arcade.Sprite(
+                    wall_sprites["north"],
+                    scale=SPRITE_SCALING)
+            if x == 0:
+                wall = arcade.Sprite(
+                    wall_sprites["west"],
+                    scale=SPRITE_SCALING)
+            else:
+                wall = arcade.Sprite(
+                    wall_sprites["east"],
+                    scale=SPRITE_SCALING)
+            wall.left = x
+            wall.bottom = y
+            self.wall_list.append(wall)
+
+        def draw_door(x, y):
+            if y == 0:
+                if "south" not in doors:
+                    draw_wall(x, y)
+                    return
+                door = arcade.Sprite(
+                    door_sprites["south"],
+                    scale=SPRITE_SCALING
+                )
+            elif y== WINDOW_HEIGHT - SPRITE_SIZE:
+                if "north" not in doors:
+                    draw_wall(x, y)
+                    return
+                door = arcade.Sprite(
+                    door_sprites["north"],
+                    scale=SPRITE_SCALING
+                )
+            elif x == 0:
+                if "west" not in doors:
+                    draw_wall(x, y)
+                    return
+                door = arcade.Sprite(
+                    door_sprites["west"],
+                    scale=SPRITE_SCALING
+                )
+            else:
+                if "east" not in doors:
+                    draw_wall(x, y)
+                    return
+                door = arcade.Sprite(
+                    door_sprites["east"],
+                    scale=SPRITE_SCALING
+                )
+            door.left = x
+            door.bottom = y
+            self.doors.append(door)
+
         #Generating top and bottom walls
         for y in (0, WINDOW_HEIGHT - SPRITE_SIZE):
             for x in range(0, WINDOW_WIDTH, SPRITE_SIZE):
                 if x != SPRITE_SIZE * ((WINDOW_WIDTH/SPRITE_SIZE)//2) and x != SPRITE_SIZE * ((WINDOW_WIDTH/SPRITE_SIZE)//2 - 1):
-                    if y == 0:
-                        wall = arcade.Sprite(
-                            wall_sprites["south"],
-                            scale=SPRITE_SCALING)
-                    else:
-                        wall = arcade.Sprite(
-                            wall_sprites["north"],
-                            scale=SPRITE_SCALING)
-                    wall.left = x
-                    wall.bottom = y
-                    self.wall_list.append(wall)
+                    draw_wall(x, y)
                 else:
-                    if y == 0:
-                        door = arcade.Sprite(
-                            door_sprites["south"],
-                            scale=SPRITE_SCALING
-                        )
-                    else:
-                        door = arcade.Sprite(
-                            door_sprites["north"],
-                            scale=SPRITE_SCALING
-                        )
-                    door.left = x
-                    door.bottom = y
-                    self.doors.append(door)
+                    draw_door(x, y)
+
 
         #Generating the left right walls
         for x in (0, WINDOW_WIDTH - SPRITE_SIZE):
             for y in range(SPRITE_SIZE, WINDOW_HEIGHT - SPRITE_SIZE, SPRITE_SIZE):
                 if y != SPRITE_SIZE * ((WINDOW_HEIGHT/SPRITE_SIZE)//2) and y != SPRITE_SIZE * ((WINDOW_HEIGHT/SPRITE_SIZE)//2 - 1):
-                    if x == 0:
-                        wall = arcade.Sprite(
-                            wall_sprites["west"],
-                            scale=SPRITE_SCALING)
-                    else:
-                        wall = arcade.Sprite(
-                            wall_sprites["east"],
-                            scale=SPRITE_SCALING)
-                    wall.left = x
-                    wall.bottom = y
-                    self.wall_list.append(wall)
+                    draw_wall(x, y)
                 else:
-                    if x == 0:
-                        door = arcade.Sprite(
-                            door_sprites["west"],
-                            scale=SPRITE_SCALING
-                        )
-                    else:
-                        door = arcade.Sprite(
-                            door_sprites["east"],
-                            scale=SPRITE_SCALING
-                        )
-                    door.left = x
-                    door.bottom = y
-                    self.doors.append(door)
+                    draw_door(x, y)
+
 
 class Map:
     def __init__(self, n):
@@ -137,10 +156,8 @@ class Map:
         direction_keys = ["north", "south", "east", "west"]
         #Generating Room objects
         for c in room_coordinates:
-            room_doors = {k:DOOR_TEXTURES[k] for k in self.connections[c].keys()}
-            for k in direction_keys:
-                room_doors.setdefault(k, WALL_TEXTURES[k])
-            self.rooms[c] = Room(None, None, WALL_TEXTURES, FLOOR_TEXTURE, room_doors)
+            room_doors = {k for k in self.connections[c].keys()}
+            self.rooms[c] = Room(None, None, WALL_TEXTURES, FLOOR_TEXTURE, room_doors, DOOR_TEXTURES)
             self.rooms[c].completed = True
 
     def get_current_walls(self):
@@ -159,6 +176,12 @@ class Map:
         colider.extend(self.get_current_walls())
         return colider
 
+    def update_engine(self, engine: PymunkPhysicsEngine):
+        for wall in self.get_current_walls():
+            engine.add_sprite(wall, body_type=2, collision_type="wall")
+        for door in self.get_current_doors():
+            engine.add_sprite(door, body_type=2, collision_type="door")
+
     def check_room_move(self, player_sprite):
         intersection = arcade.check_for_collision_with_list(player_sprite, self.get_current_doors())
         if len(intersection) ==  0:
@@ -175,19 +198,22 @@ class Map:
         else:
             return False
 
-    def move_room(self, direction):
-        if direction in self.connections[self.current_room].keys():
-            self.current_room = self.connections[self.current_room][direction]
-        else:
-            #TODO: add exception here maybe (player exited the room in an illegal direction)
-            pass
-
-    def change_room(self, player_sprite: arcade.Sprite):
+    def change_room(self, player_sprite: arcade.Sprite, engine: PymunkPhysicsEngine):
         check = self.check_room_move(player_sprite)
         if check is not False:
-            self.move_room(check)
-            player_sprite.left = NEXT_ROOM_POSITIONS[check][0]
-            player_sprite.bottom = NEXT_ROOM_POSITIONS[check][1]
+            if check in self.connections[self.current_room].keys():
+                for s in self.get_coliders():
+                    engine.remove_sprite(s)
+                pos = (NEXT_ROOM_POSITIONS[check][0]+SPRITE_SIZE//2, NEXT_ROOM_POSITIONS[check][1]+SPRITE_SIZE//2)
+                engine.set_position(player_sprite, pos)
+                self.current_room = self.connections[self.current_room][check]
+                engine.add_sprite_list(self.get_coliders(), body_type=2)
+                engine.set_velocity(player_sprite, (0, 0))
+            else:
+                # TODO: add exception here maybe (player exited the room in an illegal direction)
+                pass
+        else:
+            return False
 
     def draw(self):
         arcade.draw_texture_rect(

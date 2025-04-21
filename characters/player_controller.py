@@ -1,13 +1,16 @@
 import arcade
 import math
 class PlayerController:
-    def __init__(self, player_sprite,stats):
+    def __init__(self, player_sprite, stats, engine: arcade.PymunkPhysicsEngine):
         self.stats = stats
         self.player = player_sprite
         self.a_pressed = False
         self.d_pressed = False
         self.w_pressed = False
         self.s_pressed = False
+
+        self.physics_engine = engine
+
 
 
     def update(self):
@@ -44,16 +47,11 @@ class PlayerController:
             dx *= norm_factor
             dy *= norm_factor
 
-        self.player.change_x += dx * self.stats.get_acceleration()
-        self.player.change_y += dy * self.stats.get_acceleration()
+        change_x = dx * self.stats.get_acceleration()
+        change_y = dy * self.stats.get_acceleration()
 
-        current_speed = math.sqrt(self.player.change_x ** 2 + self.player.change_y ** 2)
-        max_speed = self.stats.get_max_speed()
+        self.physics_engine.apply_force(self.player, (1000*change_x, 1000*change_y))
 
-        if current_speed > max_speed:
-            scale_factor = max_speed / current_speed
-            self.player.change_x *= scale_factor
-            self.player.change_y *= scale_factor
     def on_key_press(self, key):
         if key == arcade.key.W:
             self.w_pressed = True
