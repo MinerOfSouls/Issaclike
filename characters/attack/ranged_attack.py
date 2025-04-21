@@ -47,7 +47,7 @@ class RangedAttack(Attack):
         for projectile in self.projectile_list:
             projectile_body = self.physics_engine.get_physics_object(projectile).body
             vel_x, vel_y = projectile_body.velocity
-            vel_magnitude = math.sqrt(vel_x ** 2 + vel_y ** 2
+            vel_magnitude = math.sqrt(vel_x ** 2 + vel_y ** 2)
 
             # If velocity is too low, remove the projectile
             min_velocity = 30.0  # Adjust this threshold as needed

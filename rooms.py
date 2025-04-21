@@ -47,7 +47,7 @@ class Room:
                 wall = arcade.Sprite(
                     wall_sprites["north"],
                     scale=SPRITE_SCALING)
-            if x == 0:
+            elif x == 0:
                 wall = arcade.Sprite(
                     wall_sprites["west"],
                     scale=SPRITE_SCALING)
@@ -114,27 +114,6 @@ class Room:
                     draw_door(x, y)
 
 
-    def add_to_physics(self, physics_engine):
-        physics_engine.add_sprite_list(
-            self.wall_list,
-            friction=0.6,
-            collision_type="wall",
-            body_type=PymunkPhysicsEngine.STATIC
-        )
-        physics_engine.add_sprite_list(self.doors,
-            friction=0,
-            collision_type="door",
-            body_type=PymunkPhysicsEngine.STATIC
-        )
-
-    def remove_from_physics(self, physics_engine):
-        for wall in self.wall_list:
-            physics_engine.remove_sprite(wall)
-
-        for door in self.doors:
-            physics_engine.remove_sprite(door)
-
-
 class Map:
     def __init__(self, n,physics_engine):
         self.physics_engine = physics_engine
@@ -183,13 +162,14 @@ class Map:
     def on_setup(self):
 
         #  door transition handler
-        def door_interact_handler(player_sprite):
-            if self.map.change_room(player_sprite, self.physics_engine):
+        def door_interact_handler(player_sprite, *args):
+            if self.change_room(player_sprite, self.physics_engine):
                 return True
             else:
                 return False
 
-        self.physics_engine.add_collision_handler("player", "door", pre_handler=door_interact_handler)
+        self.physics_engine.add_collision_handler("player", "door", post_handler=door_interact_handler)
+        self.update_engine(self.physics_engine)
 
     def get_current_walls(self):
         return self.rooms[self.current_room].wall_list
@@ -199,15 +179,6 @@ class Map:
 
     def get_current_floor(self):
         return self.rooms[self.current_room].floor
-
-
-
-    def get_coliders(self):
-        colider = arcade.SpriteList()
-        if not self.rooms[self.current_room].completed:
-            colider.extend(self.get_current_doors())
-        colider.extend(self.get_current_walls())
-        return colider
 
     def update_engine(self, engine: PymunkPhysicsEngine):
         for wall in self.get_current_walls():
@@ -220,7 +191,7 @@ class Map:
         if len(intersection) ==  0:
             return False
         door = intersection[0]
-        if int(door.left) == 0 and player_sprite.center_x < door.right:
+        if int(door.left) == 0:
             return "west"
         elif int(door.left) ==  WINDOW_WIDTH - SPRITE_SIZE:
             return "east"
@@ -235,13 +206,15 @@ class Map:
         check = self.check_room_move(player_sprite)
         if check is not False:
             if check in self.connections[self.current_room].keys():
-                for s in self.get_coliders():
+                for s in self.get_current_doors():
                     engine.remove_sprite(s)
-                pos = (NEXT_ROOM_POSITIONS[check][0]+SPRITE_SIZE//2, NEXT_ROOM_POSITIONS[check][1]+SPRITE_SIZE//2)
+                for s in self.get_current_walls():
+                    engine.remove_sprite(s)
+                pos = (NEXT_ROOM_POSITIONS[check][0], NEXT_ROOM_POSITIONS[check][1])
                 engine.set_position(player_sprite, pos)
                 self.current_room = self.connections[self.current_room][check]
-                engine.add_sprite_list(self.get_coliders(), body_type=2)
-                engine.set_velocity(player_sprite, (0, 0))
+                self.update_engine(self.physics_engine)
+                print(self.current_room)
             else:
                 # TODO: add exception here maybe (player exited the room in an illegal direction)
                 pass

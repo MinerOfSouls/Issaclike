@@ -72,8 +72,6 @@ class GameView(arcade.View):
         )
         self.map = Map(10,self.physics_engine)
         self.map.on_setup()
-
-        self.map.rooms[self.map.current_room].add_to_physics(self.physics_engine)
         self.attack = RangedAttack(self.player_sprite, self.stats, self.physics_engine)
 
         self.coin = Coin(self.physics_engine,self.stats)
