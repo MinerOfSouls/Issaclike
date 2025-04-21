@@ -1,5 +1,3 @@
-from arcade.examples.sprite_move_keyboard_accel import ACCELERATION_RATE
-
 SPRITE_SCALING = 0.5
 SPRITE_NATIVE_SIZE = 128
 SPRITE_SIZE = int(SPRITE_NATIVE_SIZE * SPRITE_SCALING)

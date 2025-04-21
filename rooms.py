@@ -1,9 +1,7 @@
 import arcade
 import random
-
-from arcade import PymunkPhysicsEngine
-
 from parameters import *
+from arcade import PymunkPhysicsEngine
 
 random.seed(1234)
 
@@ -24,9 +22,9 @@ DOOR_TEXTURES = {
 FLOOR_TEXTURE = "resources/images/floor_placeholder.jpg"
 
 NEXT_ROOM_POSITIONS = {
-    "north":(SPRITE_SIZE * ((WINDOW_WIDTH/SPRITE_SIZE)//2) - SPRITE_SIZE//2, SPRITE_SIZE),
+    "north":(SPRITE_SIZE * ((WINDOW_WIDTH/SPRITE_SIZE)//2) - SPRITE_SIZE//2, 2*SPRITE_SIZE),
     "south":(SPRITE_SIZE * ((WINDOW_WIDTH/SPRITE_SIZE)//2) - SPRITE_SIZE//2, WINDOW_HEIGHT - 2*SPRITE_SIZE),
-    "east":(SPRITE_SIZE, SPRITE_SIZE * ((WINDOW_HEIGHT/SPRITE_SIZE)//2) - SPRITE_SIZE//2),
+    "east":(2*SPRITE_SIZE, SPRITE_SIZE * ((WINDOW_HEIGHT/SPRITE_SIZE)//2) - SPRITE_SIZE//2),
     "west":(WINDOW_WIDTH - 2*SPRITE_SIZE, SPRITE_SIZE * ((WINDOW_HEIGHT/SPRITE_SIZE)//2) - SPRITE_SIZE//2)
 }
 
@@ -116,8 +114,30 @@ class Room:
                     draw_door(x, y)
 
 
+    def add_to_physics(self, physics_engine):
+        physics_engine.add_sprite_list(
+            self.wall_list,
+            friction=0.6,
+            collision_type="wall",
+            body_type=PymunkPhysicsEngine.STATIC
+        )
+        physics_engine.add_sprite_list(self.doors,
+            friction=0,
+            collision_type="door",
+            body_type=PymunkPhysicsEngine.STATIC
+        )
+
+    def remove_from_physics(self, physics_engine):
+        for wall in self.wall_list:
+            physics_engine.remove_sprite(wall)
+
+        for door in self.doors:
+            physics_engine.remove_sprite(door)
+
+
 class Map:
-    def __init__(self, n):
+    def __init__(self, n,physics_engine):
+        self.physics_engine = physics_engine
         self.rooms = {}
         self.current_room = (0, 0)
 
@@ -160,6 +180,17 @@ class Map:
             self.rooms[c] = Room(None, None, WALL_TEXTURES, FLOOR_TEXTURE, room_doors, DOOR_TEXTURES)
             self.rooms[c].completed = True
 
+    def on_setup(self):
+
+        #  door transition handler
+        def door_interact_handler(player_sprite):
+            if self.map.change_room(player_sprite, self.physics_engine):
+                return True
+            else:
+                return False
+
+        self.physics_engine.add_collision_handler("player", "door", pre_handler=door_interact_handler)
+
     def get_current_walls(self):
         return self.rooms[self.current_room].wall_list
 
@@ -168,6 +199,8 @@ class Map:
 
     def get_current_floor(self):
         return self.rooms[self.current_room].floor
+
+
 
     def get_coliders(self):
         colider = arcade.SpriteList()
@@ -189,11 +222,11 @@ class Map:
         door = intersection[0]
         if int(door.left) == 0 and player_sprite.center_x < door.right:
             return "west"
-        elif int(door.left) ==  WINDOW_WIDTH - SPRITE_SIZE and player_sprite.center_x > door.left:
+        elif int(door.left) ==  WINDOW_WIDTH - SPRITE_SIZE:
             return "east"
-        elif int(door.bottom) == 0 and player_sprite.center_y < door.top:
+        elif int(door.bottom) == 0:
             return "south"
-        elif int(door.bottom) == WINDOW_HEIGHT - SPRITE_SIZE and player_sprite.center_y > door.bottom:
+        elif int(door.bottom) == WINDOW_HEIGHT - SPRITE_SIZE:
             return "north"
         else:
             return False

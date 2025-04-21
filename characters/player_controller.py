@@ -13,32 +13,18 @@ class PlayerController:
 
 
 
-    def update(self):
-        # Apply self.stats.get_friction()
-        if self.player.change_x > self.stats.get_friction():
-            self.player.change_x -= self.stats.get_friction()
-        elif self.player.change_x < -self.stats.get_friction():
-            self.player.change_x += self.stats.get_friction()
-        else:
-            self.player.change_x = 0
-
-        if self.player.change_y > self.stats.get_friction():
-            self.player.change_y -= self.stats.get_friction()
-        elif self.player.change_y < -self.stats.get_friction():
-            self.player.change_y += self.stats.get_friction()
-        else:
-            self.player.change_y = 0
+    def on_update(self,physics_engine) -> None:
 
         dx = 0
         dy = 0
         if self.w_pressed and not self.s_pressed:
-            dy = 1
+                dy = 200
         elif self.s_pressed and not self.w_pressed:
-            dy = -1
+                dy = -200
         if self.a_pressed and not self.d_pressed:
-            dx = -1
+                dx = -200
         elif self.d_pressed and not self.a_pressed:
-            dx = 1
+                dx = 200
 
         # Normalize diagonal movement
         if dx != 0 and dy != 0:
@@ -47,10 +33,10 @@ class PlayerController:
             dx *= norm_factor
             dy *= norm_factor
 
-        change_x = dx * self.stats.get_acceleration()
-        change_y = dy * self.stats.get_acceleration()
-
-        self.physics_engine.apply_force(self.player, (1000*change_x, 1000*change_y))
+        speed = self.stats.max_speed
+        velocity = (dx * speed, dy * speed)
+        physics_engine.apply_force(self.player,velocity)
+        # physics_engine.apply_for(self.player, velocity)
 
     def on_key_press(self, key):
         if key == arcade.key.W:
