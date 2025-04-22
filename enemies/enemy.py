@@ -16,6 +16,9 @@ class Enemy:
         #Maybe a feature
         self.armour = armour
 
+        self.sprite.properties["health"] = self.health
+        self.sprite.properties["damage"] = self.damage
+
     def create_path(self, destination, blockers):
         return arcade.astar_calculate_path(
             self.position,
@@ -38,65 +41,81 @@ class Enemy:
             collision_type="enemy"
         )
 
-    def move(self, destination, blockers, engine: PymunkPhysicsEngine):
-        self.position = (self.sprite.center_x, self.sprite.center_y)
-        path = self.create_path(destination, blockers)
-        x_goal = path[0][0]
-        y_goal = path[0][1]
+    def remove_from_engine(self, engine: PymunkPhysicsEngine):
+        engine.remove_sprite(self.sprite)
+
+    def move(self, destination, engine: PymunkPhysicsEngine):
+        x_goal = destination[0]
+        y_goal = destination[1]
         x_delta = x_goal - self.position[0]
-        y_delta = y_goal - self.position[0]
-        angle = math.atan2(x_delta, y_delta)
-        dist = math.dist(self.position, path[0])
+        y_delta = y_goal - self.position[1]
+        angle = math.atan2(y_delta, x_delta)
+        dist = math.dist(self.position, destination)
         speed = min(self.speed, dist)
         change_x = math.cos(angle) * speed
         change_y = math.sin(angle) * speed
-        engine.apply_force(self.sprite, (change_x, change_y))
+        engine.apply_impulse(self.sprite, (change_x, change_y))
 
 class EnemyController:
     def __init__(self, enemies: List[Enemy], room, engine: PymunkPhysicsEngine):
         self.enemies = enemies
         self.enemy_sprite_list = arcade.SpriteList()
         for e in self.enemies:
-            e.add_to_engine(engine)
             self.enemy_sprite_list.append(e.sprite)
-        self.enemy_lookup = {e.sprite:e for e in self.enemies}
-        self.blockers = arcade.SpriteList()
-        self.blockers.extend(room.wall_list)
-        self.blockers.extend(room.doors)
         self.physics_engine = engine
         self.room = room
 
         #TODO
-        def player_collision_handler():
-            pass
+        def player_collision_handler(*args):
+            return False
 
         def projectile_collision_handler(
                                          enemy_sprite: arcade.Sprite,
                                          projectile_sprite: arcade.Sprite, *args):
             projectile_sprite.remove_from_sprite_lists()
-            hit_enemy = self.enemy_lookup[enemy_sprite]
+
             # TODO add specific projectile damage
-            hit_enemy.health -= 1
-            if hit_enemy.health <= 0:
+            enemy_sprite.properties["health"] -= 1
+            if enemy_sprite.properties["health"] <= 0:
                 enemy_sprite.remove_from_sprite_lists()
-                self.enemy_lookup.pop(enemy_sprite)
-                self.enemies.remove(hit_enemy)
-            return True
+            return False
 
         self.physics_engine.add_collision_handler("enemy", "projectile", post_handler=projectile_collision_handler)
+        self.physics_engine.add_collision_handler("enemy", "player", begin_handler=player_collision_handler)
 
     def draw(self):
         self.enemy_sprite_list.draw()
-    
+
+    #temprarly removed room completion logic
     def update(self, player: arcade.Sprite):
-        if self.room.completed:
-            return
-        if not self.room.completed and len(self.enemies) == 0:
+        if len(self.enemy_sprite_list) == 0:
             self.room.completed = True
+            self.enemies.clear()
             return
         location = (player.center_x, player.center_y)
+        garbage_collect = []
         for e in self.enemies:
-            e.move(location, self.blockers, self.physics_engine)
+            if e.sprite not in self.enemy_sprite_list:
+                garbage_collect.append(e)
+                continue
+            e.move(location, self.physics_engine)
+            if e.sprite.center_x < 0 or e.sprite.center_x > WINDOW_WIDTH:
+                e.sprite.remove_from_sprite_lists()
+                garbage_collect.append(e)
+            elif e.sprite.center_y < 0 or e.sprite.center_y > WINDOW_HEIGHT:
+                e.sprite.remove_from_sprite_lists()
+                garbage_collect.append(e)
+        for e in garbage_collect:
+            self.enemies.remove(e)
+
+    def add_enemies_to_engine(self):
+        for e in self.enemies:
+            e.add_to_engine(self.physics_engine)
+
+    def remove_enemies_from_engine(self):
+        print(self.enemies, len(self.enemy_sprite_list))
+        for e in self.enemies:
+            e.remove_from_engine(self.physics_engine)
 
 def create_random_enemies(n):
     e_list = []
@@ -104,8 +123,8 @@ def create_random_enemies(n):
         e_list.append(Enemy(
             random.randint(0, 10),
             random.randint(0, 10),
-            random.randint(0, 3),
-            (random.randint(SPRITE_SIZE*2, WINDOW_WIDTH-SPRITE_SIZE*2), random.randint(SPRITE_SIZE*2, WINDOW_WIDTH-SPRITE_SIZE*2)),
+            10,
+            (random.randint(SPRITE_SIZE*4, WINDOW_WIDTH-SPRITE_SIZE*4), random.randint(SPRITE_SIZE*4, WINDOW_WIDTH-SPRITE_SIZE*4)),
             0,
             "resources/images/enemy_placeholder.png"
         ))
