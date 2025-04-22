@@ -1,7 +1,11 @@
-import arcade
 import random
-from parameters import *
+from abc import abstractmethod
+
+import arcade
 from arcade import PymunkPhysicsEngine
+
+from enemies.enemy import EnemyController, create_random_enemies
+from parameters import *
 
 random.seed(1234)
 
@@ -31,12 +35,12 @@ NEXT_ROOM_POSITIONS = {
 class Room:
     #wall_sprites is a dictionary based on position with keys:
     #"north", "east", "west", "south" and values being paths to sprite pngs
-    def __init__(self, room_type, enemies, wall_sprites: dict, floor, doors, door_sprites):
+    def __init__(self, wall_sprites: dict, floor, doors, door_sprites, engine):
         self.floor = arcade.load_texture(floor)
-        self.enemies = enemies
         self.wall_list = arcade.SpriteList()
         self.doors = arcade.SpriteList()
         self.completed = False
+        self.physics_engine = engine
 
         def draw_wall(x, y):
             if y == 0:
@@ -113,12 +117,35 @@ class Room:
                 else:
                     draw_door(x, y)
 
+    def draw(self):
+        self.wall_list.draw()
+        self.doors.draw()
+        arcade.draw_texture_rect(
+            self.floor,
+            rect=arcade.LBWH(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
+        )
+
+    def update(self, player):
+        pass
+
+
+class EnemyRoom(Room):
+    def __init__(self, wall_sprites: dict, floor, doors, door_sprites, engine, enemy_n):
+        super().__init__(wall_sprites, floor, doors, door_sprites, engine)
+        self.enemy_controller = EnemyController(create_random_enemies(enemy_n), self, engine)
+
+    def update(self, player):
+        self.enemy_controller.update(player)
+
+    def draw(self):
+        super().draw()
+        self.enemy_controller.draw()
+
 
 class Map:
     def __init__(self, n,physics_engine):
         self.physics_engine = physics_engine
         self.rooms = {}
-        self.current_room = (0, 0)
 
         # Room generation
         room_coordinates = [(0, 0)]
@@ -153,11 +180,27 @@ class Map:
                 if nb in room_coordinates:
                     self.connections[r][key] = nb
         direction_keys = ["north", "south", "east", "west"]
+        #Assing room types
+        # 0 - start, 1 - end, 2 - enemy room, 3 - treasure room
+        room_types = {(0,0):0, room_coordinates[-1]:1}
+        for i in range(1, n-1):
+            r = random.random()
+            if r < 0.2:
+                room_types[room_coordinates[i]] = 3
+            else:
+                room_types[room_coordinates[i]] = 2
         #Generating Room objects
         for c in room_coordinates:
             room_doors = {k for k in self.connections[c].keys()}
-            self.rooms[c] = Room(None, None, WALL_TEXTURES, FLOOR_TEXTURE, room_doors, DOOR_TEXTURES)
+            match room_types[c]:
+                case 0: self.rooms[c] = Room(WALL_TEXTURES, FLOOR_TEXTURE, room_doors, DOOR_TEXTURES, self.physics_engine)
+                case 1: self.rooms[c] = Room(WALL_TEXTURES, FLOOR_TEXTURE, room_doors, DOOR_TEXTURES, self.physics_engine)
+                case 2: self.rooms[c] = EnemyRoom(WALL_TEXTURES, FLOOR_TEXTURE, room_doors, DOOR_TEXTURES, self.physics_engine, 3)
+                case 3: self.rooms[c] = Room(WALL_TEXTURES, FLOOR_TEXTURE, room_doors, DOOR_TEXTURES, self.physics_engine)
             self.rooms[c].completed = True
+
+        self.current_room = (0, 0)
+        
 
     def on_setup(self):
 
@@ -222,9 +265,7 @@ class Map:
             return False
 
     def draw(self):
-        arcade.draw_texture_rect(
-            self.get_current_floor(),
-            rect=arcade.LBWH(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
-        )
-        self.get_current_doors().draw()
-        self.get_current_walls().draw()
+        self.rooms[self.current_room].draw()
+
+    def update(self, player):
+        self.rooms[self.current_room].update(player)
