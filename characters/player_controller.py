@@ -34,7 +34,6 @@ class PlayerController:
         speed = self.stats.max_speed
         velocity = (dx * speed, dy * speed)
         physics_engine.apply_force(self.player,velocity)
-        # physics_engine.apply_for(self.player, velocity)
 
     def on_key_press(self, key):
         if key == arcade.key.W:
