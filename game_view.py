@@ -10,7 +10,7 @@ from characters.stats import PlayerStatsController
 from characters.attack.ranged_attack import RangedAttack
 from characters.Abilieties.mage_special_ability import MageSpecialAbility
 from pickup_factory import PickupFactory
-
+from characters.attack.melee_atack import MeleeAttack
 class GameView(arcade.View):
     def __init__(self):
         super().__init__()
@@ -24,6 +24,7 @@ class GameView(arcade.View):
         self.special_ability = None
         self.UI = None
         self.pickup_factory = None
+        self.melee_attack = None
 
         self.pickups_list = arcade.SpriteList()
 
@@ -49,7 +50,6 @@ class GameView(arcade.View):
 
         self.special_ability = MageSpecialAbility(self.player_sprite)
 
-
         self.player_controller = PlayerController(self.player_sprite,self.stats)
 
         #physics engine setup
@@ -70,12 +70,15 @@ class GameView(arcade.View):
         )
         self.map = Map(10,self.physics_engine)
         self.map.on_setup()
-        self.attack = RangedAttack(self.player_sprite, self.stats, self.physics_engine)
+
+        # self.attack = RangedAttack(self.player_sprite, self.stats, self.physics_engine)
+        self.attack = MeleeAttack(self.player_sprite,self.physics_engine,self.stats)
 
         self.pickup_factory = PickupFactory(self.physics_engine, self.pickups_list, self.stats)
         self.pickup_factory.spawn_coin(100,100)
         self.pickup_factory.spawn_chest(300,300)
         self.pickup_factory.spawn_key(200,200)
+
 
 
     def on_draw(self) -> bool | None:

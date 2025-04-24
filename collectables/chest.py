@@ -58,10 +58,11 @@ class Chest(arcade.Sprite):
             post_handler=player_chest_handler,
         )
         self.physics_engine.add_sprite(self,
-                                       mass=200,
+                                       mass=1,
                                        damping=0.01,
                                        friction=1,
                                        body_type=PymunkPhysicsEngine.DYNAMIC,
+                                       moment_of_inertia=PymunkPhysicsEngine.MOMENT_INF,
                                        collision_type="chest",
                                        elasticity=1)
 

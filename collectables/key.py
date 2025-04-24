@@ -1,7 +1,5 @@
 import arcade
 from arcade import PymunkPhysicsEngine
-from parameters import *
-
 # does not follow scaling rules
 key = 'resources/images/key-white.png'
 

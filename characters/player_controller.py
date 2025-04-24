@@ -10,7 +10,6 @@ class PlayerController:
         self.s_pressed = False
 
 
-
     def on_update(self,physics_engine) -> None:
 
         dx = 0

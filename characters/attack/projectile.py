@@ -13,7 +13,6 @@ class Projectile(arcade.Sprite):
         self.projectile_list = arcade.SpriteList()
 
 
-
         def wall_hit_handler(sprite_a, sprite_b, arbiter, space, data):
             """ Called for bullet/rock collision """
             bullet_shape = arbiter.shapes[0]

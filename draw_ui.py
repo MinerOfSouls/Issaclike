@@ -1,7 +1,7 @@
 from characters.stats import PlayerStatsController
 import arcade
 import arcade.gui
-from animations.hearth import Hearth
+from collectables.hearth import Hearth
 from parameters import *
 from pyglet.graphics import Batch
 arcade.resources.load_kenney_fonts()

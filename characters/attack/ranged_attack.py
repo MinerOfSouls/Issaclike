@@ -1,9 +1,4 @@
-from types import NoneType
-
-from arcade import PymunkPhysicsEngine
-
 from characters.attack.attack import Attack
-import arcade
 import math
 from characters.attack.projectile import Projectile
 
@@ -14,6 +9,7 @@ class RangedAttack(Attack):
         self.projectile = Projectile(player_sprite, stats, physics_engine)
         self.projectile_list = self.projectile.projectile_list  # Reference the same list
         self.attack_cooldown = stats.projectile_cooldown
+        self.charge_attack = 0
 
     def update(self):
         self.attack_cooldown += 1
