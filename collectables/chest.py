@@ -65,10 +65,3 @@ class Chest(arcade.Sprite):
                                        moment_of_inertia=PymunkPhysicsEngine.MOMENT_INF,
                                        collision_type="chest",
                                        elasticity=1)
-
-    # def update(self, delta_time: float = 1 / 60, *args, **kwargs):
-    #     self.time_elapsed += delta_time
-    #     if self.time_elapsed > 0.3:
-    #         self.set_texture(self.cur_texture_index)
-    #         self.cur_texture_index = (self.cur_texture_index + 1) % len(self.textures)
-    #         self.time_elapsed = 0
