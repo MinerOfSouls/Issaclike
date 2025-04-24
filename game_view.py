@@ -70,7 +70,7 @@ class GameView(arcade.View):
             max_velocity=400,
             elasticity=0.0
         )
-        self.map = Map(10,self.physics_engine)
+        self.map = Map(10, self.physics_engine, self.stats)
         self.map.on_setup()
         self.attack = RangedAttack(self.player_sprite, self.stats, self.physics_engine)
 
@@ -91,7 +91,7 @@ class GameView(arcade.View):
         return None
 
     def on_update(self, delta_time):
-        self.player_controller.on_update(self.physics_engine)
+        self.player_controller.on_update(delta_time, self.physics_engine)
         self.player_list.update(delta_time)
         self.attack.update()
         self.special_ability.update()

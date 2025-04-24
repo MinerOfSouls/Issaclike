@@ -142,9 +142,9 @@ class Room:
 
 
 class EnemyRoom(Room):
-    def __init__(self, wall_sprites: dict, floor, doors, door_sprites, engine, enemy_n):
+    def __init__(self, wall_sprites: dict, floor, doors, door_sprites, engine, enemy_n, stats):
         super().__init__(wall_sprites, floor, doors, door_sprites, engine)
-        self.enemy_controller = EnemyController(create_random_enemies(enemy_n), self, engine)
+        self.enemy_controller = EnemyController(create_random_enemies(enemy_n), self, engine, stats)
 
     def update(self, player):
         self.enemy_controller.update(player)
@@ -163,7 +163,7 @@ class EnemyRoom(Room):
 
 
 class Map:
-    def __init__(self, n,physics_engine):
+    def __init__(self, n, physics_engine, stats):
         self.physics_engine = physics_engine
         self.rooms = {}
 
@@ -215,7 +215,7 @@ class Map:
             match room_types[c]:
                 case 0: self.rooms[c] = Room(WALL_TEXTURES, FLOOR_TEXTURE, room_doors, DOOR_TEXTURES, self.physics_engine)
                 case 1: self.rooms[c] = Room(WALL_TEXTURES, FLOOR_TEXTURE, room_doors, DOOR_TEXTURES, self.physics_engine)
-                case 2: self.rooms[c] = EnemyRoom(WALL_TEXTURES, FLOOR_TEXTURE, room_doors, DOOR_TEXTURES, self.physics_engine, 3)
+                case 2: self.rooms[c] = EnemyRoom(WALL_TEXTURES, FLOOR_TEXTURE, room_doors, DOOR_TEXTURES, self.physics_engine, 3, stats)
                 case 3: self.rooms[c] = Room(WALL_TEXTURES, FLOOR_TEXTURE, room_doors, DOOR_TEXTURES, self.physics_engine)
             self.rooms[c].completed = True
 
@@ -269,7 +269,6 @@ class Map:
                 engine.set_position(player_sprite, pos)
                 self.current_room = self.connections[self.current_room][check]
                 self.rooms[self.current_room].enter()
-                print(self.current_room)
             else:
                 # TODO: add exception here maybe (player exited the room in an illegal direction)
                 pass
