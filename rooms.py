@@ -125,7 +125,7 @@ class Room:
         self.wall_list.draw()
         self.doors.draw()
 
-    def update(self, player):
+    def update(self, delta_time, player):
         pass
 
     def enter(self):
@@ -146,8 +146,8 @@ class EnemyRoom(Room):
         super().__init__(wall_sprites, floor, doors, door_sprites, engine)
         self.enemy_controller = EnemyController(create_random_enemies(enemy_n), self, engine, stats)
 
-    def update(self, player):
-        self.enemy_controller.update(player)
+    def update(self, delta_time, player):
+        self.enemy_controller.update(delta_time, player)
 
     def draw(self):
         super().draw()
@@ -278,5 +278,5 @@ class Map:
     def draw(self):
         self.rooms[self.current_room].draw()
 
-    def update(self, player):
-        self.rooms[self.current_room].update(player)
+    def update(self, delta_time, player):
+        self.rooms[self.current_room].update(delta_time, player)

@@ -98,8 +98,7 @@ class GameView(arcade.View):
         self.UI.on_update()
         self.coin_list.update()
         self.physics_engine.step()
-        self.map.update(self.player_sprite)
-
+        self.map.update(delta_time, self.player_sprite)
 
     def on_key_press(self, key, modifiers):
         self.player_controller.on_key_press(key)

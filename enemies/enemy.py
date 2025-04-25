@@ -129,7 +129,7 @@ class EnemyController:
         def player_collision_handler(enemy_sprite: arcade.Sprite, player_sprite: arcade.Sprite, *args):
             enemy_sprite.properties["interact"] = True
             if not player_sprite.properties["invincible"]:
-                self.stats.health = min(1, self.stats.health - enemy_sprite.properties["damage"])
+                self.stats.health = max(1, self.stats.health - enemy_sprite.properties["damage"])
                 player_sprite.properties["invincible"] = True
                 player_sprite.properties["inv_timer"] = 1.0
             if "tmp" in enemy_sprite.properties.keys():
@@ -153,7 +153,14 @@ class EnemyController:
         self.enemy_sprite_list.draw()
 
     #temprarly removed room completion logic
-    def update(self, player: arcade.Sprite):
+    def update(self, delta_time, player: arcade.Sprite):
+
+        if player.properties["invincible"]:
+            player.properties["inv_timer"] -= delta_time
+            if player.properties["inv_timer"] <= 0:
+                player.properties["inv_timer"] = 0
+                player.properties["invincible"] = False
+
         if len(self.enemy_sprite_list) == 0:
             self.room.completed = True
             self.enemies.clear()
