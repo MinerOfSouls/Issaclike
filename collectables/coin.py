@@ -1,6 +1,5 @@
 import arcade
 from arcade import PymunkPhysicsEngine
-from parameters import *
 # does not follow scaling rules
 
 coin = 'resources/images/coin.png'
@@ -22,9 +21,7 @@ class Coin(arcade.Sprite):
             coin_sprite = arbiter.shapes[0]
             coin_sprite = self.physics_engine.get_sprite_for_shape(coin_sprite)
             coin_sprite.remove_from_sprite_lists()
-            print(self.stats.print_coins)
             self.stats.update_coin_number()
-            print(self.stats.print_coins)
             print("Coin")
 
         self.physics_engine.add_collision_handler(
@@ -39,7 +36,8 @@ class Coin(arcade.Sprite):
                                        body_type=PymunkPhysicsEngine.DYNAMIC,
                                        collision_type="coin",
                                        elasticity=0.9)
-
+    def apply_force(self,force):
+        self.physics_engine.apply_force(self ,force)
 
     def update(self, delta_time: float = 1/60, *args, **kwargs):
         self.time_elapsed += delta_time

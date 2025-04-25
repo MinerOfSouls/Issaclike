@@ -1,7 +1,7 @@
 from characters.stats import PlayerStatsController
 import arcade
 import arcade.gui
-from animations.hearth import Hearth
+from collectables.hearth import Hearth
 from parameters import *
 from pyglet.graphics import Batch
 arcade.resources.load_kenney_fonts()
@@ -24,39 +24,6 @@ class DrawUI:
         self.sprite_list = arcade.SpriteList()
 
         self.batch = Batch()
-
-        start_x = 40
-        start_y = WINDOW_HEIGHT- 60
-        self.coin_count = arcade.Text(
-            stats.get_coin_number(),
-            start_x,
-            start_y,
-            arcade.color.BLACK,
-            DEFAULT_FONT_SIZE,
-            font_name="Kenney Blocks",
-            batch=self.batch,
-        )
-        start_y = WINDOW_HEIGHT - 85
-        self.key_count = arcade.Text(
-            stats.get_key_number(),
-            start_x,
-            start_y,
-            arcade.color.BLACK,
-            DEFAULT_FONT_SIZE,
-            font_name="Kenney Blocks",
-            batch=self.batch,
-        )
-        start_y = WINDOW_HEIGHT - 110
-        self.bomb_count = arcade.Text(
-            stats.get_bomb_number(),
-            start_x,
-            start_y,
-            arcade.color.BLACK,
-            DEFAULT_FONT_SIZE,
-            font_name="Kenney Blocks",
-            batch=self.batch,
-        )
-
 
         hearth_sheet = arcade.load_spritesheet(TEXTURES["hearth"])
         coin_sheet = arcade.load_spritesheet(TEXTURES["coin"])
@@ -94,7 +61,26 @@ class DrawUI:
             font_name="Kenney Blocks",
             batch=self.batch,
         )
-
+        start_y = WINDOW_HEIGHT - 85
+        self.key_count = arcade.Text(
+            self.stats.get_key_number(),
+            start_x,
+            start_y,
+            arcade.color.BLACK,
+            DEFAULT_FONT_SIZE,
+            font_name="Kenney Blocks",
+            batch=self.batch,
+        )
+        start_y = WINDOW_HEIGHT - 110
+        self.bomb_count = arcade.Text(
+            self.stats.get_bomb_number(),
+            start_x,
+            start_y,
+            arcade.color.BLACK,
+            DEFAULT_FONT_SIZE,
+            font_name="Kenney Blocks",
+            batch=self.batch,
+        )
 
         self.sprite_list.update()
         self.batch.draw()

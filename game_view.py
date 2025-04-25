@@ -9,9 +9,8 @@ from characters.player_controller import PlayerController
 from characters.stats import PlayerStatsController
 from characters.attack.ranged_attack import RangedAttack
 from characters.Abilieties.mage_special_ability import MageSpecialAbility
-from animations.coin import Coin
-from physics_handler import PhysicsHandler
-
+from pickup_factory import PickupFactory
+from characters.attack.melee_atack import MeleeAttack
 class GameView(arcade.View):
     def __init__(self):
         super().__init__()
@@ -24,16 +23,17 @@ class GameView(arcade.View):
         self.attack = None
         self.special_ability = None
         self.UI = None
-        self.physics_handler = None
+        self.pickup_factory = None
+        self.melee_attack = None
 
-        self.coin_list = arcade.SpriteList()
+        self.pickups_list = arcade.SpriteList()
 
         self.camera = arcade.Camera2D(
             position=(0, 0),
             projection=LRBT(left=0, right=WINDOW_WIDTH, bottom=0, top=WINDOW_HEIGHT),
             viewport=self.window.rect
         )
-        self.coin = None
+
 
 
     def setup(self):
@@ -49,8 +49,6 @@ class GameView(arcade.View):
         self.UI = DrawUI(self.stats)
 
         self.special_ability = MageSpecialAbility(self.player_sprite)
-
-
 
         self.player_controller = PlayerController(self.player_sprite,self.stats)
 
@@ -72,14 +70,16 @@ class GameView(arcade.View):
         )
         self.map = Map(10,self.physics_engine)
         self.map.on_setup()
-        self.attack = RangedAttack(self.player_sprite, self.stats, self.physics_engine)
 
-        self.coin = Coin(self.physics_engine,self.stats)
-        self.coin.position = 200, 200
-        self.coin_list.append(self.coin)
-        self.coin.on_setup()
-        self.physics_handler = PhysicsHandler(self.physics_engine,self.stats)
-        self.physics_handler.on_setup()
+        # self.attack = RangedAttack(self.player_sprite, self.stats, self.physics_engine)
+        self.attack = MeleeAttack(self.player_sprite,self.physics_engine,self.stats)
+
+        self.pickup_factory = PickupFactory(self.physics_engine, self.pickups_list, self.stats)
+        self.pickup_factory.spawn_coin(100,100)
+        self.pickup_factory.spawn_chest(300,300)
+        self.pickup_factory.spawn_key(200,200)
+
+
 
     def on_draw(self) -> bool | None:
         self.clear()
@@ -87,7 +87,7 @@ class GameView(arcade.View):
         self.player_list.draw()
         self.attack.on_draw()
         self.UI.on_draw()
-        self.coin_list.draw()
+        self.pickup_factory.on_draw()
         return None
 
     def on_update(self, delta_time):
@@ -96,7 +96,7 @@ class GameView(arcade.View):
         self.attack.update()
         self.special_ability.update()
         self.UI.on_update()
-        self.coin_list.update()
+        self.pickup_factory.update()
         self.physics_engine.step()
 
 
