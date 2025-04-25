@@ -53,6 +53,10 @@ class Enemy:
     def attack(self, delta_time, destination, engine: PymunkPhysicsEngine, **kwargs):
         pass
 
+    def update(self):
+        self.position = (self.sprite.center_x, self.sprite.center_y)
+        self.health = self.sprite.properties["health"]
+
     def __move_calc(self, destination):
         x_goal = destination[0]
         y_goal = destination[1]
@@ -100,6 +104,7 @@ class Enemy:
             attack_sprite = arcade.Sprite(None, center_x=destination[0], center_y=destination[1])
             attack_sprite.size = (SPRITE_SIZE, SPRITE_SIZE)
             attack_sprite.properties["tmp"] = True
+            attack_sprite.properties["damage"] = self.damage
             self.melee_attack_sprite = attack_sprite
             engine.add_sprite(
                 attack_sprite,
@@ -135,7 +140,6 @@ class EnemyController:
                                          projectile_sprite: arcade.Sprite, *args):
             projectile_sprite.remove_from_sprite_lists()
 
-            # TODO add specific projectile damage
             enemy_sprite.properties["health"] -= self.stats.damage
             if enemy_sprite.properties["health"] <= 0:
                 enemy_sprite.remove_from_sprite_lists()
@@ -159,13 +163,18 @@ class EnemyController:
             if e.sprite not in self.enemy_sprite_list:
                 garbage_collect.append(e)
                 continue
-            e.move(location, self.physics_engine)
             if e.sprite.center_x < 0 or e.sprite.center_x > WINDOW_WIDTH:
                 e.sprite.remove_from_sprite_lists()
                 garbage_collect.append(e)
+                continue
             elif e.sprite.center_y < 0 or e.sprite.center_y > WINDOW_HEIGHT:
                 e.sprite.remove_from_sprite_lists()
                 garbage_collect.append(e)
+                continue
+
+            e.update()
+            e.move(location, self.physics_engine)
+
         for e in garbage_collect:
             self.enemies.remove(e)
 
@@ -190,3 +199,93 @@ def create_random_enemies(n):
             "resources/images/enemy_placeholder.png"
         ))
     return e_list
+
+class EnemyProjectileController:
+    def __init__(self, engine: PymunkPhysicsEngine, stats, speed):
+        self.physics_engine = engine
+        self.projectiles = arcade.SpriteList()
+        self.projectile_speed = speed
+        self.stats = stats
+
+        def player_hit_handler(enemy_projectile_sprite: arcade.Sprite, player_sprite: arcade.Sprite, *args):
+            if not player_sprite.properties["invincible"]:
+                self.stats.health = min(1, self.stats.health - enemy_projectile_sprite.properties["damage"])
+                player_sprite.properties["invincible"] = True
+                player_sprite.properties["inv_timer"] = 1.0
+                enemy_projectile_sprite.remove_from_sprite_lists()
+            return False
+
+
+        def wall_hit_handler(sprite_a, sprite_b, arbiter, space, data):
+            """ Called for bullet/rock collision """
+            bullet_shape = arbiter.shapes[0]
+            bullet_sprite = self.physics_engine.get_sprite_for_shape(bullet_shape)
+            bullet_sprite.remove_from_sprite_lists()
+            return False
+
+        self.physics_engine.add_collision_handler(
+            "enemy_projectile",
+            "wall",
+            post_handler=wall_hit_handler
+        )
+
+        self.physics_engine.add_collision_handler(
+            "enemy_projectile",
+            "door",
+            post_handler=wall_hit_handler
+        )
+
+        self.physics_engine.add_collision_handler(
+            "enemy_projectile",
+            "player",
+            post_handler=player_hit_handler
+        )
+
+    def update(self):
+        for projectile in self.projectiles:
+            projectile_body = self.physics_engine.get_physics_object(projectile).body
+            vel_x, vel_y = projectile_body.velocity
+            vel_magnitude = math.sqrt(vel_x ** 2 + vel_y ** 2)
+
+            # If velocity is too low, remove the projectile
+            min_velocity = 30.0  # Adjust this threshold as needed
+            if vel_magnitude < min_velocity:
+                projectile.remove_from_sprite_lists()
+        self.projectiles.update()
+
+    def draw(self):
+        self.projectiles.draw()
+
+    def spawn_projectile(self, enemy: Enemy, target):
+        x_goal = target[0]
+        y_goal = target[1]
+        x_delta = x_goal - enemy.position[0]
+        y_delta = y_goal - enemy.position[1]
+        angle = math.atan2(y_delta, x_delta)
+        change_x = math.cos(angle) * self.projectile_speed
+        change_y = math.sin(angle) * self.projectile_speed
+        projectile = arcade.SpriteSolidColor(width=10, height=10, color=arcade.color.BLUE)
+        projectile.center_x = enemy.position[0]
+        projectile.center_y = enemy.position[1]
+
+        projectile.properties["damage"] = enemy.damage
+
+        self.physics_engine.add_sprite(
+            projectile,
+            mass=0.1,
+            damping=0.01,
+            friction=0.3,
+            body_type=PymunkPhysicsEngine.DYNAMIC,
+            collision_type="enemy_projectile",
+            elasticity=0.9
+        )
+
+        body = self.physics_engine.get_physics_object(enemy.sprite).body
+        vel_x, vel_y = body.velocity
+
+        momentum_factor = 0.2
+        change_x += vel_x * momentum_factor
+        change_y += vel_y * momentum_factor
+
+        self.physics_engine.apply_impulse(projectile, (change_x, change_y))
+        self.projectiles.append(projectile)

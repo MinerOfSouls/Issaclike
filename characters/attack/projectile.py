@@ -19,12 +19,20 @@ class Projectile(arcade.Sprite):
             bullet_shape = arbiter.shapes[0]
             bullet_sprite = self.physics_engine.get_sprite_for_shape(bullet_shape)
             bullet_sprite.remove_from_sprite_lists()
-            print("Wall")
+            return False
+
         self.physics_engine.add_collision_handler(
             "projectile",
             "wall",
             post_handler=wall_hit_handler,
         )
+
+        self.physics_engine.add_collision_handler(
+            "projectile",
+            "door",
+            post_handler=wall_hit_handler,
+        )
+
 
     def spawn_projectile(self, projectile_deg):
         projectile = arcade.SpriteSolidColor(width=10, height=10, color=arcade.color.RED)
