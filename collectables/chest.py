@@ -1,7 +1,7 @@
 import arcade
 from arcade import PymunkPhysicsEngine
 from random import randint
-from pickup_factory import PickupFactory
+
 
 # does not follow scaling rules
 chest = 'resources/images/chest-ss.png'
@@ -61,7 +61,7 @@ class Chest(arcade.Sprite):
                                        mass=1,
                                        damping=0.01,
                                        friction=1,
-                                       body_type=PymunkPhysicsEngine.DYNAMIC,
+                                       body_type=PymunkPhysicsEngine.STATIC,
                                        moment_of_inertia=PymunkPhysicsEngine.MOMENT_INF,
                                        collision_type="chest",
                                        elasticity=1)

@@ -1,5 +1,6 @@
 from collectables.coin import Coin
 from collectables.key import Key
+from collectables.chest import Chest
 
 
 class PickupFactory:
@@ -28,7 +29,6 @@ class PickupFactory:
         pass
 
     def spawn_chest(self,x:int,y:int):
-        from collectables.chest import Chest
         chest = Chest(self.physics_engine,self, self.stats)
         chest.position = x ,y
         self.pickups_list.append(chest)
