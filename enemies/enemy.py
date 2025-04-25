@@ -48,6 +48,7 @@ class Enemy:
         engine.remove_sprite(self.sprite)
 
     def move(self, destination, engine: PymunkPhysicsEngine, **kwargs):
+        self.__basic_move(destination, engine)
         pass
 
     def attack(self, delta_time, destination, engine: PymunkPhysicsEngine, **kwargs):
