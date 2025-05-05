@@ -71,13 +71,14 @@ class GameView(arcade.View):
         self.map = Map(10,self.physics_engine)
         self.map.on_setup()
 
-        # self.attack = RangedAttack(self.player_sprite, self.stats, self.physics_engine)
-        self.attack = MeleeAttack(self.player_sprite,self.physics_engine,self.stats)
+        self.attack = RangedAttack(self.player_sprite, self.stats, self.physics_engine)
+        # self.attack = MeleeAttack(self.player_sprite,self.physics_engine,self.stats)
 
         self.pickup_factory = PickupFactory(self.physics_engine, self.pickups_list, self.stats)
         self.pickup_factory.spawn_coin(100,100)
         self.pickup_factory.spawn_chest(300,300)
         self.pickup_factory.spawn_key(200,200)
+        self.pickup_factory.spawn_health_potion(300,100)
 
 
 
@@ -98,6 +99,7 @@ class GameView(arcade.View):
         self.UI.on_update()
         self.pickup_factory.update()
         self.physics_engine.step()
+
 
 
     def on_key_press(self, key, modifiers):

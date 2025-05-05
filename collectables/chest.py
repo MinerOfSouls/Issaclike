@@ -2,22 +2,13 @@ import arcade
 from arcade import PymunkPhysicsEngine
 from random import randint
 
+from collectables.collectable import Collectable
 
 # does not follow scaling rules
-chest = 'resources/images/chest-ss.png'
-
-
-class Chest(arcade.Sprite):
-    def __init__(self, physics_engine,pickup_factory, stats):
-        chest_sheet = arcade.load_spritesheet(chest)
-        texture_list = chest_sheet.get_texture_grid(size=(48, 32), columns=4, count=4)
-        super().__init__(texture_list[0], scale=2)
+class Chest(Collectable):
+    def __init__(self, physics_engine, pickup_factory, stats, sprite, sprite_details):
+        super().__init__(physics_engine, stats, sprite, sprite_details)
         self.pickup_factory = pickup_factory
-        self.time_elapsed = 0
-        self.cur_texture_index = 0
-        self.textures = texture_list
-        self.physics_engine = physics_engine
-        self.stats = stats
         self.opened = False
 
     def spawn_chest_contents(self):
@@ -49,7 +40,6 @@ class Chest(arcade.Sprite):
         def player_chest_handler(sprite_a, sprite_b, arbiter, space, data):
             self.set_texture(1)
             self.spawn_chest_contents()
-            # self.stats.chests +=1
             print("chest")
 
         self.physics_engine.add_collision_handler(
@@ -65,3 +55,6 @@ class Chest(arcade.Sprite):
                                        moment_of_inertia=PymunkPhysicsEngine.MOMENT_INF,
                                        collision_type="chest",
                                        elasticity=1)
+
+    def update(self, delta_time: float = 1/60, *args, **kwargs):
+        pass

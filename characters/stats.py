@@ -11,9 +11,6 @@ class PlayerStatsController:
         self.keys = keys
         self.bombs = bombs
 
-    def update_coin_number(self):
-        setattr(self,'coins',self.coins+1)
-
     def get_coin_number(self):
         return f"{self.coins:02d}"
     def get_key_number(self):

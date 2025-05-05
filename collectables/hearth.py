@@ -1,6 +1,6 @@
 import arcade
 from parameters import *
-# does not follow scaling rules
+# todo delete this rewrite to use resource handler directly in Ui
 class Hearth(arcade.Sprite):
     def __init__(self, texture_list: list[arcade.Texture]):
         super().__init__(texture_list[0],scale=1.5)
