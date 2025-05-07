@@ -13,6 +13,7 @@ class Animation(arcade.Sprite):
         self.cur_texture_index =0
         self.textures = texture_list
         self.looping = sprite_details.get("looping")
+        self.should_delete = False
 
     def update(self, delta_time: float = 1/60, *args, **kwargs):
         self.time_elapsed += delta_time
@@ -23,5 +24,7 @@ class Animation(arcade.Sprite):
                 if self.looping:
                     self.cur_texture_index = 0
                 else:
-                    self.cur_texture_index = len(self.textures) - 1  # stop on last frame
+                    self.cur_texture_index = len(self.textures) - 1
+                    self.should_delete = True
+
             self.set_texture(self.cur_texture_index)

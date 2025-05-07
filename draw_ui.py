@@ -60,14 +60,21 @@ class DrawUI:
 
     def update_health(self):
         if self.previous_health != self.stats.health:
+            # Clear existing health sprites from both lists
+            for sprite in self.health_list:
+                if sprite in self.sprite_list:
+                    self.sprite_list.remove(sprite)
             self.health_list.clear()
-            for i in range(self.stats.health):
-                hearth = Animation(hearth_url , hearth_details)
-                hearth.position = 25+i*25 , WINDOW_HEIGHT-25
-                self.health_list.append(hearth)
+
+            # Add new health sprites if health > 0
+            if self.stats.health > 0:
+                for i in range(self.stats.health):
+                    heart = Animation(hearth_url, hearth_details)
+                    heart.position = 25 + i * 25, WINDOW_HEIGHT - 25
+                    self.health_list.append(heart)
+                    self.sprite_list.append(heart)
+
             self.previous_health = self.stats.health
-            for hearth in self.health_list:
-                self.sprite_list.append(hearth)
 
     def on_draw(self) -> None:
         self.sprite_list.draw()

@@ -10,6 +10,7 @@ class Collectable(Animation):
         self.physics_engine = physics_engine
         self.stats = stats
         self.item_type = sprite_details.get("item_type")
+        self.collectable = sprite_details.get("collectable")
 
     def apply_force(self,force):
         self.physics_engine.apply_force(self ,force)
@@ -24,13 +25,16 @@ class Collectable(Animation):
                                        elasticity=0.9)
 
         def item_player_handle(sprite_a, sprite_b, arbiter, space, data):
-            item_sprite = arbiter.shapes[0]
-            item_sprite = self.physics_engine.get_sprite_for_shape(item_sprite)
-            item_sprite.remove_from_sprite_lists()
-            EffectHandler.handle_effect(self.item_type , self.stats)
+            if self.collectable:
+                item_sprite = arbiter.shapes[0]
+                item_sprite = self.physics_engine.get_sprite_for_shape(item_sprite)
+                item_sprite.remove_from_sprite_lists()
+            print(self.item_type)
+            return EffectHandler.handle_effect(self.item_type , self.stats)
+
 
         self.physics_engine.add_collision_handler(
             self.item_type,
             "player",
-            post_handler=item_player_handle,
+            pre_handler=item_player_handle,
         )

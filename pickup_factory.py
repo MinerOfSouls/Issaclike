@@ -14,6 +14,7 @@ key_sprite_details = {
     "speed": 0.3,
     "scale": 0.75,
     "looping": True,
+    "collectable": True,
     "item_type": "pick_key",
 }
 
@@ -27,6 +28,7 @@ coin_sprite_details = {
     "speed": 0.3,
     "scale": 0.25,
     "looping": True,
+    "collectable": True,
     "item_type": "pick_coin",
 }
 
@@ -52,6 +54,7 @@ health_potion_details = {
     "speed": 0.3,
     "scale": 1,
     "looping": True,
+    "collectable": True,
     "item_type": "pick_health_potion",
 }
 
@@ -64,6 +67,7 @@ bomb_details = {
     "speed": 0.05,
     "scale": 2,
     "looping": False,
+    "collectable": True,
     "item_type": "pick_bomb"
 }
 

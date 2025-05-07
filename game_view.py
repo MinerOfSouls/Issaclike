@@ -1,5 +1,8 @@
 import arcade
 from arcade import LRBT, PymunkPhysicsEngine
+
+from DamageDealer import DamageDealer
+from collectables.EffectHandler import EffectHandler
 from draw_ui import DrawUI
 
 from characters.player import Player
@@ -18,6 +21,7 @@ from characters.attack.place_on_map import PlaceOnMap
 class GameView(arcade.View):
     def __init__(self):
         super().__init__()
+        self.damage_dealer = None
         self.map = None
         self.player_list = None
         self.player_sprite = None
@@ -29,7 +33,7 @@ class GameView(arcade.View):
         self.UI = None
         self.pickup_factory = None
         self.melee_attack = None
-
+        self.effect_handler = None
         self.place_on_map = None
         self.effects_list = arcade.SpriteList()
         self.placed_items= arcade.SpriteList()
@@ -42,11 +46,8 @@ class GameView(arcade.View):
             viewport=self.window.rect
         )
 
-
-
     def setup(self):
         self.player_list = arcade.SpriteList()
-
         #player
         self.player_sprite = Player("resources/images/player_sprite_placeholder.png", scale= SPRITE_SCALING)
         self.player_sprite.center_x = WINDOW_WIDTH / 2
@@ -54,6 +55,7 @@ class GameView(arcade.View):
         self.player_list.append(self.player_sprite)
 
         self.stats = PlayerStatsController()
+        self.damage_dealer = DamageDealer(self.stats)
         self.UI = DrawUI(self.stats)
 
         self.special_ability = MageSpecialAbility(self.player_sprite)
@@ -78,6 +80,7 @@ class GameView(arcade.View):
         )
         self.map = Map(10,self.physics_engine)
         self.map.on_setup()
+
 
         self.attack = RangedAttack(self.player_sprite, self.stats, self.physics_engine)
         # self.attack = MeleeAttack(self.player_sprite,self.physics_engine,self.stats)
@@ -106,6 +109,7 @@ class GameView(arcade.View):
         return None
 
     def on_update(self, delta_time):
+        self.damage_dealer.update()
         self.player_controller.on_update(self.physics_engine)
         self.player_list.update(delta_time)
         self.attack.update()

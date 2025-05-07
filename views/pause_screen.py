@@ -63,7 +63,7 @@ class PauseView(arcade.View):
         arcade.draw_text(f"Coins: {self.stats.get_coin_number()}", column2_x, row_y, arcade.color.BLACK, 18)
         arcade.draw_text(f"Keys: {self.stats.get_key_number()}", column2_x, row_y - row_spacing, arcade.color.BLACK, 18)
         arcade.draw_text(f"Bombs: {self.stats.get_bomb_number()}", column2_x, row_y - row_spacing*2, arcade.color.BLACK, 18)
-        arcade.draw_text(f"Health: {self.stats.luck}", column2_x, row_y - row_spacing*3, arcade.color.BLACK, 18)
+        arcade.draw_text(f"Health: {self.stats.health}", column2_x, row_y - row_spacing*3, arcade.color.BLACK, 18)
 
     def on_key_press(self, key, _modifiers):
         if key == arcade.key.ESCAPE:   # resume game
