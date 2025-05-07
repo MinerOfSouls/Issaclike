@@ -1,7 +1,8 @@
 from characters.stats import PlayerStatsController
 import arcade
 import arcade.gui
-from collectables.hearth import Hearth
+
+from collectables.animation import Animation
 from parameters import *
 from pyglet.graphics import Batch
 arcade.resources.load_kenney_fonts()
@@ -18,6 +19,17 @@ TEXTURES = {
 
 # todo stupid and unefficient implementaion but it works change it later
 
+hearth_url = 'resources/images/heart_animated_1.png'
+hearth_details = {
+    "width": 17,
+    "height": 17,
+    "columns": 5,
+    "count": 5,
+    "speed": 0.3,
+    "scale": 1.5,
+    "looping": True
+}
+
 class DrawUI:
     def __init__(self, stats:PlayerStatsController):
         super().__init__()
@@ -29,11 +41,10 @@ class DrawUI:
 
         self.batch = Batch()
 
-        hearth_sheet = arcade.load_spritesheet(TEXTURES["hearth"])
         coin_sheet = arcade.load_spritesheet(TEXTURES["coin"])
         key_sheet = arcade.load_spritesheet(TEXTURES["key"])
 
-        self.hearth_texture = hearth_sheet.get_texture_grid(size=(17,17),columns=5,count=5)
+
         coin_texture = coin_sheet.get_texture_grid(size=(80,80),columns=8,count=8)
         key_texture = key_sheet.get_texture_grid(size=(32,32),columns=12,count=12)
 
@@ -51,7 +62,7 @@ class DrawUI:
         if self.previous_health != self.stats.health:
             self.health_list.clear()
             for i in range(self.stats.health):
-                hearth = Hearth(self.hearth_texture)
+                hearth = Animation(hearth_url , hearth_details)
                 hearth.position = 25+i*25 , WINDOW_HEIGHT-25
                 self.health_list.append(hearth)
             self.previous_health = self.stats.health

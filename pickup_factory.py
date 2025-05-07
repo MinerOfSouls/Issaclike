@@ -1,49 +1,100 @@
-from collectables.coin import Coin
-from collectables.health_potion import HealthPotion
-from collectables.key import Key
+from collectables.animation import Animation
+from collectables.collectable import Collectable
+
+
 from collectables.chest import Chest
 
-#todo use resource handler
+# todo use resource handler
 key_sprite = 'resources/images/key-white.png'
-key_sprite_details = [32,32,12,12,0.3,0.75]
+key_sprite_details = {
+    "width": 32,
+    "height": 32,
+    "columns": 12,
+    "count": 12,
+    "speed": 0.3,
+    "scale": 0.75,
+    "looping": True,
+    "item_type": "pick_key",
+}
 
-#todo use resource handler
+# todo use resource handler
 coin_sprite = 'resources/images/coin.png'
-coin_sprite_details = [80,80,8,8,0.3,0.25]
+coin_sprite_details = {
+    "width": 80,
+    "height": 80,
+    "columns": 8,
+    "count": 8,
+    "speed": 0.3,
+    "scale": 0.25,
+    "looping": True,
+    "item_type": "pick_coin",
+}
 
-#todo use resource handler
+# todo use resource handler
 chest_sprite = 'resources/images/chest-ss.png'
-chest_sprite_details = [48,32,4,4,0.3,2]
+chest_sprite_details = {
+    "width": 48,
+    "height": 32,
+    "columns": 4,
+    "count": 4,
+    "speed": 0.3,
+    "scale": 2,
+    "looping": False
+}
 
-#todo use resource handler
+# todo use resource handler
 health_potion_sprite = 'resources/images/health_potion.png'
-health_potion_sprite_details = [16,18,3,3,0.3,1]
+health_potion_details = {
+    "width": 16,
+    "height": 18,
+    "columns": 3,
+    "count": 3,
+    "speed": 0.3,
+    "scale": 1,
+    "looping": True,
+    "item_type": "pick_health_potion",
+}
 
+bomb_url = "resources/images/granade.png"
+bomb_details = {
+    "width": 13,
+    "height": 16,
+    "columns":1,
+    "count": 1,
+    "speed": 0.05,
+    "scale": 2,
+    "looping": False,
+    "item_type": "pick_bomb"
+}
+
+# todo wait for resource handler now it looks like this and it is bad
 
 class PickupFactory:
-    #used to spawn pickups
-    # todo add bombs
     def __init__(self , physics_engine, pickups_list, stats):
         self.pickups_list = pickups_list
         self.physics_engine = physics_engine
         self.stats = stats
 
-    def spawn_coin(self,x:int,y:int) -> Coin:
-        coin = Coin(self.physics_engine, self.stats,coin_sprite,coin_sprite_details)
+    def spawn_coin(self,x:int,y:int):
+        coin = Collectable(self.physics_engine, self.stats,coin_sprite,coin_sprite_details)
         coin.position = x ,y
         self.pickups_list.append(coin)
         coin.on_setup()
         return coin
 
-    def spawn_key(self,x:int,y:int) -> Key:
-        key = Key(self.physics_engine, self.stats, key_sprite, key_sprite_details)
+    def spawn_key(self,x:int,y:int):
+        key = Collectable(self.physics_engine, self.stats, key_sprite, key_sprite_details)
         key.position = x ,y
         self.pickups_list.append(key)
         key.on_setup()
         return key
 
-    def spawn_bomb(self,x:int,y:int) -> None:
-        pass
+    def spawn_bomb(self,x:int,y:int):
+        bomb = Collectable(self.physics_engine, self.stats, bomb_url, bomb_details)
+        bomb.position = x, y
+        self.pickups_list.append(bomb)
+        bomb.on_setup()
+        return bomb
 
     def spawn_chest(self,x:int,y:int):
         chest = Chest(self.physics_engine,self, self.stats,chest_sprite,chest_sprite_details)
@@ -52,12 +103,13 @@ class PickupFactory:
         chest.on_setup()
         return chest
 
-    def spawn_health_potion(self,x:int,y:int) -> HealthPotion:
-        health_potion = HealthPotion(self.physics_engine, self.stats,health_potion_sprite,health_potion_sprite_details)
+    def spawn_health_potion(self,x:int,y:int):
+        health_potion = Collectable(self.physics_engine, self.stats,health_potion_sprite,health_potion_details)
         health_potion.position  = x,y
         self.pickups_list.append(health_potion)
         health_potion.on_setup()
         return health_potion
+
 
     def on_draw(self) -> None:
         self.pickups_list.draw()

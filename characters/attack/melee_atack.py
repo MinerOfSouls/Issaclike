@@ -13,20 +13,22 @@ class MeleeAttack(Attack):
 
         self.sword_list = arcade.SpriteList()
         self.sword_creator = SwordCreator(self.physics_engine,self.player_sprite,self.sword_list,self.stats)
-        self.sword = self.sword_creator.spawn_sword(0)
+        self.sword = self.sword_creator.spawn_sword()
 
         self.degree = 0
 
         self.physics_engine.add_collision_handler(
             "sword",
             "player",
-            post_handler=self.player_sword_handler,
+            pre_handler=self.player_sword_handler
         )
 
     def player_sword_handler(self ,sprite_a, sprite_b, arbiter, space, data):
-        self.sword.held = True
-        self.sword.returning = False
-        print("sword collected")
+        if self.sword.returning:
+            self.sword.held = True
+            self.sword.returning = False
+            return True  # Allow collision when returning
+        return False  # Ignore collision otherwise
 
     def calculate_position(self):
 

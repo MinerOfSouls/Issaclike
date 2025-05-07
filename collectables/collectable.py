@@ -1,27 +1,36 @@
 import arcade
-#todo sprite details needs to be changed managed by resource handler
+from arcade import PymunkPhysicsEngine
 
-#rewrite to use texture animation or use only one row sprites
+from collectables.EffectHandler import EffectHandler
+from collectables.animation import Animation
 
-class Collectable(arcade.Sprite):
-    def __init__(self,physics_engine,stats,sprite,sprite_details):
-        self.animation_speed = sprite_details[4]
-        collectable_sheet = arcade.load_spritesheet(sprite)
-        texture_list = collectable_sheet.get_texture_grid(size=(sprite_details[0] , sprite_details[1]), columns=sprite_details[2], count=sprite_details[3])
-        super().__init__(texture_list[0],scale=sprite_details[5])
-        self.time_elapsed = 0
-        self.cur_texture_index =0
-        self.textures = texture_list
+class Collectable(Animation):
+    def __init__(self, physics_engine, stats, sprite, sprite_details):
+        super().__init__(sprite, sprite_details)
         self.physics_engine = physics_engine
         self.stats = stats
+        self.item_type = sprite_details.get("item_type")
 
     def apply_force(self,force):
         self.physics_engine.apply_force(self ,force)
 
-    def update(self, delta_time: float = 1/60, *args, **kwargs):
-        self.time_elapsed += delta_time
-        if self.time_elapsed > self.animation_speed:
-            self.set_texture(self.cur_texture_index)
-            self.cur_texture_index = (self.cur_texture_index + 1) % len(self.textures)
-            self.time_elapsed = 0
-        pass
+    def on_setup(self):
+        self.physics_engine.add_sprite(self,
+                                       mass=0.1,
+                                       damping=0.01,
+                                       friction=0.3,
+                                       body_type=PymunkPhysicsEngine.DYNAMIC,
+                                       collision_type=self.item_type,
+                                       elasticity=0.9)
+
+        def item_player_handle(sprite_a, sprite_b, arbiter, space, data):
+            item_sprite = arbiter.shapes[0]
+            item_sprite = self.physics_engine.get_sprite_for_shape(item_sprite)
+            item_sprite.remove_from_sprite_lists()
+            EffectHandler.handle_effect(self.item_type , self.stats)
+
+        self.physics_engine.add_collision_handler(
+            self.item_type,
+            "player",
+            post_handler=item_player_handle,
+        )

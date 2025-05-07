@@ -3,14 +3,15 @@ import arcade
 import math
 
 
-
 class Projectile(arcade.Sprite):
-    def __init__(self, player_sprite, stats, physics_engine: PymunkPhysicsEngine):
+    def __init__(self, player_sprite, stats,projectile_url,scale, physics_engine: PymunkPhysicsEngine):
         super().__init__()
         self.player_sprite = player_sprite
         self.stats = stats
         self.physics_engine = physics_engine
         self.projectile_list = arcade.SpriteList()
+        self.projectile_url = projectile_url
+        self.scale = scale
 
 
         def wall_hit_handler(sprite_a, sprite_b, arbiter, space, data):
@@ -19,6 +20,7 @@ class Projectile(arcade.Sprite):
             bullet_sprite = self.physics_engine.get_sprite_for_shape(bullet_shape)
             bullet_sprite.remove_from_sprite_lists()
             print("Wall")
+
         self.physics_engine.add_collision_handler(
             "projectile",
             "wall",
@@ -26,12 +28,13 @@ class Projectile(arcade.Sprite):
         )
 
     def spawn_projectile(self, projectile_deg):
-        projectile = arcade.SpriteSolidColor(width=10, height=10, color=arcade.color.RED)
+        projectile = arcade.Sprite(self.projectile_url, self.scale)
 
         start_x = self.player_sprite.center_x
         start_y = self.player_sprite.center_y
         projectile.center_x = start_x
         projectile.center_y = start_y
+
 
         radians = math.radians(projectile_deg)
 

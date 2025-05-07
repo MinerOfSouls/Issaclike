@@ -8,6 +8,7 @@ class Attack:
         self.down_pressed = False
         self.left_pressed = False
         self.right_pressed = False
+        self.e_pressed = False
 
     def on_key_press(self, key):
         if key == arcade.key.UP:
@@ -18,6 +19,9 @@ class Attack:
             self.left_pressed = True
         elif key == arcade.key.RIGHT:
             self.right_pressed = True
+
+        if key == arcade.key.E:
+            self.e_pressed = True
     
     def on_key_release(self, key):
         if key == arcade.key.UP:
@@ -28,6 +32,10 @@ class Attack:
             self.left_pressed = False
         elif key == arcade.key.RIGHT:
             self.right_pressed = False
+
+        if key == arcade.key.E:
+            self.e_pressed = False
+
 
 
 

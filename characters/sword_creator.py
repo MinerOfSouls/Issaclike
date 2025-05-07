@@ -8,7 +8,7 @@ class SwordCreator:
         self.sword_list = sword_list
 
 
-    def spawn_sword(self,degrees):
+    def spawn_sword(self):
         sword = Sword(self.physics_engine,self.stats)
         self.sword_list.append(sword)
         sword.on_setup()

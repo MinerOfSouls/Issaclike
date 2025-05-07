@@ -2,17 +2,22 @@ from characters.attack.attack import Attack
 import math
 from characters.attack.projectile import Projectile
 
+
+projectile_url = "resources/images/projectile_placeholder.png"
+scale = 0.009
+
+
+
 class RangedAttack(Attack):
     def __init__(self, player_sprite, stats, physics_engine):
         super().__init__(player_sprite, stats)
         self.physics_engine = physics_engine
-        self.projectile = Projectile(player_sprite, stats, physics_engine)
+        self.projectile = Projectile(player_sprite, stats,projectile_url,scale, physics_engine)
         self.projectile_list = self.projectile.projectile_list  # Reference the same list
         self.attack_cooldown = stats.projectile_cooldown
         self.charge_attack = 0
 
-    def update(self):
-        self.attack_cooldown += 1
+    def shoot_projectile(self):
         if self.attack_cooldown > self.stats.projectile_cooldown:
             if self.right_pressed and self.up_pressed:
                 self.projectile.spawn_projectile(45)  # 0 + 45
@@ -39,7 +44,7 @@ class RangedAttack(Attack):
                 self.projectile.spawn_projectile(270)
                 self.attack_cooldown = 0
 
-
+    def delete_projectile(self):
         for projectile in self.projectile_list:
             projectile_body = self.physics_engine.get_physics_object(projectile).body
             vel_x, vel_y = projectile_body.velocity
@@ -49,6 +54,13 @@ class RangedAttack(Attack):
             min_velocity = 30.0  # Adjust this threshold as needed
             if vel_magnitude < min_velocity:
                 projectile.remove_from_sprite_lists()
+
+    def update(self):
+        self.attack_cooldown += 1
+
+        self.shoot_projectile()
+
+        self.delete_projectile()
 
         # Update projectiles
         self.projectile_list.update()

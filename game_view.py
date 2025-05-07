@@ -11,6 +11,10 @@ from characters.attack.ranged_attack import RangedAttack
 from characters.Abilieties.mage_special_ability import MageSpecialAbility
 from pickup_factory import PickupFactory
 from characters.attack.melee_atack import MeleeAttack
+from characters.attack.melee_attack2 import SwordSwing
+from characters.attack.place_on_map import PlaceOnMap
+
+
 class GameView(arcade.View):
     def __init__(self):
         super().__init__()
@@ -25,6 +29,10 @@ class GameView(arcade.View):
         self.UI = None
         self.pickup_factory = None
         self.melee_attack = None
+
+        self.place_on_map = None
+        self.effects_list = arcade.SpriteList()
+        self.placed_items= arcade.SpriteList()
 
         self.pickups_list = arcade.SpriteList()
 
@@ -73,12 +81,17 @@ class GameView(arcade.View):
 
         self.attack = RangedAttack(self.player_sprite, self.stats, self.physics_engine)
         # self.attack = MeleeAttack(self.player_sprite,self.physics_engine,self.stats)
+        # self.attack = SwordSwing(self.player_sprite,self.physics_engine,self.stats)
+
 
         self.pickup_factory = PickupFactory(self.physics_engine, self.pickups_list, self.stats)
         self.pickup_factory.spawn_coin(100,100)
         self.pickup_factory.spawn_chest(300,300)
         self.pickup_factory.spawn_key(200,200)
         self.pickup_factory.spawn_health_potion(300,100)
+        self.pickup_factory.spawn_bomb(300,200)
+
+        self.place_on_map = PlaceOnMap(self.player_sprite,self.placed_items,self.stats, self.physics_engine)
 
 
 
@@ -89,6 +102,7 @@ class GameView(arcade.View):
         self.attack.on_draw()
         self.UI.on_draw()
         self.pickup_factory.on_draw()
+        self.place_on_map.on_draw()
         return None
 
     def on_update(self, delta_time):
@@ -99,13 +113,20 @@ class GameView(arcade.View):
         self.UI.on_update()
         self.pickup_factory.update()
         self.physics_engine.step()
-
+        self.place_on_map.update()
 
 
     def on_key_press(self, key, modifiers):
         self.player_controller.on_key_press(key)
         self.attack.on_key_press(key)
         self.special_ability.on_key_press(key)
+        self.place_on_map.on_key_press(key)
+        if key == arcade.key.ESCAPE:
+            from views.pause_screen import PauseView
+            # pass self, the current view, to preserve this view's state
+            pause = PauseView(self)
+            self.window.show_view(pause)
+
 
     def on_key_release(self, key, modifiers):
         self.player_controller.on_key_release(key)

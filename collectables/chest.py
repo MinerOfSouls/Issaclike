@@ -16,7 +16,6 @@ class Chest(Collectable):
             num = randint(0, 10)
             for i in range(num):
                 rand = randint(0, 2)
-                # Random position near the chest
                 x_offset = randint(-50, 50)
                 y_offset = randint(0, 50)
                 spawn_x = self.center_x + x_offset
@@ -33,14 +32,15 @@ class Chest(Collectable):
                         key = self.pickup_factory.spawn_key(spawn_x, spawn_y)
                         key.apply_force((x_accel, y_accel))
                     case 2:
-                        # todo make a bomb
-                        pass
+                        bomb = self.pickup_factory.spawn_bomb(spawn_x, spawn_y)
+                        bomb.apply_force((x_accel, y_accel))
             self.opened = True
     def on_setup(self):
         def player_chest_handler(sprite_a, sprite_b, arbiter, space, data):
-            self.set_texture(1)
-            self.spawn_chest_contents()
-            print("chest")
+            if self.stats.keys >0:
+                self.set_texture(1)
+                self.spawn_chest_contents()
+                self.stats.keys -= 1
 
         self.physics_engine.add_collision_handler(
             "chest",
