@@ -2,6 +2,7 @@ import arcade
 from arcade import LRBT, PymunkPhysicsEngine
 
 from DamageDealer import DamageDealer
+from attack_manager import AttackManager
 from collectables.EffectHandler import EffectHandler
 from draw_ui import DrawUI
 
@@ -13,9 +14,8 @@ from characters.stats import PlayerStatsController
 from characters.attack.ranged_attack import RangedAttack
 from characters.Abilieties.mage_special_ability import MageSpecialAbility
 from pickup_factory import PickupFactory
-from characters.attack.melee_atack import MeleeAttack
-from characters.attack.melee_attack2 import SwordSwing
-from characters.attack.place_on_map import PlaceOnMap
+from collectables.place_on_map import PlaceOnMap
+from difficulty_options import DifficultyOptions
 
 
 class GameView(arcade.View):
@@ -37,6 +37,8 @@ class GameView(arcade.View):
         self.place_on_map = None
         self.effects_list = arcade.SpriteList()
         self.placed_items= arcade.SpriteList()
+        self.difficulty_options = None
+        self.attack_manager = None
 
         self.pickups_list = arcade.SpriteList()
 
@@ -71,20 +73,19 @@ class GameView(arcade.View):
         )
         self.physics_engine.add_sprite(
             self.player_sprite,
+            mass=2,
             friction=1.0,
             moment_of_inertia=PymunkPhysicsEngine.MOMENT_INF,
             damping=0.01,
             collision_type="player",
-            max_velocity=400,
+            max_velocity=500,
             elasticity=0.0
         )
         self.map = Map(10,self.physics_engine)
         self.map.on_setup()
 
 
-        self.attack = RangedAttack(self.player_sprite, self.stats, self.physics_engine)
-        # self.attack = MeleeAttack(self.player_sprite,self.physics_engine,self.stats)
-        # self.attack = SwordSwing(self.player_sprite,self.physics_engine,self.stats)
+        self.attack_manager = AttackManager(self.physics_engine , self.player_sprite , self.stats)
 
 
         self.pickup_factory = PickupFactory(self.physics_engine, self.pickups_list, self.stats)
@@ -96,43 +97,64 @@ class GameView(arcade.View):
 
         self.place_on_map = PlaceOnMap(self.player_sprite,self.placed_items,self.stats, self.physics_engine)
 
+        self.difficulty_options = DifficultyOptions(self)
+        self.difficulty_options.on_setup()
 
+        self.effect_handler = EffectHandler(self.physics_engine , self.stats)
+        self.effect_handler.on_setup()
+        # self.difficulty_options.set_slippery()
+        #
 
     def on_draw(self) -> bool | None:
         self.clear()
         self.map.draw()
         self.player_list.draw()
-        self.attack.on_draw()
+
+        if self.attack_manager.current_attack:
+            self.attack_manager.current_attack.on_draw()
+
         self.UI.on_draw()
         self.pickup_factory.on_draw()
         self.place_on_map.on_draw()
+        self.difficulty_options.draw()
+
         return None
 
     def on_update(self, delta_time):
         self.damage_dealer.update()
         self.player_controller.on_update(self.physics_engine)
         self.player_list.update(delta_time)
-        self.attack.update()
+
+        if self.attack_manager.current_attack:
+            self.attack_manager.current_attack.update()
+
         self.special_ability.update()
         self.UI.on_update()
         self.pickup_factory.update()
-        self.physics_engine.step()
         self.place_on_map.update()
+        self.difficulty_options.update()
+        self.physics_engine.step()
+
 
 
     def on_key_press(self, key, modifiers):
         self.player_controller.on_key_press(key)
-        self.attack.on_key_press(key)
+
+        if self.attack_manager.current_attack:
+            self.attack_manager.current_attack.on_key_press(key)
+
         self.special_ability.on_key_press(key)
         self.place_on_map.on_key_press(key)
         if key == arcade.key.ESCAPE:
             from views.pause_screen import PauseView
-            # pass self, the current view, to preserve this view's state
             pause = PauseView(self)
             self.window.show_view(pause)
 
 
     def on_key_release(self, key, modifiers):
         self.player_controller.on_key_release(key)
-        self.attack.on_key_release(key)
+
+        if self.attack_manager.current_attack:
+            self.attack_manager.current_attack.on_key_release(key)
+
         self.special_ability.on_key_release(key)

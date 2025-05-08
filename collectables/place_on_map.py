@@ -28,33 +28,33 @@ class PlaceOnMap:
         self.physics_engine = physics_engine
         self.stats = stats
 
-    def place_item(self, item):
+    def place_item_by_player(self, item):
         if self.stats.bombs > 0:
             item.position = self.player_sprite.position
             item.on_setup()
             self.placed_items.append(item)
             self.stats.bombs -= 1
 
-    def spawn_bomb(self):
-        bomb_sprite = Bomb(self.physics_engine, self.stats)
-        self.place_item(bomb_sprite)
+    def place_item(self,item,x,y):
+        item.position = (x,y)
+        item.on_setup()
+        self.placed_items.append(item)
+
+    def place_bomb(self,x,y):
+        bomb_sprite = Bomb(self.physics_engine, self.stats, self.effects, self.placed_items)
+        self.place_item(bomb_sprite,x,y)
+
+    def place_bomb_by_player(self):
+        bomb_sprite = Bomb(self.physics_engine, self.stats, self.effects,self.placed_items)
+        self.place_item_by_player(bomb_sprite)
 
     def update(self, delta_time: float = 1 / 60):
         self.placed_items.update()
         self.effects.update()
+
         for effect in self.effects:
             if effect.should_delete:
                 effect.remove_from_sprite_lists()
-
-        # Process bombs that have timed out
-        for bomb in self.placed_items[:]:  # Create a copy for safe removal
-            if bomb.timeout < 0:
-                explosion = Collectable(self.physics_engine, self.stats,explosion_url,explosion_details)
-                explosion.position = bomb.position
-                explosion.on_setup()
-                self.effects.append(explosion)
-                self.placed_items.remove(bomb)
-                self.physics_engine.remove_sprite(bomb)
 
     def on_draw(self):
         self.placed_items.draw()
@@ -62,4 +62,4 @@ class PlaceOnMap:
 
     def on_key_press(self, key):
         if key == arcade.key.E:
-            self.spawn_bomb()
+            self.place_bomb_by_player()

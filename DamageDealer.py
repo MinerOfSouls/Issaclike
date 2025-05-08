@@ -11,9 +11,9 @@ class DamageDealer:
         return cls._instance
 
     def deal_damage(self, target_stats=None):
-        # Optional: Allow overriding the target stats
         stats = target_stats or self.stats
         if stats.health > 0 and self.invulnerability_frames >= 60:
+            print("damage_taken")
             stats.health -= 1  # Or use stats.take_damage(1) if you have a method
             self.invulnerability_frames = 0
 

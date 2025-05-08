@@ -9,7 +9,7 @@ scale = 0.009
 
 
 class RangedAttack(Attack):
-    def __init__(self, player_sprite, stats, physics_engine):
+    def __init__(self, player_sprite, physics_engine,stats):
         super().__init__(player_sprite, stats)
         self.physics_engine = physics_engine
         self.projectile = Projectile(player_sprite, stats,projectile_url,scale, physics_engine)

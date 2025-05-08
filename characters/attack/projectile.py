@@ -26,6 +26,11 @@ class Projectile(arcade.Sprite):
             "wall",
             post_handler=wall_hit_handler,
         )
+        self.physics_engine.add_collision_handler(
+            "projectile",
+            "explosion",
+            pre_handler=lambda *args: False,
+        )
 
     def spawn_projectile(self, projectile_deg):
         projectile = arcade.Sprite(self.projectile_url, self.scale)
