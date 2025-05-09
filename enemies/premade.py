@@ -30,6 +30,7 @@ class Slime(Enemy):
             position = (random.randint(SPRITE_SIZE*4, WINDOW_WIDTH-SPRITE_SIZE*4), random.randint(SPRITE_SIZE*4, WINDOW_WIDTH-SPRITE_SIZE*4)),
             sprite_handle=get_slime_sprite
         )
+        self.sprite.scale = 1
 
     def attack(self, delta_time, destination, engine: PymunkPhysicsEngine, projectile_control):
         super().melee_attack(delta_time, destination, engine)
@@ -50,6 +51,7 @@ class Rat(Enemy):
             position = (random.randint(SPRITE_SIZE*4, WINDOW_WIDTH-SPRITE_SIZE*4), random.randint(SPRITE_SIZE*4, WINDOW_WIDTH-SPRITE_SIZE*4)),
             sprite_handle=get_rat_sprite
         )
+        self.sprite.scale = 1
 
     def attack(self, delta_time, destination, engine: PymunkPhysicsEngine, projectile_control):
         super().melee_attack(delta_time, destination, engine)
@@ -69,6 +71,7 @@ class Wizard(Enemy):
             position = (random.randint(SPRITE_SIZE*4, WINDOW_WIDTH-SPRITE_SIZE*4), random.randint(SPRITE_SIZE*4, WINDOW_WIDTH-SPRITE_SIZE*4)),
             sprite_handle=get_wizard_sprite
         )
+        self.sprite.scale = 1
 
     def attack(self, delta_time, destination, engine: PymunkPhysicsEngine, projectile_control):
         super().ranged_attack(delta_time,destination, projectile_control)

@@ -35,6 +35,7 @@ class Room:
         self.doors = arcade.SpriteList()
         self.completed = False
         self.physics_engine = engine
+        self.objects = arcade.SpriteList()
 
         def draw_wall(x, y):
             wall = arcade.Sprite(get_wall_texture(x, y), scale=SPRITE_SCALING)
@@ -78,6 +79,7 @@ class Room:
         )
         self.wall_list.draw(pixelated=True)
         self.doors.draw(pixelated=True)
+        self.objects.draw()
 
     def complete(self):
         self.completed = True
@@ -85,7 +87,7 @@ class Room:
             door.texture = get_door_texture(door.left, door.bottom, self.completed)
 
     def update(self, delta_time, player):
-        pass
+        self.objects.update()
 
     def enter(self):
         for wall in self.wall_list:
@@ -106,6 +108,7 @@ class EnemyRoom(Room):
         self.enemy_controller = EnemyController(get_random_enemies(enemy_n, 0), self, engine, stats)
 
     def update(self, delta_time, player):
+        super().update(delta_time, player)
         self.enemy_controller.update(delta_time, player)
 
     def draw(self):
@@ -232,3 +235,6 @@ class Map:
 
     def update(self, delta_time, player):
         self.rooms[self.current_room].update(delta_time, player)
+
+    def get_object_list(self):
+        return self.rooms[self.current_room].objects

@@ -142,8 +142,16 @@ class EnemyController:
                 enemy_sprite.remove_from_sprite_lists()
             return False
 
+        def enemy_hit_handle(enemy_sprite: arcade.Sprite, *args):
+            enemy_sprite.properties["health"] -= self.stats.damage
+            if enemy_sprite.properties["health"] <= 0:
+                enemy_sprite.remove_from_sprite_lists()
+            return False
+
         self.physics_engine.add_collision_handler("enemy", "projectile", post_handler=projectile_collision_handler)
         self.physics_engine.add_collision_handler("enemy", "player", begin_handler=player_collision_handler)
+        self.physics_engine.add_collision_handler("enemy", "sword", post_handler=enemy_hit_handle)
+        self.physics_engine.add_collision_handler("enemy", "boomerang", post_handler=enemy_hit_handle)
 
     def draw(self):
         self.projectiles.draw()

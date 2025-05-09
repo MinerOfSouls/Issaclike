@@ -1,7 +1,7 @@
 from parameters import *
 import arcade
 import os
-from animations.animeted import AnimatedMovingSprite
+from animations.animated import AnimatedMovingSprite
 
 doors = {filename.split(".")[0]:arcade.load_texture(os.path.join("resources/images/door_textures", filename))
          for filename in os.listdir("resources/images/door_textures")}
