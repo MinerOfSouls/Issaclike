@@ -9,6 +9,10 @@ class PlayerController:
         self.w_pressed = False
         self.s_pressed = False
 
+        self.player.properties["invincible"] = False
+        self.player.properties["inv_timer"] = 0
+
+
 
     def on_update(self,physics_engine) -> None:
 

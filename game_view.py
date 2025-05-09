@@ -7,6 +7,7 @@ from managers.collision_manager import CollisionManager
 from draw_ui import DrawUI
 
 from characters.player import Player
+from resource_manager import get_wizard_player_character
 from managers.difficulty_manager import DifficultyOptions
 from rooms import Map
 from parameters import *
@@ -39,6 +40,9 @@ class GameView(arcade.View):
         self.difficulty_options = None
         self.attack_manager = None
 
+        self.player_class = 0
+
+        self.coin_list = arcade.SpriteList()
         self.pickups_list = arcade.SpriteList()
 
         self.camera = arcade.Camera2D(
@@ -50,7 +54,11 @@ class GameView(arcade.View):
     def setup(self):
         self.player_list = arcade.SpriteList()
         #player
-        self.player_sprite = Player("resources/images/player_sprite_placeholder.png", scale= SPRITE_SCALING)
+        if self.player_class == 1:
+            self.player_sprite = get_wizard_player_character()
+            self.player_sprite.scale = 1
+        else:
+            self.player_sprite = Player("resources/images/player_sprite_placeholder.png", scale=SPRITE_SCALING)
         self.player_sprite.center_x = WINDOW_WIDTH / 2
         self.player_sprite.center_y = WINDOW_HEIGHT / 2
         self.player_list.append(self.player_sprite)
@@ -80,7 +88,7 @@ class GameView(arcade.View):
             max_velocity=500,
             elasticity=0.0
         )
-        self.map = Map(10,self.physics_engine)
+        self.map = Map(10, self.physics_engine, self.stats)
         self.map.on_setup()
 
 
@@ -120,6 +128,7 @@ class GameView(arcade.View):
         return None
 
     def on_update(self, delta_time):
+        self.player_controller.on_update(delta_time, self.physics_engine)
         self.damage_dealer.update()
         self.player_controller.on_update(self.physics_engine)
         self.player_list.update(delta_time)
@@ -133,7 +142,7 @@ class GameView(arcade.View):
         self.place_on_map.update()
         self.difficulty_options.update()
         self.physics_engine.step()
-
+        self.map.update(delta_time, self.player_sprite)
 
 
     def on_key_press(self, key, modifiers):

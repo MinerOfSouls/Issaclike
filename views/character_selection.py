@@ -37,18 +37,21 @@ class CharacterSelection(arcade.View):
         @self.knight.event("on_click")
         def choose_knight(event):
             game_view = GameView()
+            game_view.player_class = 0
             game_view.setup()
             self.window.show_view(game_view)
 
         @self.mage.event("on_click")
         def choose_mage(event):
             game_view = GameView()
+            game_view.player_class = 1
             game_view.setup()
             self.window.show_view(game_view)
 
         @self.dragon.event("on_click")
         def choose_dragon(event):
             game_view = GameView()
+            game_view.player_class = 3
             game_view.setup()
             self.window.show_view(game_view)
 
