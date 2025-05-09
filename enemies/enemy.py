@@ -7,33 +7,23 @@ from parameters import *
 
 
 class Enemy:
-    def __init__(self, health, damage, speed, position, attack_cooldown, texture):
-        self.sprite = arcade.Sprite(texture, scale = SPRITE_SCALING, center_x=position[0], center_y=position[1])
+    def __init__(self, health, damage, speed, position, attack_cooldown, attack_range, sprite_handle):
+        self.sprite = sprite_handle()
         self.health = health
         self.damage = damage
         self.speed = speed
         self.position = position
-        #Maybe a feature
         self.attack_cooldown = attack_cooldown
-        self.melee_attack_sprite = None
         self.timer = attack_cooldown
+        self.attack_range = attack_range
+
+        self.sprite.scale = 1
+        self.sprite.center_x = position[0]
+        self.sprite.center_y = position[1]
 
         self.sprite.properties["health"] = self.health
         self.sprite.properties["damage"] = self.damage
         self.sprite.properties["interact"] = False
-
-    def create_path(self, destination, blockers):
-        return arcade.astar_calculate_path(
-            self.position,
-            destination,
-            arcade.AStarBarrierList(
-                self.sprite,
-                blockers,
-                SPRITE_SIZE,
-                0, WINDOW_WIDTH, 0, WINDOW_HEIGHT
-            ),
-            True
-        )
 
     def add_to_engine(self, engine: PymunkPhysicsEngine):
         engine.add_sprite(
@@ -48,10 +38,10 @@ class Enemy:
         engine.remove_sprite(self.sprite)
 
     def move(self, destination, engine: PymunkPhysicsEngine, **kwargs):
-        self.__basic_move(destination, engine)
+        self.basic_move(destination, engine)
         pass
 
-    def attack(self, delta_time, destination, engine: PymunkPhysicsEngine, **kwargs):
+    def attack(self, delta_time, destination, engine: PymunkPhysicsEngine, projectile_control):
         pass
 
     def update(self):
@@ -71,11 +61,11 @@ class Enemy:
         return change_x, change_y
 
     # Movement algorithm types
-    def __basic_move(self, destination, engine: PymunkPhysicsEngine):
+    def basic_move(self, destination, engine: PymunkPhysicsEngine):
         change_x, change_y = self.__move_calc(destination)
         engine.apply_impulse(self.sprite, (change_x, change_y))
 
-    def __keep_away(self, destination, engine: PymunkPhysicsEngine, keep_away_distance):
+    def keep_away(self, destination, engine: PymunkPhysicsEngine, keep_away_distance):
         change_x, change_y = self.__move_calc(destination)
         dist = math.dist(self.position, destination)
         if dist < keep_away_distance:
@@ -83,25 +73,23 @@ class Enemy:
         else:
             engine.apply_impulse(self.sprite, (change_x, change_y))
 
-    def __move_along_path(self, engine: PymunkPhysicsEngine, path, current_id):
+    def move_along_path(self, engine: PymunkPhysicsEngine, path, current_id):
         if current_id >= len(path):
             current_id = 0
         destination = path[current_id]
         change_x, change_y = self.__move_calc(destination)
         engine.apply_impulse(self.sprite, (change_x, change_y))
 
-    def __wait_until_interact(self, destination, engine: PymunkPhysicsEngine):
+    def wait_until_interact(self, destination, engine: PymunkPhysicsEngine):
         if self.sprite.properties["interact"]:
-            self.__basic_move(destination, engine)
+            self.basic_move(destination, engine)
 
-    def __melee_attack(self, delta_time, destination, engine: PymunkPhysicsEngine, attack_range):
-        if self.melee_attack_sprite is not None:
-            self.melee_attack_sprite.remove_from_sprite_lists()
+    def melee_attack(self, delta_time, destination, engine: PymunkPhysicsEngine):
         if self.timer > 0:
             self.timer -= delta_time
             return
         dist = math.dist(self.position, destination)
-        if dist < attack_range:
+        if dist < self.attack_range:
             attack_sprite = arcade.Sprite(None, center_x=destination[0], center_y=destination[1])
             attack_sprite.size = (SPRITE_SIZE, SPRITE_SIZE)
             attack_sprite.properties["tmp"] = True
@@ -114,6 +102,12 @@ class Enemy:
             )
             self.timer = self.attack_cooldown
 
+    def ranged_attack(self, delta_time, destination, projectile_control):
+        if self.timer > 0:
+            self.timer -= delta_time
+            return
+        projectile_control.spawn_projectile(self, destination)
+        self.timer = self.attack_cooldown
 
 
 class EnemyController:
@@ -125,6 +119,7 @@ class EnemyController:
         self.physics_engine = engine
         self.room = room
         self.stats = stats
+        self.projectiles = EnemyProjectileController(engine, stats, 10)
 
         def player_collision_handler(enemy_sprite: arcade.Sprite, player_sprite: arcade.Sprite, *args):
             enemy_sprite.properties["interact"] = True
@@ -133,6 +128,7 @@ class EnemyController:
                 player_sprite.properties["invincible"] = True
                 player_sprite.properties["inv_timer"] = 1.0
             if "tmp" in enemy_sprite.properties.keys():
+                print("hit")
                 enemy_sprite.remove_from_sprite_lists()
             return False
 
@@ -150,10 +146,13 @@ class EnemyController:
         self.physics_engine.add_collision_handler("enemy", "player", begin_handler=player_collision_handler)
 
     def draw(self):
+        self.projectiles.draw()
         self.enemy_sprite_list.draw()
 
     #temprarly removed room completion logic
     def update(self, delta_time, player: arcade.Sprite):
+
+        self.projectiles.update()
 
         if player.properties["invincible"]:
             player.properties["inv_timer"] -= delta_time
@@ -162,7 +161,7 @@ class EnemyController:
                 player.properties["invincible"] = False
 
         if len(self.enemy_sprite_list) == 0:
-            self.room.completed = True
+            self.room.complete()
             self.enemies.clear()
             return
         location = (player.center_x, player.center_y)
@@ -182,6 +181,8 @@ class EnemyController:
 
             e.update()
             e.move(location, self.physics_engine)
+            e.sprite.update(delta_time)
+            e.attack(delta_time, location, self.physics_engine, self.projectiles)
 
         for e in garbage_collect:
             self.enemies.remove(e)
@@ -194,19 +195,6 @@ class EnemyController:
         print(self.enemies, len(self.enemy_sprite_list))
         for e in self.enemies:
             e.remove_from_engine(self.physics_engine)
-
-def create_random_enemies(n):
-    e_list = []
-    for i in range(n):
-        e_list.append(Enemy(
-            5,
-            1,
-            10,
-            (random.randint(SPRITE_SIZE*4, WINDOW_WIDTH-SPRITE_SIZE*4), random.randint(SPRITE_SIZE*4, WINDOW_WIDTH-SPRITE_SIZE*4)),
-            0,
-            "resources/images/enemy_placeholder.png"
-        ))
-    return e_list
 
 class EnemyProjectileController:
     def __init__(self, engine: PymunkPhysicsEngine, stats, speed):
@@ -270,8 +258,8 @@ class EnemyProjectileController:
         x_delta = x_goal - enemy.position[0]
         y_delta = y_goal - enemy.position[1]
         angle = math.atan2(y_delta, x_delta)
-        change_x = math.cos(angle) * self.projectile_speed
-        change_y = math.sin(angle) * self.projectile_speed
+        change_x = math.cos(angle) * self.projectile_speed*5
+        change_y = math.sin(angle) * self.projectile_speed*5
         projectile = arcade.SpriteSolidColor(width=10, height=10, color=arcade.color.BLUE)
         projectile.center_x = enemy.position[0]
         projectile.center_y = enemy.position[1]

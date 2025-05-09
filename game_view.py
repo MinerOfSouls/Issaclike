@@ -26,6 +26,8 @@ class GameView(arcade.View):
         self.UI = None
         self.physics_handler = None
 
+        self.player_class = 0
+
         self.coin_list = arcade.SpriteList()
 
         self.camera = arcade.Camera2D(

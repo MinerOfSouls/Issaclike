@@ -3,27 +3,12 @@ from abc import abstractmethod
 
 import arcade
 from arcade import PymunkPhysicsEngine
-
-from enemies.enemy import EnemyController, create_random_enemies
+from enemies.premade import get_random_enemies
+from enemies.enemy import EnemyController
 from parameters import *
+from resource_manager import get_door_texture, get_wall_texture, get_floor
 
 random.seed(1234)
-
-WALL_TEXTURES = {
-    "north":"resources/images/wall_placeholder.png",
-    "south":"resources/images/wall_placeholder.png",
-    "east":"resources/images/wall_placeholder.png",
-    "west":"resources/images/wall_placeholder.png"
-}
-
-DOOR_TEXTURES = {
-    "north":"resources/images/door_placeholder.png",
-    "south":"resources/images/door_placeholder.png",
-    "east":"resources/images/door_placeholder.png",
-    "west":"resources/images/door_placeholder.png"
-}
-
-FLOOR_TEXTURE = "resources/images/floor_placeholder.jpg"
 
 NEXT_ROOM_POSITIONS = {
     "north":(SPRITE_SIZE * ((WINDOW_WIDTH/SPRITE_SIZE)//2) - SPRITE_SIZE//2, 2*SPRITE_SIZE),
@@ -32,70 +17,39 @@ NEXT_ROOM_POSITIONS = {
     "west":(WINDOW_WIDTH - 2*SPRITE_SIZE, SPRITE_SIZE * ((WINDOW_HEIGHT/SPRITE_SIZE)//2) - SPRITE_SIZE//2)
 }
 
+def door_side(x, y):
+    if y == 0:
+        return "south"
+    elif y == WINDOW_HEIGHT - SPRITE_SIZE:
+        return "north"
+    elif x == 0:
+        return "east"
+    else:
+        return "west"
+
 class Room:
     #wall_sprites is a dictionary based on position with keys:
     #"north", "east", "west", "south" and values being paths to sprite pngs
-    def __init__(self, wall_sprites: dict, floor, doors, door_sprites, engine):
-        self.floor = arcade.load_texture(floor)
+    def __init__(self, doors, engine):
         self.wall_list = arcade.SpriteList()
         self.doors = arcade.SpriteList()
         self.completed = False
         self.physics_engine = engine
 
         def draw_wall(x, y):
-            if y == 0:
-                wall = arcade.Sprite(
-                    wall_sprites["south"],
-                    scale=SPRITE_SCALING)
-            elif y == WINDOW_HEIGHT - SPRITE_SIZE:
-                wall = arcade.Sprite(
-                    wall_sprites["north"],
-                    scale=SPRITE_SCALING)
-            elif x == 0:
-                wall = arcade.Sprite(
-                    wall_sprites["west"],
-                    scale=SPRITE_SCALING)
-            else:
-                wall = arcade.Sprite(
-                    wall_sprites["east"],
-                    scale=SPRITE_SCALING)
+            wall = arcade.Sprite(get_wall_texture(x, y), scale=SPRITE_SCALING)
             wall.left = x
             wall.bottom = y
             self.wall_list.append(wall)
 
         def draw_door(x, y):
-            if y == 0:
-                if "south" not in doors:
-                    draw_wall(x, y)
-                    return
-                door = arcade.Sprite(
-                    door_sprites["south"],
-                    scale=SPRITE_SCALING
-                )
-            elif y== WINDOW_HEIGHT - SPRITE_SIZE:
-                if "north" not in doors:
-                    draw_wall(x, y)
-                    return
-                door = arcade.Sprite(
-                    door_sprites["north"],
-                    scale=SPRITE_SCALING
-                )
-            elif x == 0:
-                if "west" not in doors:
-                    draw_wall(x, y)
-                    return
-                door = arcade.Sprite(
-                    door_sprites["west"],
-                    scale=SPRITE_SCALING
-                )
-            else:
-                if "east" not in doors:
-                    draw_wall(x, y)
-                    return
-                door = arcade.Sprite(
-                    door_sprites["east"],
-                    scale=SPRITE_SCALING
-                )
+            if door_side(x, y) not in doors:
+                draw_wall(x, y)
+                return
+            door = arcade.Sprite(
+                get_door_texture(x, y, self.completed),
+                scale=SPRITE_SCALING
+            )
             door.left = x
             door.bottom = y
             self.doors.append(door)
@@ -119,11 +73,16 @@ class Room:
 
     def draw(self):
         arcade.draw_texture_rect(
-            self.floor,
+            get_floor(),
             rect=arcade.LBWH(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
         )
-        self.wall_list.draw()
-        self.doors.draw()
+        self.wall_list.draw(pixelated=True)
+        self.doors.draw(pixelated=True)
+
+    def complete(self):
+        self.completed = True
+        for door in self.doors:
+            door.texture = get_door_texture(door.left, door.bottom, self.completed)
 
     def update(self, delta_time, player):
         pass
@@ -142,9 +101,9 @@ class Room:
 
 
 class EnemyRoom(Room):
-    def __init__(self, wall_sprites: dict, floor, doors, door_sprites, engine, enemy_n, stats):
-        super().__init__(wall_sprites, floor, doors, door_sprites, engine)
-        self.enemy_controller = EnemyController(create_random_enemies(enemy_n), self, engine, stats)
+    def __init__(self,doors, engine, enemy_n, stats):
+        super().__init__(doors, engine)
+        self.enemy_controller = EnemyController(get_random_enemies(enemy_n, 0), self, engine, stats)
 
     def update(self, delta_time, player):
         self.enemy_controller.update(delta_time, player)
@@ -213,13 +172,13 @@ class Map:
         for c in room_coordinates:
             room_doors = {k for k in self.connections[c].keys()}
             match room_types[c]:
-                case 0: self.rooms[c] = Room(WALL_TEXTURES, FLOOR_TEXTURE, room_doors, DOOR_TEXTURES, self.physics_engine)
-                case 1: self.rooms[c] = Room(WALL_TEXTURES, FLOOR_TEXTURE, room_doors, DOOR_TEXTURES, self.physics_engine)
-                case 2: self.rooms[c] = EnemyRoom(WALL_TEXTURES, FLOOR_TEXTURE, room_doors, DOOR_TEXTURES, self.physics_engine, 3, stats)
-                case 3: self.rooms[c] = Room(WALL_TEXTURES, FLOOR_TEXTURE, room_doors, DOOR_TEXTURES, self.physics_engine)
-            self.rooms[c].completed = True
+                case 0: self.rooms[c] = Room(room_doors, self.physics_engine)
+                case 1: self.rooms[c] = Room(room_doors, self.physics_engine); self.rooms[c].complete()
+                case 2: self.rooms[c] = EnemyRoom(room_doors, self.physics_engine, 3, stats)
+                case 3: self.rooms[c] = Room(room_doors, self.physics_engine); self.rooms[c].complete()
 
         self.current_room = (0, 0)
+        self.rooms[(0, 0)].complete()
 
 
     def on_setup(self):
@@ -241,9 +200,6 @@ class Map:
     def get_current_doors(self):
         return self.rooms[self.current_room].doors
 
-    def get_current_floor(self):
-        return self.rooms[self.current_room].floor
-
     def check_room_move(self, player_sprite):
         intersection = arcade.check_for_collision_with_list(player_sprite, self.get_current_doors())
         if len(intersection) ==  0:
@@ -262,7 +218,7 @@ class Map:
 
     def change_room(self, player_sprite: arcade.Sprite, engine: PymunkPhysicsEngine):
         check = self.check_room_move(player_sprite)
-        if check is not False:
+        if check is not False and self.rooms[self.current_room].completed:
             if check in self.connections[self.current_room].keys():
                 self.rooms[self.current_room].leave()
                 pos = (NEXT_ROOM_POSITIONS[check][0], NEXT_ROOM_POSITIONS[check][1])
