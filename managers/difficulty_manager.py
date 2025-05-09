@@ -20,10 +20,11 @@ squll_sprite_details = {
     "body_type": PymunkPhysicsEngine.KINEMATIC
 }
 class DifficultyOptions:
-    def __init__(self,physics_engine ,player_sprite, stats ,effects_list):
+    def __init__(self,physics_engine ,player_sprite, stats ,effects_list,attack_manager):
         self.physics_engine = physics_engine
         self.player_sprite = player_sprite
         self.stats = stats
+        self.attack_manager = attack_manager
         self.effects_list = effects_list
         self.indicators = arcade.SpriteList()
         self.bomb_timeout = 0
@@ -43,7 +44,7 @@ class DifficultyOptions:
         self.indicators.append(skull)
 
     def modify_attack(self):
-        # self.attack_manager.set_random_attack()
+        self.attack_manager.set_random_attack()
         pass
 
     def draw(self):

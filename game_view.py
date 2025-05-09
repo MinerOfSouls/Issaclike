@@ -96,7 +96,7 @@ class GameView(arcade.View):
 
         self.place_on_map = PlaceOnMap(self.player_sprite,self.placed_items,self.stats, self.physics_engine)
 
-        self.difficulty_options = DifficultyOptions(self.physics_engine ,self.player_sprite, self.stats , self.effects_list)
+        self.difficulty_options = DifficultyOptions(self.physics_engine ,self.player_sprite, self.stats , self.effects_list, self.attack_manager)
         self.difficulty_options.on_setup()
 
         self.effect_handler = CollisionManager(self.physics_engine, self.stats)

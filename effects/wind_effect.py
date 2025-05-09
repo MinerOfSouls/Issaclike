@@ -73,7 +73,7 @@ class Wind:
         self.cooldown+=1
         self.remove_off_screen()
         if self.cooldown >45:
-            self.directional_wind("up")
+            self.directional_wind("left")
             self.cooldown = 0
 
 
