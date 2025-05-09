@@ -184,8 +184,8 @@ class Map:
     def on_setup(self):
 
         #  door transition handler
-        def door_interact_handler(player_sprite, *args):
-            if self.change_room(player_sprite, self.physics_engine):
+        def door_interact_handler(player_sprite, door_sprite, *args):
+            if self.change_room(player_sprite, door_sprite, self.physics_engine):
                 return True
             else:
                 return False
@@ -200,11 +200,7 @@ class Map:
     def get_current_doors(self):
         return self.rooms[self.current_room].doors
 
-    def check_room_move(self, player_sprite):
-        intersection = arcade.check_for_collision_with_list(player_sprite, self.get_current_doors())
-        if len(intersection) ==  0:
-            return False
-        door = intersection[0]
+    def check_room_move(self, door):
         if int(door.left) == 0:
             return "west"
         elif int(door.left) ==  WINDOW_WIDTH - SPRITE_SIZE:
@@ -216,8 +212,8 @@ class Map:
         else:
             return False
 
-    def change_room(self, player_sprite: arcade.Sprite, engine: PymunkPhysicsEngine):
-        check = self.check_room_move(player_sprite)
+    def change_room(self, player_sprite: arcade.Sprite, door_sprite, engine: PymunkPhysicsEngine):
+        check = self.check_room_move(door_sprite)
         if check is not False and self.rooms[self.current_room].completed:
             if check in self.connections[self.current_room].keys():
                 self.rooms[self.current_room].leave()

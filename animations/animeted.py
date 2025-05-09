@@ -2,14 +2,14 @@ import arcade
 import math
 
 def facing_to_direction(angle):
-    if angle < 30 or angle >= 330:
-        return "north"
-    elif 30 <= angle < 150:
+    if angle < 60 or angle >= 300:
         return "east"
-    elif 150 <= angle < 210:
-        return "south"
-    elif 210 <= angle < 330:
+    elif 60 <= angle < 120:
+        return "north"
+    elif 120 <= angle < 240:
         return "west"
+    elif 240 <= angle < 300:
+        return "south"
 
 class AnimatedMovingSprite(arcade.Sprite):
     def __init__(self, **kwargs):
@@ -36,5 +36,6 @@ class AnimatedMovingSprite(arcade.Sprite):
             return
         self.facing = math.degrees(math.atan2(dx, dy) - math.pi/2)%360
         self.texture = self.moving_animations[self.facing_calc(self.facing)][self.current_texture_index]
+        self.sync_hit_box_to_texture()
         self.current_texture_index = (self.current_texture_index + 1)%self.moving_animation_length
         self.last_update = (self.center_x, self.center_y)

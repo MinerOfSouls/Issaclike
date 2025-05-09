@@ -14,6 +14,9 @@ floor = arcade.load_texture("resources/images/floor.png")
 enemy_sheets = {filename.split(".")[0]:arcade.load_spritesheet(os.path.join("resources/images/enemies", filename))
                     for filename in os.listdir("resources/images/enemies")}
 
+player_sheets = {filename.split(".")[0]:arcade.load_spritesheet(os.path.join("resources/images/characters", filename))
+                    for filename in os.listdir("resources/images/characters")}
+
 enemy_textures = {}
 enemy_textures["slime_idle"] = enemy_sheets["slime_idle"].get_texture_grid((64, 64), 4, 4)
 enemy_textures["slime_move_west"] = enemy_sheets["slime_move"].get_texture_grid((64, 64), 4, 4)
@@ -70,8 +73,22 @@ def get_wall_texture(x, y):
 def get_floor():
     return floor
 
+def get_wizard_player_character():
+    sprite = AnimatedMovingSprite()
+    directions = ["north", "east", "west", "south"]
+    idle = player_sheets["wizard_idle"].get_texture_grid((128, 128), 1, 1)
+    for d in directions:
+        sprite.standing_animations[d] = idle
+    sprite.standing_animation_length = 1
+    sprite.moving_animations["north"] = player_sheets["wizard_up"].get_texture_grid((128, 128), 6, 6)
+    sprite.moving_animations["east"] = player_sheets["wizard_left"].get_texture_grid((128, 128), 6, 6)
+    sprite.moving_animations["south"] = player_sheets["wizard_down"].get_texture_grid((128, 128), 6, 6)
+    sprite.moving_animations["west"] = player_sheets["wizard_right"].get_texture_grid((128, 128), 6, 6)
+    sprite.moving_animation_length = 6
+    return sprite
+
 def enemy_facing(angle):
-    if 0 <= angle < 180:
+    if angle < 90 or angle >= 270:
         return "east"
     else:
         return "west"

@@ -3,6 +3,7 @@ from arcade import LRBT, PymunkPhysicsEngine
 from draw_ui import DrawUI
 
 from characters.player import Player
+from resource_manager import get_wizard_player_character
 from rooms import Map
 from parameters import *
 from characters.player_controller import PlayerController
@@ -40,9 +41,12 @@ class GameView(arcade.View):
 
     def setup(self):
         self.player_list = arcade.SpriteList()
-
         #player
-        self.player_sprite = Player("resources/images/player_sprite_placeholder.png", scale= SPRITE_SCALING)
+        if self.player_class == 1:
+            self.player_sprite = get_wizard_player_character()
+            self.player_sprite.scale = 1
+        else:
+            self.player_sprite = Player("resources/images/player_sprite_placeholder.png", scale=SPRITE_SCALING)
         self.player_sprite.center_x = WINDOW_WIDTH / 2
         self.player_sprite.center_y = WINDOW_HEIGHT / 2
         self.player_list.append(self.player_sprite)
@@ -51,8 +55,6 @@ class GameView(arcade.View):
         self.UI = DrawUI(self.stats)
 
         self.special_ability = MageSpecialAbility(self.player_sprite)
-
-
 
         self.player_controller = PlayerController(self.player_sprite,self.stats)
 
