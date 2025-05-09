@@ -1,21 +1,27 @@
 import arcade
 from arcade import LRBT, PymunkPhysicsEngine
+
+from managers.damage_manager import DamageManager
+from managers.attack_manager import AttackManager
+from managers.collision_manager import CollisionManager
 from draw_ui import DrawUI
 
 from characters.player import Player
 from resource_manager import get_wizard_player_character
+from managers.difficulty_manager import DifficultyOptions
 from rooms import Map
 from parameters import *
 from characters.player_controller import PlayerController
 from characters.stats import PlayerStatsController
-from characters.attack.ranged_attack import RangedAttack
 from characters.Abilieties.mage_special_ability import MageSpecialAbility
-from animations.coin import Coin
-from physics_handler import PhysicsHandler
+from collectables.pickup_factory import PickupFactory
+from collectables.place_on_map import PlaceOnMap
+
 
 class GameView(arcade.View):
     def __init__(self):
         super().__init__()
+        self.damage_dealer = None
         self.map = None
         self.player_list = None
         self.player_sprite = None
@@ -25,19 +31,25 @@ class GameView(arcade.View):
         self.attack = None
         self.special_ability = None
         self.UI = None
-        self.physics_handler = None
+        self.pickup_factory = None
+        self.melee_attack = None
+        self.effect_handler = None
+        self.place_on_map = None
+        self.effects_list = arcade.SpriteList()
+        self.placed_items= arcade.SpriteList()
+        self.difficulty_options = None
+        self.attack_manager = None
 
         self.player_class = 0
 
         self.coin_list = arcade.SpriteList()
+        self.pickups_list = arcade.SpriteList()
 
         self.camera = arcade.Camera2D(
             position=(0, 0),
             projection=LRBT(left=0, right=WINDOW_WIDTH, bottom=0, top=WINDOW_HEIGHT),
             viewport=self.window.rect
         )
-        self.coin = None
-
 
     def setup(self):
         self.player_list = arcade.SpriteList()
@@ -52,6 +64,7 @@ class GameView(arcade.View):
         self.player_list.append(self.player_sprite)
 
         self.stats = PlayerStatsController()
+        self.damage_dealer = DamageManager(self.stats)
         self.UI = DrawUI(self.stats)
 
         self.special_ability = MageSpecialAbility(self.player_sprite)
@@ -67,49 +80,89 @@ class GameView(arcade.View):
         )
         self.physics_engine.add_sprite(
             self.player_sprite,
+            mass=2,
             friction=1.0,
             moment_of_inertia=PymunkPhysicsEngine.MOMENT_INF,
             damping=0.01,
             collision_type="player",
-            max_velocity=400,
+            max_velocity=500,
             elasticity=0.0
         )
         self.map = Map(10, self.physics_engine, self.stats)
         self.map.on_setup()
-        self.attack = RangedAttack(self.player_sprite, self.stats, self.physics_engine)
 
-        self.coin = Coin(self.physics_engine,self.stats)
-        self.coin.position = 200, 200
-        self.coin_list.append(self.coin)
-        self.coin.on_setup()
-        self.physics_handler = PhysicsHandler(self.physics_engine,self.stats)
-        self.physics_handler.on_setup()
+
+        self.attack_manager = AttackManager(self.physics_engine , self.player_sprite , self.stats)
+
+
+        self.pickup_factory = PickupFactory(self.physics_engine, self.pickups_list, self.stats)
+        self.pickup_factory.spawn_coin(100,100)
+        self.pickup_factory.spawn_chest(300,300)
+        self.pickup_factory.spawn_key(200,200)
+        self.pickup_factory.spawn_health_potion(300,100)
+        self.pickup_factory.spawn_bomb(300,200)
+
+        self.place_on_map = PlaceOnMap(self.player_sprite,self.placed_items,self.stats, self.physics_engine)
+
+        self.difficulty_options = DifficultyOptions(self.physics_engine ,self.player_sprite, self.stats , self.effects_list, self.attack_manager)
+        self.difficulty_options.on_setup()
+
+        self.effect_handler = CollisionManager(self.physics_engine, self.stats)
+        self.effect_handler.on_setup()
+        # self.difficulty_options.set_slippery()
+        #
 
     def on_draw(self) -> bool | None:
         self.clear()
         self.map.draw()
         self.player_list.draw()
-        self.attack.on_draw()
+
+        if self.attack_manager.current_attack:
+            self.attack_manager.current_attack.on_draw()
+
         self.UI.on_draw()
-        self.coin_list.draw()
+        self.pickup_factory.on_draw()
+        self.place_on_map.on_draw()
+        self.difficulty_options.draw()
+
         return None
 
     def on_update(self, delta_time):
         self.player_controller.on_update(delta_time, self.physics_engine)
+        self.damage_dealer.update()
+        self.player_controller.on_update(self.physics_engine)
         self.player_list.update(delta_time)
-        self.attack.update()
+
+        if self.attack_manager.current_attack:
+            self.attack_manager.current_attack.update()
+
         self.special_ability.update()
         self.UI.on_update()
-        self.coin_list.update()
+        self.pickup_factory.update()
+        self.place_on_map.update()
+        self.difficulty_options.update()
         self.physics_engine.step()
         self.map.update(delta_time, self.player_sprite)
 
+
     def on_key_press(self, key, modifiers):
         self.player_controller.on_key_press(key)
-        self.attack.on_key_press(key)
+
+        if self.attack_manager.current_attack:
+            self.attack_manager.current_attack.on_key_press(key)
+
         self.special_ability.on_key_press(key)
+        self.place_on_map.on_key_press(key)
+        if key == arcade.key.ESCAPE:
+            from views.pause_screen import PauseView
+            pause = PauseView(self)
+            self.window.show_view(pause)
+
 
     def on_key_release(self, key, modifiers):
         self.player_controller.on_key_release(key)
-        self.attack.on_key_release(key)
+
+        if self.attack_manager.current_attack:
+            self.attack_manager.current_attack.on_key_release(key)
+
         self.special_ability.on_key_release(key)
