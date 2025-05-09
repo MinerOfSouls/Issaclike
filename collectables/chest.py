@@ -2,22 +2,13 @@ import arcade
 from arcade import PymunkPhysicsEngine
 from random import randint
 
+from collectables.interactive_item import InteractiveItem
 
 # does not follow scaling rules
-chest = 'resources/images/chest-ss.png'
-
-
-class Chest(arcade.Sprite):
-    def __init__(self, physics_engine,pickup_factory, stats):
-        chest_sheet = arcade.load_spritesheet(chest)
-        texture_list = chest_sheet.get_texture_grid(size=(48, 32), columns=4, count=4)
-        super().__init__(texture_list[0], scale=2)
+class Chest(InteractiveItem):
+    def __init__(self, physics_engine, pickup_factory, stats, sprite_url, sprite_details):
+        super().__init__(physics_engine, stats, sprite_url, sprite_details)
         self.pickup_factory = pickup_factory
-        self.time_elapsed = 0
-        self.cur_texture_index = 0
-        self.textures = texture_list
-        self.physics_engine = physics_engine
-        self.stats = stats
         self.opened = False
 
     def spawn_chest_contents(self):
@@ -25,7 +16,6 @@ class Chest(arcade.Sprite):
             num = randint(0, 10)
             for i in range(num):
                 rand = randint(0, 2)
-                # Random position near the chest
                 x_offset = randint(-50, 50)
                 y_offset = randint(0, 50)
                 spawn_x = self.center_x + x_offset
@@ -42,15 +32,16 @@ class Chest(arcade.Sprite):
                         key = self.pickup_factory.spawn_key(spawn_x, spawn_y)
                         key.apply_force((x_accel, y_accel))
                     case 2:
-                        # todo make a bomb
-                        pass
+                        bomb = self.pickup_factory.spawn_bomb(spawn_x, spawn_y)
+                        bomb.apply_force((x_accel, y_accel))
             self.opened = True
+
     def on_setup(self):
         def player_chest_handler(sprite_a, sprite_b, arbiter, space, data):
-            self.set_texture(1)
-            self.spawn_chest_contents()
-            # self.stats.chests +=1
-            print("chest")
+            if self.stats.keys >0:
+                self.set_texture(1)
+                self.spawn_chest_contents()
+                self.stats.keys -= 1
 
         self.physics_engine.add_collision_handler(
             "chest",
@@ -65,3 +56,6 @@ class Chest(arcade.Sprite):
                                        moment_of_inertia=PymunkPhysicsEngine.MOMENT_INF,
                                        collision_type="chest",
                                        elasticity=1)
+
+    def update(self, delta_time: float = 1/60, *args, **kwargs):
+        pass
