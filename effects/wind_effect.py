@@ -1,6 +1,6 @@
 import arcade
 
-from collectables.collectable import Collectable
+from collectables.interactive_item import InteractiveItem
 from parameters import *
 from random import randint
 
@@ -38,8 +38,8 @@ class Wind:
 
     def spawn_leaf(self, x: int, y: int):
         """Create a leaf collectable at specified position"""
-        leaf = Collectable(self.physics_engine, self.stats,
-                           wind_particle_url, wind_particle_details)
+        leaf = InteractiveItem(self.physics_engine, self.stats,
+                               wind_particle_url, wind_particle_details)
         leaf.position = (x, y)
         leaf.on_setup()
         self.effects_list.append(leaf)

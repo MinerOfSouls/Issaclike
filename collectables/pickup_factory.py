@@ -1,5 +1,5 @@
 from collectables.animation import Animation
-from collectables.collectable import Collectable
+from collectables.interactive_item import InteractiveItem
 
 
 from collectables.chest import Chest
@@ -80,21 +80,21 @@ class PickupFactory:
         self.stats = stats
 
     def spawn_coin(self,x:int,y:int):
-        coin = Collectable(self.physics_engine, self.stats,coin_sprite,coin_sprite_details)
+        coin = InteractiveItem(self.physics_engine, self.stats, coin_sprite, coin_sprite_details)
         coin.position = x ,y
         self.pickups_list.append(coin)
         coin.on_setup()
         return coin
 
     def spawn_key(self,x:int,y:int):
-        key = Collectable(self.physics_engine, self.stats, key_sprite, key_sprite_details)
+        key = InteractiveItem(self.physics_engine, self.stats, key_sprite, key_sprite_details)
         key.position = x ,y
         self.pickups_list.append(key)
         key.on_setup()
         return key
 
     def spawn_bomb(self,x:int,y:int):
-        bomb = Collectable(self.physics_engine, self.stats, bomb_url, bomb_details)
+        bomb = InteractiveItem(self.physics_engine, self.stats, bomb_url, bomb_details)
         bomb.position = x, y
         self.pickups_list.append(bomb)
         bomb.on_setup()
@@ -108,7 +108,7 @@ class PickupFactory:
         return chest
 
     def spawn_health_potion(self,x:int,y:int):
-        health_potion = Collectable(self.physics_engine, self.stats,health_potion_sprite,health_potion_details)
+        health_potion = InteractiveItem(self.physics_engine, self.stats, health_potion_sprite, health_potion_details)
         health_potion.position  = x,y
         self.pickups_list.append(health_potion)
         health_potion.on_setup()

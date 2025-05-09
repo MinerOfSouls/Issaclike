@@ -1,11 +1,5 @@
 import arcade
-from arcade import PymunkPhysicsEngine
-from game_view import DamageDealer
-from DamageDealer import DamageDealer
-from collectables.EffectHandler import EffectHandler
-from collectables.animation import Animation
 from collectables.bomb import Bomb  # Import your Bomb class
-from collectables.collectable import Collectable
 
 explosion_url = "resources/images/explosion.png"
 explosion_details = {

@@ -1,21 +1,20 @@
 import arcade
 from arcade import LRBT, PymunkPhysicsEngine
 
-from DamageDealer import DamageDealer
-from attack_manager import AttackManager
-from collectables.EffectHandler import EffectHandler
+from managers.damage_manager import DamageManager
+from managers.attack_manager import AttackManager
+from managers.collision_manager import CollisionManager
 from draw_ui import DrawUI
 
 from characters.player import Player
+from managers.difficulty_manager import DifficultyOptions
 from rooms import Map
 from parameters import *
 from characters.player_controller import PlayerController
 from characters.stats import PlayerStatsController
-from characters.attack.ranged_attack import RangedAttack
 from characters.Abilieties.mage_special_ability import MageSpecialAbility
-from pickup_factory import PickupFactory
+from collectables.pickup_factory import PickupFactory
 from collectables.place_on_map import PlaceOnMap
-from difficulty_options import DifficultyOptions
 
 
 class GameView(arcade.View):
@@ -57,7 +56,7 @@ class GameView(arcade.View):
         self.player_list.append(self.player_sprite)
 
         self.stats = PlayerStatsController()
-        self.damage_dealer = DamageDealer(self.stats)
+        self.damage_dealer = DamageManager(self.stats)
         self.UI = DrawUI(self.stats)
 
         self.special_ability = MageSpecialAbility(self.player_sprite)
@@ -97,10 +96,10 @@ class GameView(arcade.View):
 
         self.place_on_map = PlaceOnMap(self.player_sprite,self.placed_items,self.stats, self.physics_engine)
 
-        self.difficulty_options = DifficultyOptions(self)
+        self.difficulty_options = DifficultyOptions(self.physics_engine ,self.player_sprite, self.stats , self.effects_list)
         self.difficulty_options.on_setup()
 
-        self.effect_handler = EffectHandler(self.physics_engine , self.stats)
+        self.effect_handler = CollisionManager(self.physics_engine, self.stats)
         self.effect_handler.on_setup()
         # self.difficulty_options.set_slippery()
         #

@@ -1,11 +1,11 @@
-from DamageDealer import DamageDealer
+from managers.damage_manager import DamageManager
 
 
-class EffectHandler:
+class CollisionManager:
     def __init__(self,physics_engine,stats):
         self.stats = stats
         self.physics_engine = physics_engine
-        self.damage_dealer = DamageDealer(stats)
+        self.damage_dealer = DamageManager(stats)
 
     def ignore_all_collisions(self,collision_type):
         for other_type in self.physics_engine.collision_types:
@@ -20,6 +20,7 @@ class EffectHandler:
 
     def on_setup(self):
         self.ignore_all_collisions("leaf")
+        self.ignore_all_collisions("spawn_indicator")
 
     @staticmethod
     def handle_effect(effect_type, stats):
@@ -45,10 +46,12 @@ class EffectHandler:
             stats.damage+=1
             return True
         elif effect_type == 'explosion':
-            damage_dealer = DamageDealer()
+            damage_dealer = DamageManager()
             damage_dealer.deal_damage()
             return False
-        elif effect_type == 'leaf':
+        elif effect_type == 'projectile':
             return False
+        elif effect_type == 'placed_bomb':
+            return True
         return None
 

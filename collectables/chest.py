@@ -2,12 +2,12 @@ import arcade
 from arcade import PymunkPhysicsEngine
 from random import randint
 
-from collectables.collectable import Collectable
+from collectables.interactive_item import InteractiveItem
 
 # does not follow scaling rules
-class Chest(Collectable):
-    def __init__(self, physics_engine, pickup_factory, stats, sprite, sprite_details):
-        super().__init__(physics_engine, stats, sprite, sprite_details)
+class Chest(InteractiveItem):
+    def __init__(self, physics_engine, pickup_factory, stats, sprite_url, sprite_details):
+        super().__init__(physics_engine, stats, sprite_url, sprite_details)
         self.pickup_factory = pickup_factory
         self.opened = False
 
@@ -35,6 +35,7 @@ class Chest(Collectable):
                         bomb = self.pickup_factory.spawn_bomb(spawn_x, spawn_y)
                         bomb.apply_force((x_accel, y_accel))
             self.opened = True
+
     def on_setup(self):
         def player_chest_handler(sprite_a, sprite_b, arbiter, space, data):
             if self.stats.keys >0:

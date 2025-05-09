@@ -1,7 +1,6 @@
-# DamageDealer.py
-class DamageDealer:
+# damage manager singleton
+class DamageManager:
     _instance = None
-
     def __new__(cls, stats=None):
         if cls._instance is None:
             cls._instance = super().__new__(cls)

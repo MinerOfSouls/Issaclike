@@ -1,48 +1,36 @@
+import arcade
 from characters.attack.attack import Attack
 import math
-from characters.attack.projectile import Projectile
+from characters.attack.projectile_factory import ProjectileFactory
 
-
-projectile_url = "resources/images/projectile_placeholder.png"
-scale = 0.009
-
-
+bomb_url = "resources/images/granade.png"
+bomb_details = {
+    "width": 13,
+    "height": 16,
+    "columns": 1,
+    "count": 1,
+    "speed": 0.05,
+    "scale": 0.5,
+    "looping": False,
+    "item_type": "projectile",
+}
 
 class RangedAttack(Attack):
     def __init__(self, player_sprite, physics_engine,stats):
         super().__init__(player_sprite, stats)
         self.physics_engine = physics_engine
-        self.projectile = Projectile(player_sprite, stats,projectile_url,scale, physics_engine)
-        self.projectile_list = self.projectile.projectile_list  # Reference the same list
+        self.projectile_list = arcade.SpriteList()
+        self.projectile = ProjectileFactory(physics_engine,player_sprite, stats, bomb_url, bomb_details,self.projectile_list)
         self.attack_cooldown = stats.projectile_cooldown
-        self.charge_attack = 0
 
     def shoot_projectile(self):
-        if self.attack_cooldown > self.stats.projectile_cooldown:
-            if self.right_pressed and self.up_pressed:
-                self.projectile.spawn_projectile(45)  # 0 + 45
-                self.attack_cooldown = 0
-            elif self.up_pressed and self.left_pressed:
-                self.projectile.spawn_projectile(135)  # 90 + 45
-                self.attack_cooldown = 0
-            elif self.left_pressed and self.down_pressed:
-                self.projectile.spawn_projectile(225)  # 180 + 45
-                self.attack_cooldown = 0
-            elif self.down_pressed and self.right_pressed:
-                self.projectile.spawn_projectile(315)  # 270 + 45
-                self.attack_cooldown = 0
-            elif self.right_pressed:
-                self.projectile.spawn_projectile(0)
-                self.attack_cooldown = 0
-            elif self.up_pressed:
-                self.projectile.spawn_projectile(90)
-                self.attack_cooldown = 0
-            elif self.left_pressed:
-                self.projectile.spawn_projectile(180)
-                self.attack_cooldown = 0
-            elif self.down_pressed:
-                self.projectile.spawn_projectile(270)
-                self.attack_cooldown = 0
+        key_pressed = any([self.left_pressed, self.right_pressed,
+                           self.up_pressed, self.down_pressed])
+
+        if (self.attack_cooldown > self.stats.projectile_cooldown) and key_pressed:
+            self.update_direction()
+            self.projectile.spawn_projectile(self.direction)
+            self.attack_cooldown = 0
 
     def delete_projectile(self):
         for projectile in self.projectile_list:

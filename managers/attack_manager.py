@@ -1,7 +1,7 @@
-from characters.attack.projectile import Projectile
+from characters.attack.projectile_factory import ProjectileFactory
 from characters.attack.ranged_attack import RangedAttack
-from characters.attack.melee_atack import MeleeAttack
-from characters.attack.melee_attack2 import SwordSwing
+from characters.attack.boomerang_attack import BoomerangAttack
+from characters.attack.sword_attack import SwordSwing
 from random import randint, choice
 
 from enum import Enum, auto
@@ -18,16 +18,16 @@ class AttackManager:
         self.current_attack = None
 
         self.sword = SwordSwing(self.player_sprite, self.physics_engine, self.stats)
-        self.boomerang = MeleeAttack(self.player_sprite, self.physics_engine, self.stats)
+        self.boomerang = BoomerangAttack(self.player_sprite, self.physics_engine, self.stats)
         self.ranged_attack = RangedAttack(self.player_sprite, self.physics_engine, self.stats)
 
-        self.set_attack_type(AttackType.BOOMERANG)
+        self.set_attack_type(AttackType.SWORD)
 
     def set_attack_type(self, attack_type: AttackType):
         if attack_type == AttackType.SWORD:
             self.current_attack = SwordSwing(self.player_sprite, self.physics_engine, self.stats)
         elif attack_type == AttackType.BOOMERANG:
-            self.current_attack = MeleeAttack(self.player_sprite, self.physics_engine, self.stats)
+            self.current_attack = BoomerangAttack(self.player_sprite, self.physics_engine, self.stats)
         elif attack_type == AttackType.RANGED:
             self.current_attack = RangedAttack(self.player_sprite, self.physics_engine, self.stats)
         else:
