@@ -3,6 +3,8 @@ from abc import abstractmethod
 
 import arcade
 from arcade import PymunkPhysicsEngine
+from arcade.hitbox import pymunk
+
 from enemies.premade import get_random_enemies
 from enemies.enemy import EnemyController
 from parameters import *
@@ -36,6 +38,7 @@ class Room:
         self.completed = False
         self.physics_engine = engine
         self.objects = arcade.SpriteList()
+        self.loaded = False
 
         def draw_wall(x, y):
             wall = arcade.Sprite(get_wall_texture(x, y), scale=SPRITE_SCALING)
@@ -72,6 +75,7 @@ class Room:
                 else:
                     draw_door(x, y)
 
+
     def draw(self):
         arcade.draw_texture_rect(
             get_floor(),
@@ -95,11 +99,19 @@ class Room:
         for door in self.doors:
             self.physics_engine.add_sprite(door, body_type=2, collision_type="door")
 
+        for pickup in self.objects:
+            pickup.on_setup()
+
+
     def leave(self):
+        self.loaded = False
         for s in self.doors:
             self.physics_engine.remove_sprite(s)
         for s in self.wall_list:
             self.physics_engine.remove_sprite(s)
+
+        for pickup in self.objects:
+            self.physics_engine.remove_sprite(pickup)
 
 
 class EnemyRoom(Room):
@@ -238,3 +250,6 @@ class Map:
 
     def get_object_list(self):
         return self.rooms[self.current_room].objects
+
+    def is_loaded(self):
+        return self.rooms[self.current_room].loaded

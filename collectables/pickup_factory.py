@@ -115,9 +115,3 @@ class PickupFactory:
         return health_potion
 
 
-    def on_draw(self) -> None:
-        self.pickups_list.draw()
-
-    def update(self) -> None:
-        self.pickups_list.update()
-

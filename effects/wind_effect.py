@@ -56,7 +56,7 @@ class Wind:
         }
         # Spawn leaves along the appropriate edge
         spawn_func = edge_spawns.get(wind_direction, lambda: (0, 0))
-        for _ in range(WINDOW_WIDTH // 64):  # Fixed number of leaves
+        for _ in range(WINDOW_WIDTH // 256):  # Fixed number of leaves
             if randint(0, 1):  # 50% chance to spawn at each position
                 self.spawn_leaf(*spawn_func())
 
