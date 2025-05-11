@@ -1,4 +1,7 @@
+import arcade
+
 from collectables.animation import Animation
+from collectables.bomb import Bomb
 from collectables.interactive_item import InteractiveItem
 
 
@@ -113,5 +116,6 @@ class PickupFactory:
         self.pickups_list.append(health_potion)
         health_potion.on_setup()
         return health_potion
+
 
 

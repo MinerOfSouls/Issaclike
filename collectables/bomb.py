@@ -38,6 +38,7 @@ class Bomb(InteractiveItem):
         self.color = (red, green, blue)
 
         if self.item_lifetime >= 70:
-            ItemEffects.explode(self.physics_engine,self.stats,self.effect_list,self.position)
-            self.placed_items.remove(self)
+            # bomb hitbox still active during explosion don't know why
             self.physics_engine.remove_sprite(self)
+            self.placed_items.remove(self)
+            ItemEffects.explode(self.physics_engine,self.stats,self.effect_list,self.position)

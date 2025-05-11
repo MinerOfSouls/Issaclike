@@ -12,8 +12,6 @@ class PlayerController:
         self.player.properties["invincible"] = False
         self.player.properties["inv_timer"] = 0
 
-
-
     def on_update(self,physics_engine) -> None:
 
         dx = 0

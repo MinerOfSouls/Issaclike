@@ -132,13 +132,14 @@ class GameView(arcade.View):
             print('enter')
             self.map.rooms[self.map.current_room].loaded = True # god xd cursed
             self.pickups_list = self.map.get_object_list()
+
         self.pickups_list.update()
+
         self.player_controller.on_update(self.physics_engine)
 
 
 
         self.damage_dealer.update()
-        self.player_controller.on_update(self.physics_engine)
         self.player_list.update(delta_time)
 
         if self.attack_manager.current_attack:
