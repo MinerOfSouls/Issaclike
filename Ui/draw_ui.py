@@ -1,3 +1,4 @@
+from Ui.mini_map import MiniMap
 from characters.stats import PlayerStatsController
 import arcade
 import arcade.gui
@@ -23,21 +24,22 @@ hearth_url = 'resources/images/heart_animated_1.png'
 hearth_details = {
     "width": 17,
     "height": 17,
-    "columns": 5,
-    "count": 5,
-    "speed": 0.3,
+    "columns": 4,
+    "count": 4,
+    "speed": 0.4,
     "scale": 1.5,
     "looping": True
 }
 
 class DrawUI:
-    def __init__(self, stats:PlayerStatsController):
+    def __init__(self, stats:PlayerStatsController , map):
         super().__init__()
 
         self.stats = stats
         self.sprite_list = arcade.SpriteList()
         self.health_list = arcade.SpriteList()
         self.previous_health = 0
+        self.mini_map = MiniMap(map)
 
         self.batch = Batch()
 
@@ -78,9 +80,12 @@ class DrawUI:
 
     def on_draw(self) -> None:
         self.sprite_list.draw()
+        self.mini_map.draw()
         self.batch.draw()
 
+
     def on_update(self):
+        self.mini_map.update()
         self.update_health()
         start_x = 40
         start_y = WINDOW_HEIGHT- 60

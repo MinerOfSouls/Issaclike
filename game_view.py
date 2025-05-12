@@ -4,10 +4,9 @@ from arcade import LRBT, PymunkPhysicsEngine
 from managers.damage_manager import DamageManager
 from managers.attack_manager import AttackManager
 from managers.collision_manager import CollisionManager
-from draw_ui import DrawUI
+from Ui.draw_ui import DrawUI
 
 from characters.player import Player
-from managers.difficulty_manager import DifficultyOptions
 from resource_manager import get_wizard_player_character
 from rooms import Map
 from parameters import *
@@ -65,7 +64,6 @@ class GameView(arcade.View):
 
         self.stats = PlayerStatsController()
         self.damage_dealer = DamageManager(self.stats)
-        self.UI = DrawUI(self.stats)
 
         self.special_ability = MageSpecialAbility(self.player_sprite)
 
@@ -90,6 +88,7 @@ class GameView(arcade.View):
         )
         self.map = Map(10, self.physics_engine, self.stats)
         self.map.on_setup()
+        self.UI = DrawUI(self.stats, self.map)
 
         self.pickups_list = self.map.get_object_list()
 

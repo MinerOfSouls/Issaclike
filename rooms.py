@@ -139,6 +139,7 @@ class EnemyRoom(Room):
 class Map:
     def __init__(self, n, physics_engine, stats):
         self.physics_engine = physics_engine
+        self.mini_map = {}
         self.rooms = {}
 
         # Room generation
@@ -192,9 +193,12 @@ class Map:
                 case 2: self.rooms[c] = EnemyRoom(room_doors, self.physics_engine, 3, stats)
                 case 3: self.rooms[c] = Room(room_doors, self.physics_engine); self.rooms[c].complete()
 
+        self.mini_map = room_types
         self.current_room = (0, 0)
         self.rooms[(0, 0)].complete()
-
+        print(self.connections.get(self.current_room))
+        print(room_coordinates)
+        print(room_types)
 
     def on_setup(self):
 
@@ -236,6 +240,7 @@ class Map:
                 engine.set_position(player_sprite, pos)
                 self.current_room = self.connections[self.current_room][check]
                 self.rooms[self.current_room].enter()
+                print(self.current_room)
             else:
                 # TODO: add exception here maybe (player exited the room in an illegal direction)
                 pass
