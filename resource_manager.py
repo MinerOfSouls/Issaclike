@@ -2,6 +2,7 @@ from parameters import *
 import arcade
 import os
 from animations.animated import AnimatedMovingSprite
+from collectables.animation import Animation
 
 doors = {filename.split(".")[0]:arcade.load_texture(os.path.join("resources/images/door_textures", filename))
          for filename in os.listdir("resources/images/door_textures")}
@@ -16,6 +17,35 @@ enemy_sheets = {filename.split(".")[0]:arcade.load_spritesheet(os.path.join("res
 
 player_sheets = {filename.split(".")[0]:arcade.load_spritesheet(os.path.join("resources/images/characters", filename))
                     for filename in os.listdir("resources/images/characters")}
+
+object_sheets = {filename.split(".")[0]:arcade.load_spritesheet(os.path.join("resources/images/objects", filename))
+                    for filename in os.listdir("resources/images/objects")}
+
+object_textures = {}
+object_textures["chest"] = object_sheets["chest-ss"].get_texture_grid((32, 32), 4, 4)
+object_textures["coin"] = object_sheets["coin"].get_texture_grid((80, 80), 8, 8)
+object_textures["leaf"] = object_sheets["ELR_FallLeaf"].get_texture_grid((16, 16), 5, 5)
+object_textures["explosion"] = object_sheets["explosion"].get_texture_grid((64, 64), 30, 30)
+object_textures["bomb"] = object_sheets["grenade"].get_texture_grid((13, 16), 1, 1)
+object_textures["health_potion"] = object_sheets["health_potion"].get_texture_grid((16, 18), 3, 3)
+object_textures["heart"] = object_sheets["heart_animated_1"].get_texture_grid((17, 17), 5, 5)
+object_textures["key"] = object_sheets["key-white"].get_texture_grid((32, 32), 12, 12)
+object_textures["skull"] = object_sheets["skull"].get_texture_grid((16, 16), 1, 1)
+object_textures["boomerang"] = object_sheets["sword"].get_texture_grid((32, 32), 11, 11)
+object_textures["basic_sword"] = object_sheets["swords1"].get_texture_grid((46, 46), 1, 1)
+
+object_params = {
+    "key":{"speed": 0.3, "scale": 0.75, "looping":True, "collectable":True, "item_type": "pick_key"},
+    "coin":{"speed": 0.3, "scale": 0.25, "looping":True, "collectable":True, "item_type": "pick_coin"},
+    "chest":{"speed": 0.3, "scale": 2, "looping":False},
+    "health_potion":{"speed": 0.3, "scale": 1, "looping":True, "collectable":True, "item_type": "pick_health_potion"},
+    "bomb":{"speed": 0.05, "scale": 2, "looping":False, "collectable":True, "item_type": "pick_bomb"},
+    "skull":{"speed": 0.3, "scale": 2, "looping":False, "collectable":False, "item_type": "spawn_indicator"},
+    "leaf":{"speed": 0.3, "scale": 2, "looping":True, "collectable":False, "item_type": "leaf"},
+    "explosion":{"speed": 0.05, "scale": 3, "looping":False, "collectable":False, "item_type": "explosion"},
+    "heart":{"speed": 0.3, "scale": 2, "looping":False},
+    "boomerang": {"speed": 0.3, "scale": 1.5, "looping": True, "collectable": False, "item_type": "boomerang"}
+}
 
 enemy_textures = {}
 enemy_textures["slime_idle"] = enemy_sheets["slime_idle"].get_texture_grid((64, 64), 4, 4)
@@ -72,6 +102,13 @@ def get_wall_texture(x, y):
 
 def get_floor():
     return floor
+
+def get_object(name: str):
+    if name == "sword":
+        return object_textures["sword"][0]
+    else:
+        return object_textures[name], object_params[name]
+
 
 def get_wizard_player_character():
     sprite = AnimatedMovingSprite()

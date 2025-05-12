@@ -128,7 +128,7 @@ class GameView(arcade.View):
         return None
 
     def on_update(self, delta_time):
-        self.player_controller.on_update(delta_time, self.physics_engine)
+        self.player_controller.on_update(self.physics_engine)
         self.damage_dealer.update()
         self.player_controller.on_update(self.physics_engine)
         self.player_list.update(delta_time)

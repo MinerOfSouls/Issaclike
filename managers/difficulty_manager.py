@@ -6,7 +6,7 @@ from effects.item_effects import ItemEffects
 from parameters import *
 from random import randint
 from effects.wind_effect import Wind
-squll_url = 'resources/images/Skull 004 16x161.png'
+squll_url = 'resources/images/skull.png'
 squll_sprite_details = {
     "width": 16,
     "height": 16,
