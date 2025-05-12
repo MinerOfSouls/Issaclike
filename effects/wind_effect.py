@@ -4,19 +4,8 @@ from collectables.interactive_item import InteractiveItem
 from parameters import *
 from random import randint
 
+from resource_manager import get_object
 
-wind_particle_url = "resources/images/ELR_FallLeaf.png"
-wind_particle_details = {
-    "width": 16,
-    "height": 16,
-    "columns": 5,
-    "count": 5,
-    "speed": 0.3,
-    "scale": 2,
-    "looping": True,
-    "collectable": False,
-    "item_type": "leaf"
-}
 
 class Wind:
     def __init__(self,physics_engine,stats):
@@ -37,9 +26,10 @@ class Wind:
         self.physics_engine.space.gravity = gravity_map.get(direction, (0, 0))
 
     def spawn_leaf(self, x: int, y: int):
+        sprite = get_object("leaf")
         """Create a leaf collectable at specified position"""
         leaf = InteractiveItem(self.physics_engine, self.stats,
-                               wind_particle_url, wind_particle_details)
+                               sprite[0], sprite[1])
         leaf.position = (x, y)
         leaf.on_setup()
         self.effects_list.append(leaf)

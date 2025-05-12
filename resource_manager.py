@@ -26,13 +26,13 @@ object_textures["chest"] = object_sheets["chest-ss"].get_texture_grid((32, 32), 
 object_textures["coin"] = object_sheets["coin"].get_texture_grid((80, 80), 8, 8)
 object_textures["leaf"] = object_sheets["ELR_FallLeaf"].get_texture_grid((16, 16), 5, 5)
 object_textures["explosion"] = object_sheets["explosion"].get_texture_grid((64, 64), 30, 30)
-object_textures["bomb"] = object_sheets["grenade"].get_texture_grid((13, 16), 1, 1)
+object_textures["bomb"] = object_sheets["granade"].get_texture_grid((13, 16), 1, 1)
 object_textures["health_potion"] = object_sheets["health_potion"].get_texture_grid((16, 18), 3, 3)
 object_textures["heart"] = object_sheets["heart_animated_1"].get_texture_grid((17, 17), 5, 5)
 object_textures["key"] = object_sheets["key-white"].get_texture_grid((32, 32), 12, 12)
 object_textures["skull"] = object_sheets["skull"].get_texture_grid((16, 16), 1, 1)
 object_textures["boomerang"] = object_sheets["sword"].get_texture_grid((32, 32), 11, 11)
-object_textures["basic_sword"] = object_sheets["swords1"].get_texture_grid((46, 46), 1, 1)
+object_textures["sword"] = object_sheets["swords1"].get_texture_grid((46, 46), 1, 1)
 
 object_params = {
     "key":{"speed": 0.3, "scale": 0.75, "looping":True, "collectable":True, "item_type": "pick_key"},

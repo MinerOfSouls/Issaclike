@@ -6,19 +6,9 @@ from effects.item_effects import ItemEffects
 from parameters import *
 from random import randint
 from effects.wind_effect import Wind
-squll_url = 'resources/images/skull.png'
-squll_sprite_details = {
-    "width": 16,
-    "height": 16,
-    "columns": 1,
-    "count": 1,
-    "speed": 0.3,
-    "scale": 2,
-    "looping": False,
-    "collectable": False,
-    "item_type": "spawn_indicator",
-    "body_type": PymunkPhysicsEngine.KINEMATIC
-}
+from resource_manager import get_object
+
+
 class DifficultyOptions:
     def __init__(self,physics_engine ,player_sprite, stats ,effects_list,attack_manager):
         self.physics_engine = physics_engine
@@ -38,7 +28,8 @@ class DifficultyOptions:
     def spawn_explosions_on_random_position(self):
         width =  randint(int(WINDOW_WIDTH*0.1),int(WINDOW_WIDTH*0.9))
         height = randint(int(WINDOW_HEIGHT*0.1),int(WINDOW_HEIGHT*0.9))
-        skull = InteractiveItem(self.physics_engine,self.stats, squll_url ,squll_sprite_details)
+        sprite = get_object("skull")
+        skull = InteractiveItem(self.physics_engine,self.stats, sprite[0] ,sprite[1])
         skull.position = (width,height)
         skull.on_setup()
         self.indicators.append(skull)

@@ -4,8 +4,8 @@ from managers.collision_manager import CollisionManager
 from collectables.animation import Animation
 
 class InteractiveItem(Animation):
-    def __init__(self, physics_engine, stats, sprite_url, sprite_details):
-        super().__init__(sprite_url, sprite_details)
+    def __init__(self, physics_engine, stats, textures, sprite_details):
+        super().__init__(textures, sprite_details)
         self.physics_engine = physics_engine
         self.stats = stats
         self.item_type = sprite_details.get("item_type")
