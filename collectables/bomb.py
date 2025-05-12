@@ -1,5 +1,6 @@
 from collectables.interactive_item import InteractiveItem
 from effects.item_effects import ItemEffects
+from resource_manager import get_object
 
 bomb_url = "resources/images/granade.png"
 bomb_details = {
@@ -16,7 +17,7 @@ bomb_details = {
 
 class Bomb(InteractiveItem):
     def __init__(self, physics_engine, stats, effect_list,placed_items):
-        super().__init__(physics_engine, stats, bomb_url, bomb_details)
+        super().__init__(physics_engine, stats, get_object("bomb")[0], get_object("bomb")[1])
         self.effect_list = effect_list
         self.placed_items = placed_items
         self.original_color = (255, 255, 255)  # Store original color

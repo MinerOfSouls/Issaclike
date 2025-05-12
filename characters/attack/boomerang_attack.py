@@ -3,6 +3,7 @@ import math
 from characters.attack.attack import Attack
 from collectables.interactive_item import InteractiveItem
 from effects.charge_effect import ChargeEffects
+from resource_manager import get_object
 
 # Moved constants outside the class for cleaner code
 BOOMERANG_IMAGE = 'resources/images/sword.png'
@@ -28,7 +29,8 @@ class BoomerangAttack(Attack):
         self.returning = False
 
         # Create boomerang sprite
-        self.boomerang = InteractiveItem(physics_engine, stats, BOOMERANG_IMAGE, BOOMERANG_CONFIG)
+        sprite = get_object("boomerang")
+        self.boomerang = InteractiveItem(physics_engine, stats, sprite[0], sprite[1])
         self.boomerang.on_setup()
         self.boomerang_list = arcade.SpriteList()
         self.boomerang_list.append(self.boomerang)

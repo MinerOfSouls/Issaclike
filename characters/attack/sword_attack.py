@@ -2,8 +2,7 @@ import arcade
 import math
 from arcade import PymunkPhysicsEngine
 from characters.attack.attack import Attack
-
-SWORD_URL = 'resources/images/swords1.png'
+from resource_manager import get_object
 
 class SwordSwing(Attack):
     def __init__(self, player_sprite, physics_engine, stats):
@@ -22,7 +21,7 @@ class SwordSwing(Attack):
 
     def _create_sword(self):
         """Create and setup sword sprite"""
-        self.sword = arcade.Sprite('resources/images/swords1.png', scale=1.5)
+        self.sword = arcade.Sprite(get_object("sword"), scale=1.5)
         self.sword_list.append(self.sword)
 
         self.physics_engine.add_sprite(

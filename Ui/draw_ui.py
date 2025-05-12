@@ -6,30 +6,12 @@ import arcade.gui
 from collectables.animation import Animation
 from parameters import *
 from pyglet.graphics import Batch
+from resource_manager import get_object
 arcade.resources.load_kenney_fonts()
 
 DEFAULT_LINE_HEIGHT = 50  # Line height to use in pixels
 DEFAULT_FONT_SIZE = 15  # Default font size in points
 
-#todo scaling everything is fixed position and does not scale properly
-TEXTURES = {
-"hearth":"resources/images/heart_animated_1.png",
-"coin":"resources/images/coin.png",
-"key":"resources/images/key-white.png",
-}
-
-# todo stupid and unefficient implementaion but it works change it later
-
-hearth_url = 'resources/images/heart_animated_1.png'
-hearth_details = {
-    "width": 17,
-    "height": 17,
-    "columns": 4,
-    "count": 4,
-    "speed": 0.4,
-    "scale": 1.5,
-    "looping": True
-}
 
 class DrawUI:
     def __init__(self, stats:PlayerStatsController , map):
@@ -42,13 +24,8 @@ class DrawUI:
         self.mini_map = MiniMap(map)
 
         self.batch = Batch()
-
-        coin_sheet = arcade.load_spritesheet(TEXTURES["coin"])
-        key_sheet = arcade.load_spritesheet(TEXTURES["key"])
-
-
-        coin_texture = coin_sheet.get_texture_grid(size=(80,80),columns=8,count=8)
-        key_texture = key_sheet.get_texture_grid(size=(32,32),columns=12,count=12)
+        coin_texture = get_object("coin")[0]
+        key_texture =get_object("key")[0]
 
         self.update_health()
 
@@ -71,7 +48,8 @@ class DrawUI:
             # Add new health sprites if health > 0
             if self.stats.health > 0:
                 for i in range(self.stats.health):
-                    heart = Animation(hearth_url, hearth_details)
+                    sprite = get_object("heart")
+                    heart = Animation(sprite[0], sprite[1])
                     heart.position = 25 + i * 25, WINDOW_HEIGHT - 25
                     self.health_list.append(heart)
                     self.sprite_list.append(heart)

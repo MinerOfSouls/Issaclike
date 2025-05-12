@@ -4,10 +4,8 @@ import arcade
 #rewrite to use texture animation or use only one row sprites
 
 class Animation(arcade.Sprite):
-    def __init__(self,sprite,sprite_details):
+    def __init__(self,texture_list,sprite_details):
         self.animation_speed = sprite_details.get("speed")
-        collectable_sheet = arcade.load_spritesheet(sprite)
-        texture_list = collectable_sheet.get_texture_grid(size=(sprite_details.get("width") , sprite_details.get("height")), columns=sprite_details.get("columns"), count=sprite_details.get("count"))
         super().__init__(texture_list[0],scale=sprite_details.get("scale"))
         self.time_elapsed = 0
         self.cur_texture_index =0
