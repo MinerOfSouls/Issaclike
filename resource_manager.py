@@ -43,7 +43,7 @@ object_params = {
     "skull":{"speed": 0.3, "scale": 2, "looping":False, "collectable":False, "item_type": "spawn_indicator"},
     "leaf":{"speed": 0.3, "scale": 2, "looping":True, "collectable":False, "item_type": "leaf"},
     "explosion":{"speed": 0.05, "scale": 3, "looping":False, "collectable":False, "item_type": "explosion"},
-    "heart":{"speed": 0.3, "scale": 2, "looping":False},
+    "heart":{"speed": 0.3, "scale": 2, "looping":True, },
     "boomerang": {"speed": 0.3, "scale": 1.5, "looping": True, "collectable": False, "item_type": "boomerang"}
 }
 

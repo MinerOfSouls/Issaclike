@@ -9,7 +9,7 @@ class InteractiveItem(Animation):
         self.physics_engine = physics_engine
         self.stats = stats
         self.item_type = sprite_details.get("item_type")
-        self.collectable = sprite_details.get("collectable")
+        self.collectable = sprite_details.get("collectable", False)
         self.item_lifetime = 0
         self.body_type = sprite_details.get("body_type", PymunkPhysicsEngine.DYNAMIC )
         self.mass = sprite_details.get("mass" , 0.1)
