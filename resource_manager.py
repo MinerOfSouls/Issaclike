@@ -24,7 +24,7 @@ object_sheets = {filename.split(".")[0]:arcade.load_spritesheet(os.path.join("re
                     for filename in os.listdir("resources/images/objects")}
 
 object_textures = {}
-object_textures["chest"] = object_sheets["chest-ss"].get_texture_grid((32, 32), 4, 4)
+object_textures["chest"] = object_sheets["chest-ss"].get_texture_grid((48, 32), 4, 4)
 object_textures["coin"] = object_sheets["coin"].get_texture_grid((80, 80), 8, 8)
 object_textures["leaf"] = object_sheets["ELR_FallLeaf"].get_texture_grid((16, 16), 5, 5)
 object_textures["explosion"] = object_sheets["explosion"].get_texture_grid((64, 64), 30, 30)

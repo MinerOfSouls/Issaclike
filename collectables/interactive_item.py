@@ -44,7 +44,7 @@ class InteractiveItem(Animation):
         self.physics_engine.add_collision_handler(
             self.item_type,
             "player",
-            post_handler=item_player_handle,
+            pre_handler=item_player_handle,
         )
     def update(self, delta_time: float = 1/60, *args, **kwargs):
         super().update()
