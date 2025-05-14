@@ -64,6 +64,6 @@ class DifficultyOptions:
         if self.bomb_timeout >=60:
             self.spawn_explosions_on_random_position()
             self.bomb_timeout =0
-        if self.change_weapon_timout >= 300:
-            self.modify_attack()
-            self.change_weapon_timout =0
+        # if self.change_weapon_timout >= 300:
+        #     self.modify_attack()
+        #     self.change_weapon_timout =0

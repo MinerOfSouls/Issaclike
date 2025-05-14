@@ -7,6 +7,7 @@ from managers.collision_manager import CollisionManager
 from Ui.draw_ui import DrawUI
 
 from characters.player import Player
+from managers.difficulty_manager import DifficultyOptions
 from resource_manager import get_wizard_player_character
 from rooms import Map
 from parameters import *
@@ -32,7 +33,7 @@ class GameView(arcade.View):
         self.UI = None
         self.pickup_factory = None
         self.melee_attack = None
-        self.effect_handler = None
+        self.collision_handler = None
         self.place_on_map = None
         self.effects_list = arcade.SpriteList()
         self.placed_items= arcade.SpriteList()
@@ -104,11 +105,11 @@ class GameView(arcade.View):
 
         self.place_on_map = PlaceOnMap(self.player_sprite,self.placed_items,self.stats, self.physics_engine)
 
-        # self.difficulty_options = DifficultyOptions(self.physics_engine ,self.player_sprite, self.stats , self.effects_list, self.attack_manager)
-        # self.difficulty_options.on_setup()
+        self.difficulty_options = DifficultyOptions(self.physics_engine ,self.player_sprite, self.stats , self.effects_list, self.attack_manager)
+        self.difficulty_options.on_setup()
 
-        self.effect_handler = CollisionManager(self.physics_engine, self.stats)
-        self.effect_handler.on_setup()
+        self.collision_handler = CollisionManager(self.physics_engine, self.stats)
+        self.collision_handler.on_setup()
 
     def on_draw(self) -> bool | None:
         self.clear()
@@ -121,7 +122,7 @@ class GameView(arcade.View):
 
         self.UI.on_draw()
         self.place_on_map.on_draw()
-        # self.difficulty_options.draw()
+        self.difficulty_options.draw()
 
         return None
 
@@ -147,7 +148,7 @@ class GameView(arcade.View):
         self.special_ability.update()
         self.UI.on_update()
         self.place_on_map.update()
-        # self.difficulty_options.update()
+        self.difficulty_options.update()
         self.physics_engine.step()
         self.map.update(delta_time, self.player_sprite)
 
