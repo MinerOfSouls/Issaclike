@@ -2,19 +2,6 @@ from collectables.interactive_item import InteractiveItem
 from effects.item_effects import ItemEffects
 from resource_manager import get_object
 
-bomb_url = "resources/images/granade.png"
-bomb_details = {
-    "width": 13,
-    "height": 16,
-    "columns": 1,
-    "count": 1,
-    "speed": 0.05,
-    "scale": 2,
-    "looping": False,
-    "item_type": 'placed_bomb'
-}
-
-
 class Bomb(InteractiveItem):
     def __init__(self, physics_engine, stats, effect_list,placed_items):
         super().__init__(physics_engine, stats, get_object("placed_bomb")[0], get_object("placed_bomb")[1])

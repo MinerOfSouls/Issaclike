@@ -1,6 +1,6 @@
 class PlayerStatsController:
-    def __init__(self, max_speed=10, damage=1, projectile_speed=100, projectile_cooldown=25, luck=0, range=400,health=6,coins =0,keys=1,bombs=1):
-        self.max_speed = max_speed
+    def __init__(self, speed=10, damage=1, projectile_speed=100, projectile_cooldown=25, luck=0, range=400, health=6, coins =0, keys=1, bombs=1):
+        self.speed = speed
         self.damage = damage
         self.projectile_speed = projectile_speed
         self.projectile_cooldown = projectile_cooldown

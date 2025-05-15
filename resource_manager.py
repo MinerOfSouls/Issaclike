@@ -31,24 +31,35 @@ object_textures["explosion"] = object_sheets["explosion"].get_texture_grid((64, 
 object_textures["bomb"] = object_sheets["granade"].get_texture_grid((13, 16), 1, 1)
 object_textures["placed_bomb"] = object_sheets["granade"].get_texture_grid((13, 16), 1, 1)
 object_textures["health_potion"] = object_sheets["health_potion"].get_texture_grid((16, 18), 3, 3)
+object_textures["damage_potion"] = object_sheets["damage_potion"].get_texture_grid((16, 18), 3, 3)
+object_textures["range_potion"] = object_sheets["range_potion"].get_texture_grid((16, 18), 3, 3)
+object_textures["speed_potion"] = object_sheets["speed_potion"].get_texture_grid((16, 18), 3, 3)
 object_textures["heart"] = object_sheets["heart_animated_1"].get_texture_grid((17, 17), 5, 5)
 object_textures["key"] = object_sheets["key-white"].get_texture_grid((32, 32), 12, 12)
 object_textures["skull"] = object_sheets["skull"].get_texture_grid((16, 16), 1, 1)
 object_textures["boomerang"] = object_sheets["sword"].get_texture_grid((32, 32), 11, 11)
 object_textures["sword"] = object_sheets["swords1"].get_texture_grid((46, 46), 1, 1)
+object_textures["static_fire"] = object_sheets["static_fire"].get_texture_grid((96, 96), 19, 19)
+object_textures["wisp"] = object_sheets["wisp"].get_texture_grid((32, 32), 10, 10)
 
 object_params = {
     "key":{"speed": 0.3, "scale": 0.75, "looping":True, "collectable":True, "item_type": "pick_key"},
     "coin":{"speed": 0.3, "scale": 0.25, "looping":True, "collectable":True, "item_type": "pick_coin"},
     "chest":{"speed": 0.3, "scale": 2, "looping":False},
     "health_potion":{"speed": 0.3, "scale": 1, "looping":True, "collectable":True, "item_type": "pick_health_potion"},
+    "damage_potion":{"speed": 0.3, "scale": 1, "looping":True, "collectable":True, "item_type": "pick_damage_potion"},
+    "range_potion":{"speed": 0.3, "scale": 1, "looping":True, "collectable":True, "item_type": "pick_range_potion"},
+    "speed_potion":{"speed": 0.3, "scale": 1, "looping":True, "collectable":True, "item_type": "pick_speed_potion"},
     "bomb":{"speed": 0.05, "scale": 2, "looping":False, "collectable":True, "item_type": "pick_bomb"},
     "skull":{"speed": 0.3, "scale": 2, "looping":False, "collectable":False, "item_type": "spawn_indicator", "body_type":PymunkPhysicsEngine.KINEMATIC},
     "leaf":{"speed": 0.3, "scale": 2, "looping":True, "collectable":False, "item_type": "leaf"},
     "explosion":{"speed": 0.05, "scale": 3, "looping":False, "collectable":False, "item_type": "explosion", "body_type": PymunkPhysicsEngine.KINEMATIC},
     "placed_bomb":{"speed": 0.3, "scale": 2, "looping":False, "collectable":False, "item_type": "placed_bomb"},
     "heart":{"speed": 0.3, "scale": 2, "looping":True, },
-    "boomerang": {"speed": 0.3, "scale": 1.5, "looping": True, "collectable": False, "item_type": "boomerang"}
+    "boomerang": {"speed": 0.3, "scale": 1.5, "looping": True, "collectable": False, "item_type": "boomerang"},
+    "wisp": {"speed": 0.15, "scale": 1, "looping": True, "collectable": False, "item_type": "wisp","moment_of_inertia":PymunkPhysicsEngine.MOMENT_INF },
+    "static_fire": {"speed": 0.15, "scale": 0.5, "looping": True, "collectable": False, "item_type": "static_fire","moment_of_inertia":PymunkPhysicsEngine.MOMENT_INF,"body_type": PymunkPhysicsEngine.DYNAMIC  },
+
 }
 
 enemy_textures = {}

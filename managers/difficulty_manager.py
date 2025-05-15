@@ -1,5 +1,8 @@
+import math
+
 import arcade
 from arcade import PymunkPhysicsEngine
+
 
 from collectables.interactive_item import InteractiveItem
 from effects.item_effects import ItemEffects
@@ -19,11 +22,10 @@ class DifficultyOptions:
         self.indicators = arcade.SpriteList()
         self.bomb_timeout = 0
         self.change_weapon_timout = 0
+        self.fire_timeout = 0
+        self.moving_fire =None
         self.wind = Wind(self.physics_engine ,self.stats)
 
-
-    def on_setup(self):
-        pass
 
     def spawn_explosions_on_random_position(self):
         width =  randint(int(WINDOW_WIDTH*0.1),int(WINDOW_WIDTH*0.9))
@@ -38,18 +40,65 @@ class DifficultyOptions:
         self.attack_manager.set_random_attack()
         pass
 
+    def __move_calc(self,object, destination):
+        x_goal = destination[0]
+        y_goal = destination[1]
+        x_delta = x_goal - object.center_x
+        y_delta = y_goal - object.center_y
+        angle = math.atan2(y_delta, x_delta)
+        dist = math.dist(object.position, destination)
+        speed = min(1.0, dist)
+        change_x = math.cos(angle) * speed
+        change_y = math.sin(angle) * speed
+        return change_x, change_y
+
+    def basic_move(self,sprite, destination):
+        change_x, change_y = self.__move_calc(sprite,destination)
+        self.physics_engine.apply_impulse(sprite, (change_x, change_y))
+
+
+    def spawn_more_fire(self):
+        x = self.player_sprite.center_x +50
+        y = self.player_sprite.center_y
+        static_fire = get_object("static_fire")
+        static_fire = InteractiveItem(self.physics_engine,self.stats, static_fire[0], static_fire[1])
+        static_fire.position = self.moving_fire.position
+        static_fire.on_setup()
+        self.effects_list.append(static_fire)
+
+    def on_setup(self):
+        x = self.player_sprite.center_x +50
+        y = self.player_sprite.center_y
+        fire_sprite = get_object("wisp")
+        self.moving_fire = InteractiveItem(self.physics_engine,self.stats, fire_sprite[0], fire_sprite[1])
+        self.moving_fire.position = (x,y)
+        self.moving_fire.on_setup()
+        self.effects_list.append(self.moving_fire)
+
+
     def draw(self):
         self.wind.draw()
         self.indicators.draw()
         self.effects_list.draw()
 
-
     def update(self, delta_time: float = 1 / 60):
-        self.wind.update()
+        # self.wind.update()
         self.indicators.update()
         self.effects_list.update()
         self.bomb_timeout+=1
+        self.fire_timeout+=1
         self.change_weapon_timout+=1
+
+        if self.fire_timeout >10:
+            self.spawn_more_fire()
+            self.fire_timeout = 0
+
+        for effect in self.effects_list:
+            if effect.item_type == "wisp":
+                self.basic_move(effect, self.player_sprite.position)
+            if effect.item_type == "static_fire" and effect.item_lifetime >90:
+                self.physics_engine.remove_sprite(effect)
+                self.effects_list.remove(effect)
 
         for indicator in self.indicators:
             if indicator.item_lifetime >=70:

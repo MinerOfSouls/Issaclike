@@ -14,6 +14,7 @@ class InteractiveItem(Animation):
         self.body_type = sprite_details.get("body_type", PymunkPhysicsEngine.DYNAMIC )
         self.mass = sprite_details.get("mass" , 0.1)
         self.map = map
+        self.moment_of_inertia = sprite_details.get("moment_of_inertia", None)
 
 
     def apply_force(self,force):
@@ -27,6 +28,7 @@ class InteractiveItem(Animation):
                                        damping=0.01,
                                        friction=0.3,
                                        body_type=self.body_type,
+                                       moment_of_inertia=self.moment_of_inertia,
                                        collision_type=self.item_type,
                                        elasticity=0.9)
         def item_player_handle(sprite_a, sprite_b, arbiter, space, data):
@@ -49,3 +51,4 @@ class InteractiveItem(Animation):
     def update(self, delta_time: float = 1/60, *args, **kwargs):
         super().update()
         self.item_lifetime+=1
+

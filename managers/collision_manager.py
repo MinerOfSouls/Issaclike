@@ -21,6 +21,18 @@ class CollisionManager:
     def on_setup(self):
         self.ignore_all_collisions("leaf")
         self.ignore_all_collisions("spawn_indicator")
+        self.ignore_all_collisions("wisp")
+        self.physics_engine.add_collision_handler(
+            "static_fire",
+            "static_fire",
+            begin_handler=lambda *_: False,  # Ignore all collisions
+        )
+        self.physics_engine.add_collision_handler(
+            "wisp",
+            "static_fire",
+            begin_handler=lambda *_: False,  # Ignore all collisions
+        )
+
 
     @staticmethod
     def handle_effect(effect_type, stats):
@@ -53,5 +65,10 @@ class CollisionManager:
             return False
         elif effect_type == 'placed_bomb':
             return True
+        elif effect_type == 'static_fire':
+            damage_dealer = DamageManager()
+            damage_dealer.deal_damage()
+            return False
+
         return None
 

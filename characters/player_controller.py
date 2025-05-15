@@ -32,7 +32,7 @@ class PlayerController:
             dx *= norm_factor
             dy *= norm_factor
 
-        speed = self.stats.max_speed
+        speed = self.stats.speed
         velocity = (dx * speed, dy * speed)
         physics_engine.apply_force(self.player,velocity)
 

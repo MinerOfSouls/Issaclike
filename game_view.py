@@ -102,6 +102,9 @@ class GameView(arcade.View):
         self.pickup_factory.spawn_key(200,200)
         self.pickup_factory.spawn_health_potion(300,100)
         self.pickup_factory.spawn_bomb(300,200)
+        self.pickup_factory.spawn_speed_potion(300, 100)
+        self.pickup_factory.spawn_damage_potion(300, 100)
+        self.pickup_factory.spawn_range_potion(300, 100)
 
         self.place_on_map = PlaceOnMap(self.player_sprite,self.placed_items,self.stats, self.physics_engine)
 

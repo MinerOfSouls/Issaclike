@@ -54,5 +54,29 @@ class PickupFactory:
         health_potion.on_setup()
         return health_potion
 
+    def spawn_damage_potion(self, x: int, y: int):
+        sprite = get_object("damage_potion")
+        health_potion = InteractiveItem(self.physics_engine, self.stats, sprite[0], sprite[1])
+        health_potion.position = x, y
+        self.pickups_list.append(health_potion)
+        health_potion.on_setup()
+        return health_potion
+
+    def spawn_range_potion(self, x: int, y: int):
+        sprite = get_object("range_potion")
+        health_potion = InteractiveItem(self.physics_engine, self.stats, sprite[0], sprite[1])
+        health_potion.position = x, y
+        self.pickups_list.append(health_potion)
+        health_potion.on_setup()
+        return health_potion
+
+    def spawn_speed_potion(self, x: int, y: int):
+        sprite = get_object("speed_potion")
+        health_potion = InteractiveItem(self.physics_engine, self.stats, sprite[0], sprite[1])
+        health_potion.position = x, y
+        self.pickups_list.append(health_potion)
+        health_potion.on_setup()
+        return health_potion
+
 
 

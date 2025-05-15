@@ -1,4 +1,5 @@
 import random
+from xml.dom.minidom import Entity
 
 from arcade import PymunkPhysicsEngine
 
@@ -78,3 +79,4 @@ class Wizard(Enemy):
 
     def move(self, destination, engine: PymunkPhysicsEngine, **kwargs):
         super().keep_away(destination, engine, 25)
+
