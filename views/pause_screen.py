@@ -69,6 +69,6 @@ class PauseView(arcade.View):
         if key == arcade.key.ESCAPE:   # resume game
             self.window.show_view(self.game_view)
         elif key == arcade.key.ENTER:  # reset game
-            game = GameView()
+            game = GameView(self.game_view.difficulty_options)
             game.setup()
             self.window.show_view(game)

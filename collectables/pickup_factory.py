@@ -2,6 +2,7 @@ from pyglet import sprite
 
 from collectables.animation import Animation
 from collectables.bomb import Bomb
+from collectables.buyable_item import BuyableItem
 from collectables.interactive_item import InteractiveItem
 
 
@@ -73,6 +74,14 @@ class PickupFactory:
     def spawn_speed_potion(self, x: int, y: int):
         sprite = get_object("speed_potion")
         health_potion = InteractiveItem(self.physics_engine, self.stats, sprite[0], sprite[1])
+        health_potion.position = x, y
+        self.pickups_list.append(health_potion)
+        health_potion.on_setup()
+        return health_potion
+
+    def spawn_buyable(self, x: int, y: int):
+        sprite = get_object("speed_potion")
+        health_potion = BuyableItem(self.physics_engine, self.stats, sprite[0], sprite[1])
         health_potion.position = x, y
         self.pickups_list.append(health_potion)
         health_potion.on_setup()

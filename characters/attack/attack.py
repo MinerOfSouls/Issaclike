@@ -77,3 +77,14 @@ class Attack:
             self.direction = 180  # West
         elif self.down_pressed:
             self.direction = 270  # South
+
+    def reset_keys(self):
+        self.up_pressed = False
+        self.down_pressed = False
+        self.left_pressed = False
+        self.right_pressed = False
+        self.e_pressed = False
+        self.diagonal_up_right = False
+        self.diagonal_up_left = False
+        self.diagonal_down_right = False
+        self.diagonal_down_left = False

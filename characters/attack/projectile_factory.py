@@ -1,16 +1,18 @@
 import math
 from arcade import PymunkPhysicsEngine
 from collectables.interactive_item import InteractiveItem
+from resource_manager import get_object
 
 
 class ProjectileFactory:
-    def __init__(self, physics_engine, player_sprite, stats, projectile_url, projectile_details, projectile_list):
+    def __init__(self, physics_engine, player_sprite, stats, projectile_list):
         self.physics_engine = physics_engine
         self.player_sprite = player_sprite
         self.stats = stats
         self.projectile_list = projectile_list
-        self.projectile_url = projectile_url
-        self.projectile_details = projectile_details
+        sprite = get_object("projectile")
+        self.projectile_url = sprite[0]
+        self.projectile_details = sprite[1]
 
         # Set up wall collision handler
         self.physics_engine.add_collision_handler(

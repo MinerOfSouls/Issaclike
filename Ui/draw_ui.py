@@ -7,9 +7,9 @@ from collectables.animation import Animation
 from parameters import *
 from pyglet.graphics import Batch
 from resource_manager import get_object
+
 arcade.resources.load_kenney_fonts()
 
-DEFAULT_LINE_HEIGHT = 50  # Line height to use in pixels
 DEFAULT_FONT_SIZE = 15  # Default font size in points
 
 
@@ -98,5 +98,4 @@ class DrawUI:
         )
 
         self.sprite_list.update()
-        self.batch.draw()
 

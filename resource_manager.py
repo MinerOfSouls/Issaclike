@@ -37,10 +37,11 @@ object_textures["speed_potion"] = object_sheets["speed_potion"].get_texture_grid
 object_textures["heart"] = object_sheets["heart_animated_1"].get_texture_grid((17, 17), 5, 5)
 object_textures["key"] = object_sheets["key-white"].get_texture_grid((32, 32), 12, 12)
 object_textures["skull"] = object_sheets["skull"].get_texture_grid((16, 16), 1, 1)
-object_textures["boomerang"] = object_sheets["sword"].get_texture_grid((32, 32), 11, 11)
+object_textures["boomerang"] = object_sheets["boomerang"].get_texture_grid((190, 190), 1, 1)
 object_textures["sword"] = object_sheets["swords1"].get_texture_grid((46, 46), 1, 1)
 object_textures["static_fire"] = object_sheets["static_fire"].get_texture_grid((96, 96), 19, 19)
 object_textures["wisp"] = object_sheets["wisp"].get_texture_grid((32, 32), 10, 10)
+object_textures["projectile"] = object_sheets["projectile"].get_texture_grid((512, 512), 5, 5)
 
 object_params = {
     "key":{"speed": 0.3, "scale": 0.75, "looping":True, "collectable":True, "item_type": "pick_key"},
@@ -56,9 +57,10 @@ object_params = {
     "explosion":{"speed": 0.05, "scale": 3, "looping":False, "collectable":False, "item_type": "explosion", "body_type": PymunkPhysicsEngine.KINEMATIC},
     "placed_bomb":{"speed": 0.3, "scale": 2, "looping":False, "collectable":False, "item_type": "placed_bomb"},
     "heart":{"speed": 0.3, "scale": 2, "looping":True, },
-    "boomerang": {"speed": 0.3, "scale": 1.5, "looping": True, "collectable": False, "item_type": "boomerang"},
+    "boomerang": {"speed": 0.3, "scale": 0.20, "looping": True, "collectable": False, "item_type": "boomerang"},
     "wisp": {"speed": 0.15, "scale": 1, "looping": True, "collectable": False, "item_type": "wisp","moment_of_inertia":PymunkPhysicsEngine.MOMENT_INF },
     "static_fire": {"speed": 0.15, "scale": 0.5, "looping": True, "collectable": False, "item_type": "static_fire","moment_of_inertia":PymunkPhysicsEngine.MOMENT_INF,"body_type": PymunkPhysicsEngine.DYNAMIC  },
+    "projectile": {"speed": 0.05, "scale": 0.05, "looping": True, "collectable": False, "item_type": "projectile"},
 
 }
 

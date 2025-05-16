@@ -3,24 +3,13 @@ from characters.attack.attack import Attack
 import math
 from characters.attack.projectile_factory import ProjectileFactory
 
-bomb_url = "resources/images/granade.png"
-bomb_details = {
-    "width": 13,
-    "height": 16,
-    "columns": 1,
-    "count": 1,
-    "speed": 0.05,
-    "scale": 0.5,
-    "looping": False,
-    "item_type": "projectile",
-}
 
 class RangedAttack(Attack):
     def __init__(self, player_sprite, physics_engine,stats):
         super().__init__(player_sprite, stats)
         self.physics_engine = physics_engine
         self.projectile_list = arcade.SpriteList()
-        self.projectile = ProjectileFactory(physics_engine,player_sprite, stats, bomb_url, bomb_details,self.projectile_list)
+        self.projectile = ProjectileFactory(physics_engine,player_sprite, stats,self.projectile_list)
         self.attack_cooldown = stats.projectile_cooldown
 
     def shoot_projectile(self):

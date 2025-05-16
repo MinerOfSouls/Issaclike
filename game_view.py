@@ -1,6 +1,7 @@
 import arcade
 from arcade import LRBT, PymunkPhysicsEngine
 
+from collectables.buyable_item import BuyableItem
 from managers.damage_manager import DamageManager
 from managers.attack_manager import AttackManager
 from managers.collision_manager import CollisionManager
@@ -19,8 +20,9 @@ from collectables.place_on_map import PlaceOnMap
 
 
 class GameView(arcade.View):
-    def __init__(self):
+    def __init__(self,difficulty_options):
         super().__init__()
+        self.difficulty_options = difficulty_options
         self.damage_dealer = None
         self.map = None
         self.player_list = None
@@ -37,7 +39,7 @@ class GameView(arcade.View):
         self.place_on_map = None
         self.effects_list = arcade.SpriteList()
         self.placed_items= arcade.SpriteList()
-        self.difficulty_options = None
+        self.difficulty_manager = None
         self.attack_manager = None
 
         self.player_class = 0
@@ -106,10 +108,12 @@ class GameView(arcade.View):
         self.pickup_factory.spawn_damage_potion(300, 100)
         self.pickup_factory.spawn_range_potion(300, 100)
 
+        self.pickup_factory.spawn_buyable(400,400)
+
         self.place_on_map = PlaceOnMap(self.player_sprite,self.placed_items,self.stats, self.physics_engine)
 
-        self.difficulty_options = DifficultyOptions(self.physics_engine ,self.player_sprite, self.stats , self.effects_list, self.attack_manager)
-        self.difficulty_options.on_setup()
+        self.difficulty_manager = DifficultyOptions(self.physics_engine ,self.player_sprite, self.stats , self.attack_manager, self.map, self.effects_list,self.difficulty_options)
+        self.difficulty_manager.on_setup()
 
         self.collision_handler = CollisionManager(self.physics_engine, self.stats)
         self.collision_handler.on_setup()
@@ -125,12 +129,13 @@ class GameView(arcade.View):
 
         self.UI.on_draw()
         self.place_on_map.on_draw()
-        self.difficulty_options.draw()
+        self.difficulty_manager.draw()
 
         return None
 
     def on_update(self, delta_time):
 
+        self.difficulty_manager.update()
         if not self.map.is_loaded():
             print('enter')
             self.map.rooms[self.map.current_room].loaded = True # god xd cursed
@@ -139,8 +144,6 @@ class GameView(arcade.View):
         self.pickups_list.update()
 
         self.player_controller.on_update(self.physics_engine)
-
-
 
         self.damage_dealer.update()
         self.player_list.update(delta_time)
@@ -151,7 +154,6 @@ class GameView(arcade.View):
         self.special_ability.update()
         self.UI.on_update()
         self.place_on_map.update()
-        self.difficulty_options.update()
         self.physics_engine.step()
         self.map.update(delta_time, self.player_sprite)
 
