@@ -42,6 +42,11 @@ object_textures["sword"] = object_sheets["swords1"].get_texture_grid((46, 46), 1
 object_textures["static_fire"] = object_sheets["static_fire"].get_texture_grid((96, 96), 19, 19)
 object_textures["wisp"] = object_sheets["wisp"].get_texture_grid((32, 32), 10, 10)
 object_textures["projectile"] = object_sheets["projectile"].get_texture_grid((512, 512), 5, 5)
+object_textures["magic_shield"] = object_sheets["magic_shield"].get_texture_grid((192,192), 10,10)
+object_textures["shoot_fire"] = object_sheets["shoot_fire"].get_texture_grid((512,512), 4,4)
+object_textures["dash_effect"] = object_sheets["dash_effect"].get_texture_grid((120,109), 30,30)
+
+
 
 object_params = {
     "key":{"speed": 0.3, "scale": 0.75, "looping":True, "collectable":True, "item_type": "pick_key"},
@@ -61,6 +66,9 @@ object_params = {
     "wisp": {"speed": 0.15, "scale": 1, "looping": True, "collectable": False, "item_type": "wisp","moment_of_inertia":PymunkPhysicsEngine.MOMENT_INF },
     "static_fire": {"speed": 0.15, "scale": 0.5, "looping": True, "collectable": False, "item_type": "static_fire","moment_of_inertia":PymunkPhysicsEngine.MOMENT_INF,"body_type": PymunkPhysicsEngine.DYNAMIC  },
     "projectile": {"speed": 0.05, "scale": 0.05, "looping": True, "collectable": False, "item_type": "projectile"},
+    "magic_shield": {"speed": 0.3, "scale": 0.5, "looping": True, "collectable": False, "item_type": "magic_shield","moment_of_inertia":PymunkPhysicsEngine.MOMENT_INF,},
+    "shoot_fire": {"speed": 0.3, "scale": 0.1, "looping": True, "collectable": False, "item_type": "shoot_fire","moment_of_inertia": PymunkPhysicsEngine.MOMENT_INF,"body_type":PymunkPhysicsEngine.DYNAMIC },
+    "dash_effect": {"speed": 0.025, "scale": 1.5, "looping": False, "collectable": False, "item_type": "dash_effect","moment_of_inertia": PymunkPhysicsEngine.MOMENT_INF,"body_type":PymunkPhysicsEngine.KINEMATIC},
 
 }
 

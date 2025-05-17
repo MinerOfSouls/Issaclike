@@ -10,6 +10,8 @@ class PlayerStatsController:
         self.coins = coins
         self.keys = keys
         self.bombs = bombs
+        self.invincible = False
+        self.ability_active = False
 
     def get_coin_number(self):
         return f"{self.coins:02d}"

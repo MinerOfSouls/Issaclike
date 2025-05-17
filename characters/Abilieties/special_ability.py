@@ -1,10 +1,10 @@
 import arcade
 
-
+# usless should be attack
 class SpecialAbility:
 
     def __init__(self, player_sprite):
-        self.player = player_sprite
+        self.player_sprite = player_sprite
         self.w_pressed = False
         self.a_pressed = False
         self.s_pressed = False

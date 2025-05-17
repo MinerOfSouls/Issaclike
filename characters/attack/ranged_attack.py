@@ -32,15 +32,15 @@ class RangedAttack(Attack):
             if vel_magnitude < min_velocity:
                 projectile.remove_from_sprite_lists()
 
-    def update(self):
+    def attack(self):
         self.attack_cooldown += 1
-
         self.shoot_projectile()
-
         self.delete_projectile()
-
-        # Update projectiles
         self.projectile_list.update()
+
+    def update(self):
+        if not self.stats.ability_active:
+            self.attack()
 
     def on_draw(self):
         self.projectile_list.draw()

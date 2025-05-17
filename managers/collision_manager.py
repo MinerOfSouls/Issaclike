@@ -22,6 +22,7 @@ class CollisionManager:
         self.ignore_all_collisions("leaf")
         self.ignore_all_collisions("spawn_indicator")
         self.ignore_all_collisions("wisp")
+        self.ignore_all_collisions("dash_effect")
         self.physics_engine.add_collision_handler(
             "static_fire",
             "static_fire",
@@ -69,6 +70,11 @@ class CollisionManager:
             damage_dealer = DamageManager()
             damage_dealer.deal_damage()
             return False
+        elif effect_type =="magic_shield":
+            return False
+        elif effect_type == "shoot_fire":
+            return False
+
 
         return None
 

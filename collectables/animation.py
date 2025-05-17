@@ -26,3 +26,4 @@ class Animation(arcade.Sprite):
                     self.should_delete = True
 
             self.set_texture(self.cur_texture_index)
+

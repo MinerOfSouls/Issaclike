@@ -1,59 +1,62 @@
 import arcade
 
 from characters.Abilieties.special_ability import SpecialAbility
+from collectables.interactive_item import InteractiveItem
+from resource_manager import get_object
 
-
+# loaded is currently a bypass some bug with key press
 class MageSpecialAbility(SpecialAbility):
-    TELEPORT_DISTANCE = 50  # Distance to teleport in pixels
-    COOLDOWN = 23  # Cooldown in frames (1 second at 60 FPS)
-
-    def __init__(self, player_sprite):
+    def __init__(self,physics_engine,stats,player_sprite):
         super().__init__(player_sprite)
-        self.teleporting = False
-        self.cooldown = 0
+        self.shield_list = arcade.SpriteList()
+        self.physics_engine = physics_engine
+        self.loaded = False
+        self.active = True
+        self.stats = stats
+        self.magic_shield = None
 
+
+    def on_setup(self):
+        shield_sprite = get_object("magic_shield")
+        self.magic_shield = InteractiveItem(self.physics_engine, self.stats, shield_sprite[0], shield_sprite[1])
+        self.magic_shield.position = self.player_sprite.position
+        self.shield_list.append(self.magic_shield)
+        self.magic_shield.on_setup()
+        self.loaded = True
+
+
+    def show_shield(self):
+        if not self.active:
+            self.active = True
+            self.stats.invincible = True
+            self.stats.ability_active = True
+            self.shield_list.append(self.magic_shield)
+
+    def hide_shield(self):
+        if self.active:
+            self.active = False
+            self.stats.invincible = False
+            self.stats.ability_active = False
+            self.shield_list.remove(self.magic_shield)
+
+    def calculate_position(self):
+        self.physics_engine.set_position(self.magic_shield, self.player_sprite.position)
+
+    def draw(self):
+        self.shield_list.draw()
 
     def update(self):
-        if self.cooldown > 0:
-            self.cooldown -= 1
+        self.calculate_position()
+        self.shield_list.update()
 
-        # Reset velocity if teleporting (optional)
-        if self.teleporting:
-            self.player.change_x = 0
-            self.player.change_y = 0
-            self.teleporting = False
-
-    def attempt_teleport(self):
-        if self.cooldown <= 0 and self.space_pressed:
-            self.cooldown = self.COOLDOWN
-            self.teleporting = True
-
-            direction_x = 0
-            direction_y = 0
-
-            if self.w_pressed and not self.s_pressed:
-                direction_y = 1
-            elif self.s_pressed and not self.w_pressed:
-                direction_y = -1
-
-            if self.a_pressed and not self.d_pressed:
-                direction_x = -1
-            elif self.d_pressed and not self.a_pressed:
-                direction_x = 1
-
-            # If no direction keys are pressed, don't teleport
-            if direction_x == 0 and direction_y == 0:
-                return
-
-            # Normalize diagonal movement to maintain consistent distance
-            if direction_x != 0 and direction_y != 0 :
-                length = (direction_x ** 2 + direction_y ** 2) ** 0.5
-                direction_x /= length
-                direction_y /= length
-
-            self.player.center_x += direction_x * self.TELEPORT_DISTANCE
-            self.player.center_y += direction_y * self.TELEPORT_DISTANCE
     def on_key_press(self, key):
         super().on_key_press(key)
-        if key == arcade.key.SPACE:
-            self.attempt_teleport()
+        if key == arcade.key.SPACE and self.loaded:
+            self.show_shield()
+            self.space_pressed = True
+
+    def on_key_release(self, key):
+        super().on_key_release(key)
+        if key == arcade.key.SPACE and self.loaded:
+            self.hide_shield()
+            self.space_pressed = False

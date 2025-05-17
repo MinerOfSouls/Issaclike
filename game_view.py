@@ -1,6 +1,7 @@
 import arcade
 from arcade import LRBT, PymunkPhysicsEngine
 
+from characters.Abilieties.knight_special_ability import KnightSpecialAbility
 from collectables.buyable_item import BuyableItem
 from managers.damage_manager import DamageManager
 from managers.attack_manager import AttackManager
@@ -17,6 +18,7 @@ from characters.stats import PlayerStatsController
 from characters.Abilieties.mage_special_ability import MageSpecialAbility
 from collectables.pickup_factory import PickupFactory
 from collectables.place_on_map import PlaceOnMap
+from characters.Abilieties.dragon_special_ability import DragonSpecialAbility
 
 
 class GameView(arcade.View):
@@ -54,31 +56,32 @@ class GameView(arcade.View):
         )
 
     def setup(self):
-        self.player_list = arcade.SpriteList()
-        #player
-        if self.player_class == 1:
-            self.player_sprite = get_wizard_player_character()
-            self.player_sprite.scale = 1
-        else:
-            self.player_sprite = Player("resources/images/player_sprite_placeholder.png", scale=SPRITE_SCALING)
-        self.player_sprite.center_x = WINDOW_WIDTH / 2
-        self.player_sprite.center_y = WINDOW_HEIGHT / 2
-        self.player_list.append(self.player_sprite)
-
         self.stats = PlayerStatsController()
-        self.damage_dealer = DamageManager(self.stats)
-
-        self.special_ability = MageSpecialAbility(self.player_sprite)
-
-        self.player_controller = PlayerController(self.player_sprite,self.stats)
-
-        #physics engine setup
+        # physics engine setup
         damping = 0.7
-        gravity = (0,0)
+        gravity = (0, 0)
         self.physics_engine = PymunkPhysicsEngine(
             damping=damping,
             gravity=gravity,
         )
+
+        # player setup
+        self.player_list = arcade.SpriteList()
+        if self.player_class ==0:
+            self.player_sprite = Player("resources/images/player_sprite_placeholder.png", scale=SPRITE_SCALING)
+            self.special_ability = KnightSpecialAbility(self.physics_engine, self.player_sprite, self.stats)
+        if self.player_class == 1:
+            self.player_sprite = get_wizard_player_character()
+            self.player_sprite.scale = 1
+            self.special_ability = MageSpecialAbility(self.physics_engine, self.stats, self.player_sprite)
+            self.special_ability.on_setup()
+        elif self.player_class == 2:
+            self.player_sprite = Player("resources/images/player_sprite_placeholder.png", scale=SPRITE_SCALING)
+            self.special_ability = DragonSpecialAbility(self.physics_engine, self.player_sprite, self.stats)
+        self.player_sprite.center_x = WINDOW_WIDTH / 2
+        self.player_sprite.center_y = WINDOW_HEIGHT / 2
+        self.player_list.append(self.player_sprite)
+        # add player to physics_engine
         self.physics_engine.add_sprite(
             self.player_sprite,
             mass=2,
@@ -89,6 +92,13 @@ class GameView(arcade.View):
             max_velocity=500,
             elasticity=0.0
         )
+
+
+        self.damage_dealer = DamageManager(self.stats)
+
+        self.player_controller = PlayerController(self.player_sprite,self.stats)
+
+
         self.map = Map(10, self.physics_engine, self.stats)
         self.map.on_setup()
         self.UI = DrawUI(self.stats, self.map)
@@ -118,11 +128,13 @@ class GameView(arcade.View):
         self.collision_handler = CollisionManager(self.physics_engine, self.stats)
         self.collision_handler.on_setup()
 
+
     def on_draw(self) -> bool | None:
         self.clear()
         self.pickups_list.draw()
         self.map.draw()
         self.player_list.draw()
+        self.special_ability.draw()
 
         if self.attack_manager.current_attack:
             self.attack_manager.current_attack.on_draw()

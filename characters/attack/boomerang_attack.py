@@ -62,7 +62,7 @@ class BoomerangAttack(Attack):
         self.physics_engine.set_position(self.boomerang, (x, y))
         self.physics_engine.set_rotation(self.boomerang, target_angle)
 
-    def update(self):
+    def attack(self):
         if not self.held:
             self.thrown_time +=1
         key_pressed = any([self.left_pressed, self.right_pressed,
@@ -110,6 +110,10 @@ class BoomerangAttack(Attack):
         else:
             self.calculate_position()
         self.boomerang_list.update()
+
+    def update(self):
+        if not self.stats.ability_active:
+            self.attack()
 
     def on_draw(self):
         self.boomerang_list.draw()

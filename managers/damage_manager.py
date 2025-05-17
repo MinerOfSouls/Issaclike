@@ -11,10 +11,10 @@ class DamageManager:
 
     def deal_damage(self, target_stats=None):
         stats = target_stats or self.stats
-        if stats.health > 0 and self.invulnerability_frames >= 60:
+        if self.invulnerability_frames >= 60 and stats.health > 0  and  not self.stats.invincible:
             print("damage_taken")
-            stats.health -= 1  # Or use stats.take_damage(1) if you have a method
-            self.invulnerability_frames = 0
+            stats.health -= 1
+            self._instance.invulnerability_frames = 0
 
     def update(self):
-        self.invulnerability_frames += 1
+        self._instance.invulnerability_frames += 1
