@@ -6,8 +6,8 @@ class GameOverView(FadingView):
 
     """ Class to manage the game overview """
     def on_update(self, dt):
-
-        self.update_fade(next_view=StartScreenView())
+        pass
+        self.update_fade()
 
 
     def on_show_view(self):

@@ -25,9 +25,9 @@ def door_side(x, y):
     elif y == WINDOW_HEIGHT - SPRITE_SIZE:
         return "north"
     elif x == 0:
-        return "east"
-    else:
         return "west"
+    else:
+        return "east"
 
 class Room:
     #wall_sprites is a dictionary based on position with keys:

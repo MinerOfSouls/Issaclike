@@ -95,6 +95,7 @@ class GameView(arcade.View):
 
 
         self.damage_dealer = DamageManager(self.stats)
+        # add player to physics_engine
 
         self.player_controller = PlayerController(self.player_sprite,self.stats)
 
@@ -168,6 +169,11 @@ class GameView(arcade.View):
         self.place_on_map.update()
         self.physics_engine.step()
         self.map.update(delta_time, self.player_sprite)
+
+        if self.stats.health <= 0:
+            from views.game_over import GameOverView
+            game_over = GameOverView()
+            self.window.show_view(game_over)
 
 
     def on_key_press(self, key, modifiers):
