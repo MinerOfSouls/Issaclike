@@ -5,11 +5,13 @@ import arcade
 from arcade import PymunkPhysicsEngine
 from arcade.hitbox import pymunk
 
+from collectables.room_clear_reward import SpawnRandomReward
 from enemies.premade import get_random_enemies
 from enemies.enemy import EnemyController
 from parameters import *
 from resource_manager import get_door_texture, get_wall_texture, get_floor
-
+from collectables.pickup_factory import PickupFactory
+from characters.stats import  PlayerStatsController
 random.seed(1234)
 
 NEXT_ROOM_POSITIONS = {
@@ -38,7 +40,12 @@ class Room:
         self.completed = False
         self.physics_engine = engine
         self.objects = arcade.SpriteList()
+        self.effects_list = arcade.SpriteList()
+        self.stats = PlayerStatsController()
         self.loaded = False
+        self.spawn_reward = SpawnRandomReward(self.physics_engine , self.objects, self.effects_list ,self.stats)
+        self.reward_spawned = False
+
 
         def draw_wall(x, y):
             wall = arcade.Sprite(get_wall_texture(x, y), scale=SPRITE_SCALING)
@@ -83,6 +90,7 @@ class Room:
         )
         self.wall_list.draw(pixelated=True)
         self.doors.draw(pixelated=True)
+        self.effects_list.draw()
         self.objects.draw()
 
     def complete(self):
@@ -91,9 +99,23 @@ class Room:
             door.texture = get_door_texture(door.left, door.bottom, self.completed)
 
     def update(self, delta_time, player):
+
+        if self.completed and not self.reward_spawned:
+            item =self.spawn_reward.on_room_clear()
+            self.reward_spawned = True
+
+        self.effects_list.update()
         self.objects.update()
 
+        # # da sie ujednolicić
+        for effect in self.effects_list:
+            if effect.should_delete:
+                self.effects_list.remove(effect)
+                self.physics_engine.remove_sprite(effect)
+
+
     def enter(self):
+        print("entered")
         for wall in self.wall_list:
             self.physics_engine.add_sprite(wall, body_type=2, collision_type="wall")
         for door in self.doors:
@@ -110,14 +132,22 @@ class Room:
         for s in self.wall_list:
             self.physics_engine.remove_sprite(s)
 
-        for pickup in self.objects:
-            self.physics_engine.remove_sprite(pickup)
+        for effect in self.effects_list:
+            self.effects_list.remove(effect)
+            self.physics_engine.remove_sprite(effect)
+
+        for item_obj in self.objects:
+                try:
+                    item_obj.is_physics_setup = False
+                    item_obj.remove_from_physics_engine()
+                except KeyError:
+                    pass
 
 
 class EnemyRoom(Room):
     def __init__(self,doors, engine, enemy_n, stats):
         super().__init__(doors, engine)
-        self.enemy_controller = EnemyController(get_random_enemies(enemy_n, 0), self, engine, stats)
+        self.enemy_controller = EnemyController(get_random_enemies(enemy_n, 0), self, engine, stats,self.objects)
 
     def update(self, delta_time, player):
         super().update(delta_time, player)
@@ -137,8 +167,9 @@ class EnemyRoom(Room):
 
 
 class Map:
-    def __init__(self, n, physics_engine, stats):
+    def __init__(self, n, physics_engine, stats, special_ability):
         self.physics_engine = physics_engine
+        self.special_ability = special_ability
         self.mini_map = {}
         self.rooms = {}
 
@@ -196,15 +227,13 @@ class Map:
         self.mini_map = room_types
         self.current_room = (0, 0)
         self.rooms[(0, 0)].complete()
-        print(self.connections.get(self.current_room))
-        print(room_coordinates)
-        print(room_types)
 
     def on_setup(self):
 
         #  door transition handler
         def door_interact_handler(player_sprite, door_sprite, *args):
             if self.change_room(player_sprite, door_sprite, self.physics_engine):
+                self.special_ability.delete_effect_on_room_transition()
                 return True
             else:
                 return False
@@ -241,6 +270,7 @@ class Map:
                 self.current_room = self.connections[self.current_room][check]
                 self.rooms[self.current_room].enter()
                 print(self.current_room)
+                return True
             else:
                 # TODO: add exception here maybe (player exited the room in an illegal direction)
                 pass
@@ -254,6 +284,9 @@ class Map:
         self.rooms[self.current_room].update(delta_time, player)
 
     def get_object_list(self):
+        return self.rooms[self.current_room].objects
+
+    def get_effect_list(self):
         return self.rooms[self.current_room].objects
 
     def is_loaded(self):

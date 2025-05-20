@@ -15,7 +15,10 @@ class InteractiveItem(Animation):
         self.mass = sprite_details.get("mass" , 0.1)
         self.map = map
         self.moment_of_inertia = sprite_details.get("moment_of_inertia", None)
+        self.is_physics_setup = False
 
+    def __str__(self):
+        return self.item_type
 
     def apply_force(self,force):
         self.physics_engine.apply_force(self ,force)
@@ -23,6 +26,9 @@ class InteractiveItem(Animation):
         self.physics_engine.apply_impulse(self ,impulse)
 
     def on_setup(self):
+        if self.is_physics_setup:
+            return
+
         self.physics_engine.add_sprite(self,
                                        mass=self.mass,
                                        damping=0.01,
@@ -40,7 +46,7 @@ class InteractiveItem(Animation):
                     item_sprite.remove_from_sprite_lists()
                 except KeyError:
                     pass
-            return CollisionManager.handle_effect(self.item_type, self.stats)
+            return CollisionManager.handle_effect(self,self.item_type, self.stats)
 
 
         self.physics_engine.add_collision_handler(
@@ -48,6 +54,13 @@ class InteractiveItem(Animation):
             "player",
             pre_handler=item_player_handle,
         )
+        self.is_physics_setup = True
+
+    def remove_from_physics_engine(self):
+        self.physics_engine.remove_sprite(self)
+
+
+
     def update(self, delta_time: float = 1/60, *args, **kwargs):
         super().update()
         self.item_lifetime+=1

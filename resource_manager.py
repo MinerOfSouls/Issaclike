@@ -45,13 +45,14 @@ object_textures["projectile"] = object_sheets["projectile"].get_texture_grid((51
 object_textures["magic_shield"] = object_sheets["magic_shield"].get_texture_grid((192,192), 10,10)
 object_textures["shoot_fire"] = object_sheets["shoot_fire"].get_texture_grid((512,512), 4,4)
 object_textures["dash_effect"] = object_sheets["dash_effect"].get_texture_grid((120,109), 30,30)
+object_textures["spawn_effect"] = object_sheets["spawn_effect"].get_texture_grid((512,512), 36,36)
 
 
 
 object_params = {
     "key":{"speed": 0.3, "scale": 0.75, "looping":True, "collectable":True, "item_type": "pick_key"},
     "coin":{"speed": 0.3, "scale": 0.25, "looping":True, "collectable":True, "item_type": "pick_coin"},
-    "chest":{"speed": 0.3, "scale": 2, "looping":False},
+    "chest":{"speed": 0.3, "scale": 2, "looping":False, "collectable":False, "item_type": "chest" , "body_type":PymunkPhysicsEngine.STATIC, "animated": False},
     "health_potion":{"speed": 0.3, "scale": 1, "looping":True, "collectable":True, "item_type": "pick_health_potion"},
     "damage_potion":{"speed": 0.3, "scale": 1, "looping":True, "collectable":True, "item_type": "pick_damage_potion"},
     "range_potion":{"speed": 0.3, "scale": 1, "looping":True, "collectable":True, "item_type": "pick_range_potion"},
@@ -69,6 +70,7 @@ object_params = {
     "magic_shield": {"speed": 0.3, "scale": 0.5, "looping": True, "collectable": False, "item_type": "magic_shield","moment_of_inertia":PymunkPhysicsEngine.MOMENT_INF,},
     "shoot_fire": {"speed": 0.3, "scale": 0.1, "looping": True, "collectable": False, "item_type": "shoot_fire","moment_of_inertia": PymunkPhysicsEngine.MOMENT_INF,"body_type":PymunkPhysicsEngine.DYNAMIC },
     "dash_effect": {"speed": 0.025, "scale": 1.5, "looping": False, "collectable": False, "item_type": "dash_effect","moment_of_inertia": PymunkPhysicsEngine.MOMENT_INF,"body_type":PymunkPhysicsEngine.KINEMATIC},
+    "spawn_effect": {"speed": 0.025, "scale": 0.1, "looping": False, "collectable": False, "item_type": "spawn_effect","moment_of_inertia": PymunkPhysicsEngine.MOMENT_INF, "body_type": PymunkPhysicsEngine.KINEMATIC},
 
 }
 

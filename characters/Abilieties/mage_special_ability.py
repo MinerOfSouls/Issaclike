@@ -8,7 +8,7 @@ from resource_manager import get_object
 class MageSpecialAbility(SpecialAbility):
     def __init__(self,physics_engine,stats,player_sprite):
         super().__init__(player_sprite)
-        self.shield_list = arcade.SpriteList()
+        self.effects_list = arcade.SpriteList()
         self.physics_engine = physics_engine
         self.loaded = False
         self.active = True
@@ -16,11 +16,14 @@ class MageSpecialAbility(SpecialAbility):
         self.magic_shield = None
 
 
+    def delete_effect_on_room_transition(self):
+        pass
+
     def on_setup(self):
         shield_sprite = get_object("magic_shield")
         self.magic_shield = InteractiveItem(self.physics_engine, self.stats, shield_sprite[0], shield_sprite[1])
         self.magic_shield.position = self.player_sprite.position
-        self.shield_list.append(self.magic_shield)
+        self.effects_list.append(self.magic_shield)
         self.magic_shield.on_setup()
         self.loaded = True
 
@@ -30,24 +33,24 @@ class MageSpecialAbility(SpecialAbility):
             self.active = True
             self.stats.invincible = True
             self.stats.ability_active = True
-            self.shield_list.append(self.magic_shield)
+            self.effects_list.append(self.magic_shield)
 
     def hide_shield(self):
         if self.active:
             self.active = False
             self.stats.invincible = False
             self.stats.ability_active = False
-            self.shield_list.remove(self.magic_shield)
+            self.effects_list.remove(self.magic_shield)
 
     def calculate_position(self):
         self.physics_engine.set_position(self.magic_shield, self.player_sprite.position)
 
     def draw(self):
-        self.shield_list.draw()
+        self.effects_list.draw()
 
     def update(self):
         self.calculate_position()
-        self.shield_list.update()
+        self.effects_list.update()
 
     def on_key_press(self, key):
         super().on_key_press(key)

@@ -23,6 +23,12 @@ class KnightSpecialAbility(PlayerController):
         self.ability_cooldown_timer = 0
         self.roll_timer = 0
 
+
+    def delete_effect_on_room_transition(self):
+        for effect in self.effects_list:
+            self.effects_list.remove(effect)
+            self.physics_engine.remove_sprite(effect)
+
     def spawn_effect(self):
         dash_effect_sprite = get_object("dash_effect")
         dash_effect = InteractiveItem(

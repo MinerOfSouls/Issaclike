@@ -5,6 +5,7 @@ from typing import List
 from arcade import PymunkPhysicsEngine
 
 from effects.charge_effect import ChargeEffects
+from effects.item_effects import ItemEffects
 from parameters import *
 
 class Enemy:
@@ -113,7 +114,7 @@ class Enemy:
 
 
 class EnemyController:
-    def __init__(self, enemies: List[Enemy], room, engine: PymunkPhysicsEngine, stats):
+    def __init__(self, enemies: List[Enemy], room, engine: PymunkPhysicsEngine, stats,effect_list):
         self.enemies = enemies
         self.enemy_sprite_list = arcade.SpriteList()
         for e in self.enemies:
@@ -122,6 +123,7 @@ class EnemyController:
         self.room = room
         self.stats = stats
         self.projectiles = EnemyProjectileController(engine, stats, 10)
+        self.effect_list = effect_list
 
         def player_collision_handler(enemy_sprite: arcade.Sprite, player_sprite: arcade.Sprite, *args):
             enemy_sprite.properties["interact"] = True
@@ -170,7 +172,7 @@ class EnemyController:
                 player.properties["inv_timer"] = 0
                 player.properties["invincible"] = False
 
-        if len(self.enemy_sprite_list) == 0:
+        if len(self.enemy_sprite_list) == 0 and not self.room.completed:
             self.room.complete()
             self.enemies.clear()
             return
@@ -202,7 +204,7 @@ class EnemyController:
             e.add_to_engine(self.physics_engine)
 
     def remove_enemies_from_engine(self):
-        print(self.enemies, len(self.enemy_sprite_list))
+        # print(self.enemies, len(self.enemy_sprite_list))
         for e in self.enemies:
             e.remove_from_engine(self.physics_engine)
 
