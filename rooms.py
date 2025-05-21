@@ -3,10 +3,10 @@ from abc import abstractmethod
 
 import arcade
 from arcade import PymunkPhysicsEngine
-from enemies.premade import get_random_enemies
+from enemies.premade import get_random_enemies, get_random_boss
 from enemies.enemy import EnemyController
 from parameters import *
-from resource_manager import get_door_texture, get_wall_texture, get_floor
+from resource_manager import get_door_texture, get_wall_texture, get_floor, get_stairs
 
 random.seed(1234)
 
@@ -103,9 +103,9 @@ class Room:
 
 
 class EnemyRoom(Room):
-    def __init__(self,doors, engine, enemy_n, stats):
+    def __init__(self,doors, engine, enemies, stats):
         super().__init__(doors, engine)
-        self.enemy_controller = EnemyController(get_random_enemies(enemy_n, 0), self, engine, stats)
+        self.enemy_controller = EnemyController(enemies, self, engine, stats)
 
     def update(self, delta_time, player):
         super().update(delta_time, player)
@@ -123,6 +123,15 @@ class EnemyRoom(Room):
         super().leave()
         self.enemy_controller.remove_enemies_from_engine()
 
+class BossRoom(EnemyRoom):
+    def __init__(self, doors, engine, d, stats):
+        super().__init__(doors, engine, get_random_boss(d), stats)
+
+    def complete(self):
+        super().complete()
+        stairs = arcade.Sprite(get_stairs(), SPRITE_SCALING, 0, 0)
+        self.physics_engine.add_sprite(stairs, body_type=2, collision_type="stairs")
+        self.doors.append(stairs)
 
 class Map:
     def __init__(self, n, physics_engine, stats):
@@ -177,7 +186,7 @@ class Map:
             match room_types[c]:
                 case 0: self.rooms[c] = Room(room_doors, self.physics_engine)
                 case 1: self.rooms[c] = Room(room_doors, self.physics_engine); self.rooms[c].complete()
-                case 2: self.rooms[c] = EnemyRoom(room_doors, self.physics_engine, 3, stats)
+                case 2: self.rooms[c] = EnemyRoom(room_doors, self.physics_engine, get_random_enemies(3, 0), stats)
                 case 3: self.rooms[c] = Room(room_doors, self.physics_engine); self.rooms[c].complete()
 
         self.current_room = (0, 0)
@@ -238,3 +247,9 @@ class Map:
 
     def get_object_list(self):
         return self.rooms[self.current_room].objects
+
+    def get_enemy_controller(self):
+        if type(self.rooms[self.current_room] == EnemyRoom):
+            return self.rooms[self.current_room].enemy_controller
+        else:
+            return False

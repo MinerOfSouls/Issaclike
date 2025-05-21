@@ -51,6 +51,8 @@ class GameView(arcade.View):
             viewport=self.window.rect
         )
 
+        self.room_number = 5
+
     def setup(self):
         self.player_list = arcade.SpriteList()
         #player
@@ -86,11 +88,17 @@ class GameView(arcade.View):
             damping=0.01,
             collision_type="player",
             max_velocity=500,
-            elasticity=0.0
+            elasticity=0.0,
         )
-        self.map = Map(10, self.physics_engine, self.stats)
+        self.map = Map(self.room_number, self.physics_engine, self.stats)
         self.map.on_setup()
 
+        def next_level_handle(*args):
+            self.room_number = self.room_number + 1
+            self.map = Map(self.room_number, self.physics_engine, self.stats)
+            self.map.on_setup()
+
+        self.physics_engine.add_collision_handler("player", "stairs", post_handler=next_level_handle)
 
         self.attack_manager = AttackManager(self.physics_engine , self.player_sprite , self.stats)
 

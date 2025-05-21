@@ -44,9 +44,10 @@ class Enemy:
     def attack(self, delta_time, destination, engine: PymunkPhysicsEngine, projectile_control):
         pass
 
-    def update(self):
+    def update(self, delta_time):
         self.position = (self.sprite.center_x, self.sprite.center_y)
         self.health = self.sprite.properties["health"]
+        self.sprite.update(delta_time)
 
     def __move_calc(self, destination):
         x_goal = destination[0]
@@ -120,6 +121,9 @@ class EnemyController:
         self.room = room
         self.stats = stats
         self.projectiles = EnemyProjectileController(engine, stats, 10)
+        self.freeze = False
+        self.freeze_timer = 0
+        self.freeze_time = 2
 
         def player_collision_handler(enemy_sprite: arcade.Sprite, player_sprite: arcade.Sprite, *args):
             enemy_sprite.properties["interact"] = True
@@ -172,6 +176,14 @@ class EnemyController:
             self.room.complete()
             self.enemies.clear()
             return
+
+        if self.freeze:
+            self.freeze_timer += delta_time
+            if self.freeze_timer > self.freeze_time:
+                self.freeze_timer = 0
+                self.freeze = False
+            return
+
         location = (player.center_x, player.center_y)
         garbage_collect = []
         for e in self.enemies:
@@ -187,9 +199,8 @@ class EnemyController:
                 garbage_collect.append(e)
                 continue
 
-            e.update()
+            e.update(delta_time)
             e.move(location, self.physics_engine)
-            e.sprite.update(delta_time)
             e.attack(delta_time, location, self.physics_engine, self.projectiles)
 
         for e in garbage_collect:
@@ -213,7 +224,7 @@ class EnemyProjectileController:
 
         def player_hit_handler(enemy_projectile_sprite: arcade.Sprite, player_sprite: arcade.Sprite, *args):
             if not player_sprite.properties["invincible"]:
-                self.stats.health = min(1, self.stats.health - enemy_projectile_sprite.properties["damage"])
+                self.stats.health = min(0, self.stats.health - enemy_projectile_sprite.properties["damage"])
                 player_sprite.properties["invincible"] = True
                 player_sprite.properties["inv_timer"] = 1.0
                 enemy_projectile_sprite.remove_from_sprite_lists()
