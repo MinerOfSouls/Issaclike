@@ -16,7 +16,7 @@ from characters.stats import PlayerStatsController
 from characters.Abilieties.mage_special_ability import MageSpecialAbility
 from collectables.pickup_factory import PickupFactory
 from collectables.place_on_map import PlaceOnMap
-
+from items.inventory import Inventory
 
 class GameView(arcade.View):
     def __init__(self):
@@ -39,6 +39,7 @@ class GameView(arcade.View):
         self.placed_items= arcade.SpriteList()
         self.difficulty_options = None
         self.attack_manager = None
+        self.inventory = None
 
         self.player_class = 0
 
@@ -120,6 +121,9 @@ class GameView(arcade.View):
         # self.difficulty_options.set_slippery()
         #
 
+        self.inventory = Inventory()
+        self.inventory.load()
+
     def on_draw(self) -> bool | None:
         self.clear()
         self.map.draw()
@@ -132,7 +136,7 @@ class GameView(arcade.View):
         self.pickup_factory.on_draw()
         self.place_on_map.on_draw()
         self.difficulty_options.draw()
-
+        self.inventory.draw()
         return None
 
     def on_update(self, delta_time):
@@ -151,6 +155,8 @@ class GameView(arcade.View):
         self.difficulty_options.update()
         self.physics_engine.step()
         self.map.update(delta_time, self.player_sprite)
+        self.inventory.update(engine = self.physics_engine, delta_time = delta_time, player = self.player_sprite,
+                              pickup_factory = self.pickup_factory, map = self.map, stats = self.stats)
 
 
     def on_key_press(self, key, modifiers):
@@ -162,9 +168,13 @@ class GameView(arcade.View):
         self.special_ability.on_key_press(key)
         self.place_on_map.on_key_press(key)
         if key == arcade.key.ESCAPE:
+            self.inventory.save()
             from views.pause_screen import PauseView
             pause = PauseView(self)
             self.window.show_view(pause)
+
+        self.inventory.on_key_press(key, engine = self.physics_engine, player = self.player_sprite,
+                              pickup_factory = self.pickup_factory, map = self.map, stats = self.stats)
 
 
     def on_key_release(self, key, modifiers):

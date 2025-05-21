@@ -136,3 +136,13 @@ class Totem(Item):
     def __str__(self):
         return "Totem"
 
+def name_to_item(name: str) -> Item:
+    match name:
+        case "Repulsor": return Repulsor(arcade.SpriteCircle(10, arcade.color.WHITE))
+        case "Wallet": return Wallet(arcade.SpriteCircle(10, arcade.color.BLUE))
+        case "Grace": return Grace(arcade.SpriteCircle(10, arcade.color.GREEN))
+        case "Sacrifice": return Sacrifice(arcade.SpriteCircle(10, arcade.color.RED))
+        case "Snowflake": return Snowflake(arcade.SpriteCircle(10, arcade.color.ICEBERG))
+        case "Totem": return Totem(arcade.SpriteCircle(10, arcade.color.GOLD))
+        case _: raise ValueError("Invalid save / Invalid item name")
+

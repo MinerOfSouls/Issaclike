@@ -1,6 +1,9 @@
 import arcade
 from item import Item
+from things import name_to_item
 from parameters import *
+import json
+import os
 
 class Inventory:
     def __init__(self):
@@ -37,3 +40,18 @@ class Inventory:
     def draw(self):
         self.item_sprites.draw()
         self.extra_objects.draw()
+
+    def save(self):
+        l = [str(i) for i in self.items]
+        f = open("inventory.json", "w+")
+        json.dump(l, f)
+        f.close()
+
+    def load(self):
+        if not os.path.isfile("inventory.json"):
+            return
+        f = open("inventory.json", "r")
+        l = json.load(f)
+        f.close()
+        for name in l:
+            self.add_item(name_to_item(name))
