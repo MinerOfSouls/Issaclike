@@ -1,7 +1,7 @@
 import arcade
-from item import Item
+from items.item import Item
 from random import randint
-from parameters import SPRITE_SIZE, WINDOW_WIDTH
+from parameters import SPRITE_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT
 
 
 class Repulsor(Item):
@@ -23,12 +23,14 @@ class Repulsor(Item):
                 self.repulsion_sprite.remove_from_sprite_lists()
                 self.active = False
                 return
-            self.radius = self.radius + 2
+            self.radius = self.radius + 4
             self.repulsion_sprite.remove_from_sprite_lists()
             new_sprite = arcade.sprite.SpriteCircle(self.radius, arcade.color.WHITE)
             new_sprite.center_x = self.p_X
             new_sprite.center_y = self.p_Y
+            kwargs["objects"].append(new_sprite)
             kwargs["engine"].add_sprite(new_sprite, body_type=2, collision_type="repulse")
+            self.repulsion_sprite = new_sprite
         else:
             self.timer += kwargs["delta_time"]
 
@@ -64,7 +66,7 @@ class Wallet(Item):
 class Grace(Item):
     def __init__(self, sprite):
         super().__init__(sprite)
-        self.cooldown = 60
+        self.cooldown = 1
         self.timer = 0
 
     def update(self, **kwargs):
@@ -76,9 +78,11 @@ class Grace(Item):
             engine = kwargs["engine"]
             player_sprite = kwargs["player"]
             map.rooms[map.current_room].leave()
-            engine.set_position(player_sprite, (0, 0))
             map.current_room = (0, 0)
+            engine.set_position(player_sprite, (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
             map.rooms[map.current_room].enter()
+            engine.resync_sprites()
+            self.timer = 0
 
     def __str__(self):
         return "Grace"
@@ -86,7 +90,7 @@ class Grace(Item):
 class Sacrifice(Item):
     def __init__(self, sprite):
         super().__init__(sprite)
-        self.cooldown = 60
+        self.cooldown = 1
         self.timer = 0
 
     def update(self, **kwargs):
@@ -106,7 +110,7 @@ class Sacrifice(Item):
 class Snowflake(Item):
     def __init__(self, sprite):
         super().__init__(sprite)
-        self.cooldown = 60
+        self.cooldown = 30
         self.timer = 0
 
     def update(self, **kwargs):
@@ -114,7 +118,7 @@ class Snowflake(Item):
 
     def activated(self, **kwargs):
         enemy_crl = kwargs["map"].get_enemy_controller()
-        if self.timer > self.cooldown and enemy_crl:
+        if self.timer > self.cooldown and enemy_crl is not False:
             self.timer = 0
             enemy_crl.freeze = True
 

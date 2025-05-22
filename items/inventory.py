@@ -1,6 +1,6 @@
 import arcade
-from item import Item
-from things import name_to_item
+from items.item import Item
+from items.things import name_to_item
 from parameters import *
 import json
 import os
@@ -14,7 +14,7 @@ class Inventory:
 
     def update(self, **kwargs):
         for item in self.items:
-            item.update(**kwargs)
+            item.update(**kwargs, objects = self.extra_objects)
 
     def on_key_press(self, key, **kwargs):
         if key == arcade.key.KEY_1 and self.i > 0:
@@ -55,3 +55,4 @@ class Inventory:
         f.close()
         for name in l:
             self.add_item(name_to_item(name))
+        print(self.items)

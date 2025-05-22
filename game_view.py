@@ -52,7 +52,7 @@ class GameView(arcade.View):
             viewport=self.window.rect
         )
 
-        self.room_number = 5
+        self.room_number = 10
 
     def setup(self):
         self.player_list = arcade.SpriteList()
@@ -99,7 +99,11 @@ class GameView(arcade.View):
             self.map = Map(self.room_number, self.physics_engine, self.stats)
             self.map.on_setup()
 
+        def no_collision(*args):
+            return False
+
         self.physics_engine.add_collision_handler("player", "stairs", post_handler=next_level_handle)
+        self.physics_engine.add_collision_handler("player", "repulse", pre_handler=no_collision)
 
         self.attack_manager = AttackManager(self.physics_engine , self.player_sprite , self.stats)
 
@@ -113,8 +117,8 @@ class GameView(arcade.View):
 
         self.place_on_map = PlaceOnMap(self.player_sprite,self.placed_items,self.stats, self.physics_engine)
 
-        self.difficulty_options = DifficultyOptions(self.physics_engine ,self.player_sprite, self.stats , self.effects_list, self.attack_manager)
-        self.difficulty_options.on_setup()
+        """self.difficulty_options = DifficultyOptions(self.physics_engine ,self.player_sprite, self.stats , self.effects_list, self.attack_manager)
+        self.difficulty_options.on_setup()"""
 
         self.effect_handler = CollisionManager(self.physics_engine, self.stats)
         self.effect_handler.on_setup()
@@ -135,7 +139,7 @@ class GameView(arcade.View):
         self.UI.on_draw()
         self.pickup_factory.on_draw()
         self.place_on_map.on_draw()
-        self.difficulty_options.draw()
+        #self.difficulty_options.draw()
         self.inventory.draw()
         return None
 
@@ -152,7 +156,7 @@ class GameView(arcade.View):
         self.UI.on_update()
         self.pickup_factory.update()
         self.place_on_map.update()
-        self.difficulty_options.update()
+        #self.difficulty_options.update()
         self.physics_engine.step()
         self.map.update(delta_time, self.player_sprite)
         self.inventory.update(engine = self.physics_engine, delta_time = delta_time, player = self.player_sprite,
