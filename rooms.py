@@ -125,13 +125,28 @@ class EnemyRoom(Room):
 
 class BossRoom(EnemyRoom):
     def __init__(self, doors, engine, d, stats):
-        super().__init__(doors, engine, get_random_boss(d), stats)
+        super().__init__(doors, engine, [get_random_boss(d)], stats)
+        self.stairs = arcade.SpriteList()
 
     def complete(self):
         super().complete()
-        stairs = arcade.Sprite(get_stairs(), SPRITE_SCALING, 0, 0)
+        stairs = arcade.Sprite(get_stairs(), SPRITE_SCALING, WINDOW_WIDTH/2, WINDOW_HEIGHT/2)
         self.physics_engine.add_sprite(stairs, body_type=2, collision_type="stairs")
-        self.doors.append(stairs)
+        self.stairs.append(stairs)
+
+    def draw(self):
+        super().draw()
+        self.stairs.draw()
+
+    def leave(self):
+        super().leave()
+        for s in self.stairs:
+            self.physics_engine.remove_sprite(s)
+
+    def enter(self):
+        super().enter()
+        for s in self.stairs:
+            self.physics_engine.add_sprite(s, body_type=2, collision_type="stairs")
 
 class Map:
     def __init__(self, n, physics_engine, stats):
@@ -185,7 +200,7 @@ class Map:
             room_doors = {k for k in self.connections[c].keys()}
             match room_types[c]:
                 case 0: self.rooms[c] = Room(room_doors, self.physics_engine)
-                case 1: self.rooms[c] = Room(room_doors, self.physics_engine); self.rooms[c].complete()
+                case 1: self.rooms[c] = BossRoom(room_doors, self.physics_engine, 0, stats)
                 case 2: self.rooms[c] = EnemyRoom(room_doors, self.physics_engine, get_random_enemies(3, 0), stats)
                 case 3: self.rooms[c] = Room(room_doors, self.physics_engine); self.rooms[c].complete()
 
@@ -205,6 +220,7 @@ class Map:
         self.physics_engine.add_collision_handler("player", "door", post_handler=door_interact_handler)
 
         self.rooms[self.current_room].enter()
+        print(self.connections[self.current_room])
 
     def get_current_walls(self):
         return self.rooms[self.current_room].wall_list
@@ -214,9 +230,9 @@ class Map:
 
     def check_room_move(self, door):
         if int(door.left) == 0:
-            return "west"
-        elif int(door.left) ==  WINDOW_WIDTH - SPRITE_SIZE:
             return "east"
+        elif int(door.left) ==  WINDOW_WIDTH - SPRITE_SIZE:
+            return "west"
         elif int(door.bottom) == 0:
             return "south"
         elif int(door.bottom) == WINDOW_HEIGHT - SPRITE_SIZE:

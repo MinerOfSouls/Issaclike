@@ -28,7 +28,7 @@ def get_random_boss(d):
         e = Goblin(d + 2)
     else:
         e = Rat(d + 2)
-    e.sprite.scale = e.sprite.scale * 3
+    e.sprite.scale = (e.sprite.scale[0] * 3, e.sprite.scale[1] * 3)
     return e
 
 class Slime(Enemy):
