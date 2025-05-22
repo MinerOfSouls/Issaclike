@@ -9,7 +9,7 @@ from Ui.draw_ui import DrawUI
 
 from characters.player import Player
 from managers.difficulty_manager import DifficultyOptions
-from resource_manager import get_wizard_player_character
+from resource_manager import get_wizard_player_character, get_dragon_player_character, get_knight_player_character
 from rooms import Map
 from parameters import *
 from characters.player_controller import PlayerController
@@ -171,7 +171,7 @@ class GameView(arcade.View):
         self.physics_engine.step()
         self.map.update(delta_time, self.player_sprite)
         self.inventory.update(engine = self.physics_engine, delta_time = delta_time, player = self.player_sprite,
-                              pickup_factory = self.pickup_factory, map = self.map, stats = self.stats)
+                              map = self.map, stats = self.stats)
 
         if self.stats.health <= 0:
             from views.game_over import GameOverView
@@ -194,7 +194,7 @@ class GameView(arcade.View):
             self.window.show_view(pause)
 
         self.inventory.on_key_press(key, engine = self.physics_engine, player = self.player_sprite,
-                              pickup_factory = self.pickup_factory, map = self.map, stats = self.stats)
+                                    map = self.map, stats = self.stats)
 
 
     def on_key_release(self, key, modifiers):

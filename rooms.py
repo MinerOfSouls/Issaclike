@@ -147,7 +147,7 @@ class Room:
 class EnemyRoom(Room):
     def __init__(self,doors, engine, enemies, stats):
         super().__init__(doors, engine)
-        self.enemy_controller = EnemyController(enemies, self, engine, stats)
+        self.enemy_controller = EnemyController(enemies, self, engine, stats, self.objects)
 
     def update(self, delta_time, player):
         super().update(delta_time, player)

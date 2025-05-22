@@ -1,7 +1,11 @@
 import arcade
+
+from collectables.interactive_item import InteractiveItem
 from items.item import Item
 from random import randint
 from parameters import SPRITE_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT
+from collectables.pickup_factory import PickupFactory, PickupType
+from resource_manager import get_object
 
 
 class Repulsor(Item):
@@ -54,7 +58,9 @@ class Wallet(Item):
     def update(self, **kwargs):
         self.timer += kwargs["delta_time"]
         if self.timer > self.cooldown:
-            kwargs["pickup_factory"].spawn_coin(randint(SPRITE_SIZE*2, WINDOW_WIDTH - SPRITE_SIZE*2),randint(SPRITE_SIZE*2, WINDOW_WIDTH - SPRITE_SIZE*2))
+            map = kwargs["map"]
+            map.rooms[map.current_room].spawn_reward.pickup_factory.create_pickup(PickupType.COIN,
+                randint(SPRITE_SIZE*2, WINDOW_WIDTH - SPRITE_SIZE*2),randint(SPRITE_SIZE*2, WINDOW_WIDTH - SPRITE_SIZE*2))
             self.timer = 0
 
     def activated(self, **kwargs):

@@ -1,6 +1,4 @@
 import arcade
-from setuptools.archive_util import unpack_zipfile
-
 from collectables.interactive_item import InteractiveItem
 from parameters import *
 import math
