@@ -23,7 +23,7 @@ class AnimatedMovingSprite(arcade.Sprite):
         self.current_standing_texture_index = 0
         self.standing_animation_length = 0 #have to set
         self.moving_animation_length = 0
-        self.texture_update_distance = 20
+        self.texture_update_distance = 10
         self.last_update = (self.center_x, self.center_y)
         self.facing_calc = facing_to_direction
 

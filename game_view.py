@@ -109,7 +109,8 @@ class GameView(arcade.View):
         def next_level_handle(*args):
             self.map.rooms[self.map.current_room].leave()
             self.room_number = self.room_number + 1
-            self.map = Map(self.room_number, self.physics_engine, self.stats)
+            self.map = Map(self.room_number, self.physics_engine, self.stats,self.special_ability)
+            self.UI = DrawUI(self.stats, self.map)
             self.map.on_setup()
 
         def no_collision(*args):

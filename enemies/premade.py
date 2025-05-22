@@ -14,7 +14,7 @@ def get_random_enemies(n, d):
             e_list.append(Rat(d))
         elif r == 3:
             e_list.append(Wizard(d))
-        elif r == 5:
+        elif r == 4:
             e_list.append(Goblin(d))
     return e_list
 
