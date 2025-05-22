@@ -6,6 +6,8 @@ import os
 from animations.animated import AnimatedMovingSprite
 from collectables.animation import Animation
 
+box = arcade.hitbox.algo_detailed
+
 doors = {filename.split(".")[0]:arcade.load_texture(os.path.join("resources/images/door_textures", filename))
          for filename in os.listdir("resources/images/door_textures")}
 
@@ -13,6 +15,8 @@ walls = {filename.split(".")[0]:arcade.load_texture(os.path.join("resources/imag
          for filename in os.listdir("resources/images/wall_textures")}
 
 floor = arcade.load_texture("resources/images/floor.png")
+
+stairs = arcade.load_texture("resources/images/stairs.png")
 
 enemy_sheets = {filename.split(".")[0]:arcade.load_spritesheet(os.path.join("resources/images/enemies", filename))
                     for filename in os.listdir("resources/images/enemies")}
@@ -24,35 +28,35 @@ object_sheets = {filename.split(".")[0]:arcade.load_spritesheet(os.path.join("re
                     for filename in os.listdir("resources/images/objects")}
 
 object_textures = {}
-object_textures["chest"] = object_sheets["chest-ss"].get_texture_grid((48, 32), 4, 4)
-object_textures["coin"] = object_sheets["coin"].get_texture_grid((80, 80), 8, 8)
-object_textures["leaf"] = object_sheets["ELR_FallLeaf"].get_texture_grid((16, 16), 5, 5)
-object_textures["explosion"] = object_sheets["explosion"].get_texture_grid((64, 64), 30, 30)
-object_textures["bomb"] = object_sheets["granade"].get_texture_grid((13, 16), 1, 1)
-object_textures["placed_bomb"] = object_sheets["granade"].get_texture_grid((13, 16), 1, 1)
-object_textures["health_potion"] = object_sheets["health_potion"].get_texture_grid((16, 18), 3, 3)
-object_textures["damage_potion"] = object_sheets["damage_potion"].get_texture_grid((16, 18), 3, 3)
-object_textures["range_potion"] = object_sheets["range_potion"].get_texture_grid((16, 18), 3, 3)
-object_textures["speed_potion"] = object_sheets["speed_potion"].get_texture_grid((16, 18), 3, 3)
-object_textures["heart"] = object_sheets["heart_animated_1"].get_texture_grid((17, 17), 5, 5)
-object_textures["key"] = object_sheets["key-white"].get_texture_grid((32, 32), 12, 12)
-object_textures["skull"] = object_sheets["skull"].get_texture_grid((16, 16), 1, 1)
-object_textures["boomerang"] = object_sheets["boomerang"].get_texture_grid((190, 190), 1, 1)
-object_textures["sword"] = object_sheets["swords1"].get_texture_grid((46, 46), 1, 1)
-object_textures["static_fire"] = object_sheets["static_fire"].get_texture_grid((96, 96), 19, 19)
-object_textures["wisp"] = object_sheets["wisp"].get_texture_grid((32, 32), 10, 10)
-object_textures["projectile"] = object_sheets["projectile"].get_texture_grid((512, 512), 5, 5)
-object_textures["magic_shield"] = object_sheets["magic_shield"].get_texture_grid((192,192), 10,10)
-object_textures["shoot_fire"] = object_sheets["shoot_fire"].get_texture_grid((512,512), 4,4)
-object_textures["dash_effect"] = object_sheets["dash_effect"].get_texture_grid((120,109), 30,30)
-object_textures["spawn_effect"] = object_sheets["spawn_effect"].get_texture_grid((512,512), 36,36)
+object_textures["chest"] = object_sheets["chest"].get_texture_grid((128, 128), 5, 5, hit_box_algorithm=box)
+object_textures["coin"] = object_sheets["coin"].get_texture_grid((80, 80), 8, 8, hit_box_algorithm=box)
+object_textures["leaf"] = object_sheets["ELR_FallLeaf"].get_texture_grid((16, 16), 5, 5, hit_box_algorithm=box)
+object_textures["explosion"] = object_sheets["explosion"].get_texture_grid((64, 64), 30, 30, hit_box_algorithm=box)
+object_textures["bomb"] = object_sheets["granade"].get_texture_grid((13, 16), 1, 1, hit_box_algorithm=box)
+object_textures["placed_bomb"] = object_sheets["granade"].get_texture_grid((13, 16), 1, 1, hit_box_algorithm=box)
+object_textures["health_potion"] = object_sheets["health_potion"].get_texture_grid((16, 18), 3, 3, hit_box_algorithm=box)
+object_textures["damage_potion"] = object_sheets["damage_potion"].get_texture_grid((16, 18), 3, 3, hit_box_algorithm=box)
+object_textures["range_potion"] = object_sheets["range_potion"].get_texture_grid((16, 18), 3, 3, hit_box_algorithm=box)
+object_textures["speed_potion"] = object_sheets["speed_potion"].get_texture_grid((16, 18), 3, 3, hit_box_algorithm=box)
+object_textures["heart"] = object_sheets["heart_animated_1"].get_texture_grid((17, 17), 5, 5, hit_box_algorithm=box)
+object_textures["key"] = object_sheets["key-white"].get_texture_grid((32, 32), 12, 12, hit_box_algorithm=box)
+object_textures["skull"] = object_sheets["skull"].get_texture_grid((16, 16), 1, 1, hit_box_algorithm=box)
+object_textures["boomerang"] = object_sheets["boomerang"].get_texture_grid((190, 190), 1, 1, hit_box_algorithm=box)
+object_textures["sword"] = object_sheets["swords1"].get_texture_grid((46, 46), 1, 1, hit_box_algorithm=box)
+object_textures["static_fire"] = object_sheets["static_fire"].get_texture_grid((96, 96), 19, 19, hit_box_algorithm=box)
+object_textures["wisp"] = object_sheets["wisp"].get_texture_grid((32, 32), 10, 10, hit_box_algorithm=box)
+object_textures["projectile"] = object_sheets["projectile"].get_texture_grid((512, 512), 5, 5, hit_box_algorithm=box)
+object_textures["magic_shield"] = object_sheets["magic_shield"].get_texture_grid((192,192), 10,10, hit_box_algorithm=box)
+object_textures["shoot_fire"] = object_sheets["shoot_fire"].get_texture_grid((512,512), 4,4, hit_box_algorithm=box)
+object_textures["dash_effect"] = object_sheets["dash_effect"].get_texture_grid((120,109), 30,30, hit_box_algorithm=box)
+object_textures["spawn_effect"] = object_sheets["spawn_effect"].get_texture_grid((512,512), 36,36, hit_box_algorithm=box)
 
 
 
 object_params = {
     "key":{"speed": 0.3, "scale": 0.75, "looping":True, "collectable":True, "item_type": "pick_key"},
     "coin":{"speed": 0.3, "scale": 0.25, "looping":True, "collectable":True, "item_type": "pick_coin"},
-    "chest":{"speed": 0.3, "scale": 2, "looping":False, "collectable":False, "item_type": "chest" , "body_type":PymunkPhysicsEngine.STATIC, "animated": False},
+    "chest":{"speed": 0.3, "scale": 1, "looping":False, "collectable":False, "item_type": "chest" , "body_type":PymunkPhysicsEngine.STATIC, "animated": False},
     "health_potion":{"speed": 0.3, "scale": 1, "looping":True, "collectable":True, "item_type": "pick_health_potion"},
     "damage_potion":{"speed": 0.3, "scale": 1, "looping":True, "collectable":True, "item_type": "pick_damage_potion"},
     "range_potion":{"speed": 0.3, "scale": 1, "looping":True, "collectable":True, "item_type": "pick_range_potion"},
@@ -75,17 +79,23 @@ object_params = {
 }
 
 enemy_textures = {}
-enemy_textures["slime_idle"] = enemy_sheets["slime_idle"].get_texture_grid((64, 64), 4, 4)
-enemy_textures["slime_move_west"] = enemy_sheets["slime_move"].get_texture_grid((64, 64), 4, 4)
+enemy_textures["slime_idle"] = enemy_sheets["slime_idle"].get_texture_grid((64, 64), 4, 4, hit_box_algorithm=box)
+enemy_textures["slime_move_west"] = enemy_sheets["slime_move"].get_texture_grid((64, 64), 4, 4, hit_box_algorithm=box)
 enemy_textures["slime_move_east"] = [t.flip_left_right() for t in enemy_textures["slime_move_west"]]
 
-enemy_textures["rat_idle"] = enemy_sheets["rat_idle"].get_texture_grid((128, 128), 4, 4)
-enemy_textures["rat_move_west"] = enemy_sheets["rat_move"].get_texture_grid((128, 128), 6, 6)
+enemy_textures["rat_idle"] = enemy_sheets["rat_idle"].get_texture_grid((128, 128), 4, 4, hit_box_algorithm=box)
+enemy_textures["rat_move_west"] = enemy_sheets["rat_move"].get_texture_grid((128, 128), 6, 6, hit_box_algorithm=box)
 enemy_textures["rat_move_east"] = [t.flip_left_right() for t in enemy_textures["rat_move_west"]]
 
-enemy_textures["wizard_idle"] = enemy_sheets["wizard_idle"].get_texture_grid((129, 128), 8, 8)
-enemy_textures["wizard_move_west"] = enemy_sheets["wizard_move"].get_texture_grid((128, 128), 8, 8)
+enemy_textures["wizard_idle"] = enemy_sheets["wizard_idle"].get_texture_grid((129, 128), 8, 8, hit_box_algorithm=box)
+enemy_textures["wizard_move_west"] = enemy_sheets["wizard_move"].get_texture_grid((128, 128), 8, 8, hit_box_algorithm=box)
 enemy_textures["wizard_move_east"] = [t.flip_left_right() for t in enemy_textures["wizard_move_west"]]
+
+enemy_textures["goblin_idle"] = enemy_sheets["goblin_idle"].get_texture_grid((129, 128), 8, 8, hit_box_algorithm=box)
+enemy_textures["goblin_move_west"] = enemy_sheets["goblin_move"].get_texture_grid((128, 128), 9, 9, hit_box_algorithm=box)
+enemy_textures["goblin_move_east"] = [t.flip_left_right() for t in enemy_textures["goblin_move_west"]]
+
+enemy_textures["mimic"] = enemy_sheets["mimic"].get_texture_grid((128, 128), 5, 5, hit_box_algorithm=box)
 
 def get_door_texture(x, y, completed):
     door = ""
@@ -130,6 +140,9 @@ def get_wall_texture(x, y):
 def get_floor():
     return floor
 
+def get_stairs():
+    return stairs
+
 def get_object(name: str):
     if name == "sword":
         return object_textures["sword"][0]
@@ -148,6 +161,34 @@ def get_wizard_player_character():
     sprite.moving_animations["east"] = player_sheets["wizard_left"].get_texture_grid((128, 128), 6, 6)
     sprite.moving_animations["south"] = player_sheets["wizard_down"].get_texture_grid((128, 128), 6, 6)
     sprite.moving_animations["west"] = player_sheets["wizard_right"].get_texture_grid((128, 128), 6, 6)
+    sprite.moving_animation_length = 6
+    return sprite
+
+def get_knight_player_character():
+    sprite = AnimatedMovingSprite()
+    directions = ["north", "east", "west", "south"]
+    idle = player_sheets["knight_idle"].get_texture_grid((128, 128), 1, 1)
+    for d in directions:
+        sprite.standing_animations[d] = idle
+    sprite.standing_animation_length = 1
+    sprite.moving_animations["north"] = player_sheets["knight_up"].get_texture_grid((128, 128), 2, 2)
+    sprite.moving_animations["east"] = player_sheets["knight_left"].get_texture_grid((128, 128), 2, 2)
+    sprite.moving_animations["south"] = player_sheets["knight_down"].get_texture_grid((128, 128), 2, 2)
+    sprite.moving_animations["west"] = player_sheets["knight_right"].get_texture_grid((128, 128), 2, 2)
+    sprite.moving_animation_length = 6
+    return sprite
+
+def get_dragon_player_character():
+    sprite = AnimatedMovingSprite()
+    directions = ["north", "east", "west", "south"]
+    idle = player_sheets["dragon_idle"].get_texture_grid((128, 128), 3, 3)
+    for d in directions:
+        sprite.standing_animations[d] = idle
+    sprite.standing_animation_length = 1
+    sprite.moving_animations["north"] = player_sheets["dragon_up"].get_texture_grid((128, 128), 3, 3)
+    sprite.moving_animations["east"] = player_sheets["dragon_left"].get_texture_grid((128, 128), 3, 3)
+    sprite.moving_animations["south"] = player_sheets["dragon_down"].get_texture_grid((128, 128), 3, 3)
+    sprite.moving_animations["west"] = player_sheets["dragon_right"].get_texture_grid((128, 128), 3, 3)
     sprite.moving_animation_length = 6
     return sprite
 
@@ -189,3 +230,17 @@ def get_wizard_sprite():
     sprite.standing_animation_length = 8
     sprite.facing_calc = enemy_facing
     return sprite
+
+def get_goblin_sprite():
+    sprite = AnimatedMovingSprite()
+    sprite.standing_animations["west"] = enemy_textures["goblin_idle"]
+    sprite.standing_animations["east"] = enemy_textures["goblin_idle"]
+    sprite.moving_animations["west"] = enemy_textures["goblin_move_west"]
+    sprite.moving_animations["east"] = enemy_textures["goblin_move_east"]
+    sprite.moving_animation_length = 9
+    sprite.standing_animation_length = 8
+    sprite.facing_calc = enemy_facing
+    return sprite
+
+def get_mimic_sprite():
+    return Animation(enemy_textures["mimic"], object_params["chest"])

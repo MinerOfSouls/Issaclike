@@ -1,5 +1,7 @@
 import arcade
 import math
+from physics_util import update_sprite
+
 
 def facing_to_direction(angle):
     if angle < 60 or angle >= 300:
@@ -39,3 +41,5 @@ class AnimatedMovingSprite(arcade.Sprite):
         self.sync_hit_box_to_texture()
         self.current_texture_index = (self.current_texture_index + 1)%self.moving_animation_length
         self.last_update = (self.center_x, self.center_y)
+        for engine in self.physics_engines:
+            update_sprite(engine, self)

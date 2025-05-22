@@ -6,12 +6,13 @@ from arcade import PymunkPhysicsEngine
 from arcade.hitbox import pymunk
 
 from collectables.room_clear_reward import SpawnRandomReward
-from enemies.premade import get_random_enemies
+from enemies.premade import get_random_enemies, get_random_boss
 from enemies.enemy import EnemyController
 from parameters import *
-from resource_manager import get_door_texture, get_wall_texture, get_floor
 from collectables.pickup_factory import PickupFactory
 from characters.stats import  PlayerStatsController
+from resource_manager import get_door_texture, get_wall_texture, get_floor, get_stairs
+
 random.seed(1234)
 
 NEXT_ROOM_POSITIONS = {
@@ -27,9 +28,9 @@ def door_side(x, y):
     elif y == WINDOW_HEIGHT - SPRITE_SIZE:
         return "north"
     elif x == 0:
-        return "west"
-    else:
         return "east"
+    else:
+        return "west"
 
 class Room:
     #wall_sprites is a dictionary based on position with keys:
@@ -81,7 +82,6 @@ class Room:
                     draw_wall(x, y)
                 else:
                     draw_door(x, y)
-
 
     def draw(self):
         arcade.draw_texture_rect(
@@ -145,9 +145,9 @@ class Room:
 
 
 class EnemyRoom(Room):
-    def __init__(self,doors, engine, enemy_n, stats):
+    def __init__(self,doors, engine, enemies, stats):
         super().__init__(doors, engine)
-        self.enemy_controller = EnemyController(get_random_enemies(enemy_n, 0), self, engine, stats,self.objects)
+        self.enemy_controller = EnemyController(enemies, self, engine, stats)
 
     def update(self, delta_time, player):
         super().update(delta_time, player)
@@ -165,6 +165,30 @@ class EnemyRoom(Room):
         super().leave()
         self.enemy_controller.remove_enemies_from_engine()
 
+class BossRoom(EnemyRoom):
+    def __init__(self, doors, engine, d, stats):
+        super().__init__(doors, engine, [get_random_boss(d)], stats)
+        self.stairs = arcade.SpriteList()
+
+    def complete(self):
+        super().complete()
+        stairs = arcade.Sprite(get_stairs(), SPRITE_SCALING, WINDOW_WIDTH/2, WINDOW_HEIGHT/2)
+        self.physics_engine.add_sprite(stairs, body_type=2, collision_type="stairs")
+        self.stairs.append(stairs)
+
+    def draw(self):
+        super().draw()
+        self.stairs.draw()
+
+    def leave(self):
+        super().leave()
+        for s in self.stairs:
+            self.physics_engine.remove_sprite(s)
+
+    def enter(self):
+        super().enter()
+        for s in self.stairs:
+            self.physics_engine.add_sprite(s, body_type=2, collision_type="stairs")
 
 class Map:
     def __init__(self, n, physics_engine, stats, special_ability):
@@ -220,8 +244,8 @@ class Map:
             room_doors = {k for k in self.connections[c].keys()}
             match room_types[c]:
                 case 0: self.rooms[c] = Room(room_doors, self.physics_engine)
-                case 1: self.rooms[c] = Room(room_doors, self.physics_engine); self.rooms[c].complete()
-                case 2: self.rooms[c] = EnemyRoom(room_doors, self.physics_engine, 3, stats)
+                case 1: self.rooms[c] = BossRoom(room_doors, self.physics_engine, 0, stats)
+                case 2: self.rooms[c] = EnemyRoom(room_doors, self.physics_engine, get_random_enemies(3, 0), stats)
                 case 3: self.rooms[c] = Room(room_doors, self.physics_engine); self.rooms[c].complete()
 
         self.mini_map = room_types
@@ -250,9 +274,9 @@ class Map:
 
     def check_room_move(self, door):
         if int(door.left) == 0:
-            return "west"
-        elif int(door.left) ==  WINDOW_WIDTH - SPRITE_SIZE:
             return "east"
+        elif int(door.left) ==  WINDOW_WIDTH - SPRITE_SIZE:
+            return "west"
         elif int(door.bottom) == 0:
             return "south"
         elif int(door.bottom) == WINDOW_HEIGHT - SPRITE_SIZE:
@@ -291,3 +315,9 @@ class Map:
 
     def is_loaded(self):
         return self.rooms[self.current_room].loaded
+
+    def get_enemy_controller(self):
+        if type(self.rooms[self.current_room] == EnemyRoom):
+            return self.rooms[self.current_room].enemy_controller
+        else:
+            return False

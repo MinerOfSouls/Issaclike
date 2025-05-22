@@ -1,6 +1,5 @@
 import arcade
-#todo sprite details needs to be changed managed by resource handler
-
+from physics_util import update_sprite
 #rewrite to use texture animation or use only one row sprites
 
 class Animation(arcade.Sprite):
@@ -27,5 +26,6 @@ class Animation(arcade.Sprite):
                         self.cur_texture_index = len(self.textures) - 1
                         self.should_delete = True
 
-                self.set_texture(self.cur_texture_index)
-
+            self.set_texture(self.cur_texture_index)
+            for engine in self.physics_engines:
+                update_sprite(engine, self)
