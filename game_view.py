@@ -174,6 +174,7 @@ class GameView(arcade.View):
                               map = self.map, stats = self.stats)
 
         if self.stats.health <= 0:
+            self.inventory.save()
             from views.game_over import GameOverView
             game_over = GameOverView()
             self.window.show_view(game_over)

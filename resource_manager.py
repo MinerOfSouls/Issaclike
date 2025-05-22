@@ -56,7 +56,7 @@ object_textures["spawn_effect"] = object_sheets["spawn_effect"].get_texture_grid
 object_params = {
     "key":{"speed": 0.3, "scale": 0.75, "looping":True, "collectable":True, "item_type": "pick_key"},
     "coin":{"speed": 0.3, "scale": 0.25, "looping":True, "collectable":True, "item_type": "pick_coin"},
-    "chest":{"speed": 0.3, "scale": 1, "looping":False, "collectable":False, "item_type": "chest" , "body_type":PymunkPhysicsEngine.STATIC, "animated": False},
+    "chest":{"speed": 0.3, "scale": 0.5, "looping":False, "collectable":False, "item_type": "chest" , "body_type":PymunkPhysicsEngine.STATIC, "animated": False},
     "health_potion":{"speed": 0.3, "scale": 1, "looping":True, "collectable":True, "item_type": "pick_health_potion"},
     "damage_potion":{"speed": 0.3, "scale": 1, "looping":True, "collectable":True, "item_type": "pick_damage_potion"},
     "range_potion":{"speed": 0.3, "scale": 1, "looping":True, "collectable":True, "item_type": "pick_range_potion"},

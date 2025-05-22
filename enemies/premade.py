@@ -101,7 +101,7 @@ class Mimic(Enemy):
             speed=10,
             attack_range=32,
             attack_cooldown=3,
-            position = (random.randint(SPRITE_SIZE*4, WINDOW_WIDTH-SPRITE_SIZE*4), random.randint(SPRITE_SIZE*4, WINDOW_WIDTH-SPRITE_SIZE*4)),
+            position = (WINDOW_WIDTH/2, WINDOW_HEIGHT/2),
             sprite_handle=get_mimic_sprite
         )
         self.sprite.scale = 1

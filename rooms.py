@@ -1,12 +1,13 @@
 import random
 from abc import abstractmethod
+from os import remove
 
 import arcade
 from arcade import PymunkPhysicsEngine
 from arcade.hitbox import pymunk
 
 from collectables.room_clear_reward import SpawnRandomReward
-from enemies.premade import get_random_enemies, get_random_boss
+from enemies.premade import get_random_enemies, get_random_boss, Mimic
 from enemies.enemy import EnemyController
 from parameters import *
 from collectables.pickup_factory import PickupFactory
@@ -190,6 +191,15 @@ class BossRoom(EnemyRoom):
         for s in self.stairs:
             self.physics_engine.add_sprite(s, body_type=2, collision_type="stairs")
 
+class TreasureRoom(Room):
+    def __init__(self, doors, engine):
+        super().__init__(doors, engine)
+        self.spawn_reward._spawn_chest()
+        self.reward_spawned = True
+        self.complete()
+        for sprite in self.objects:
+            sprite.remove_from_physics_engine()
+
 class Map:
     def __init__(self, n, physics_engine, stats, special_ability):
         self.physics_engine = physics_engine
@@ -224,9 +234,9 @@ class Map:
                     case 1:
                         key = "south"
                     case 2:
-                        key = "east"
-                    case 3:
                         key = "west"
+                    case 3:
+                        key = "east"
                 if nb in room_coordinates:
                     self.connections[r][key] = nb
         direction_keys = ["north", "south", "east", "west"]
@@ -242,11 +252,18 @@ class Map:
         #Generating Room objects
         for c in room_coordinates:
             room_doors = {k for k in self.connections[c].keys()}
-            match room_types[c]:
-                case 0: self.rooms[c] = Room(room_doors, self.physics_engine)
-                case 1: self.rooms[c] = BossRoom(room_doors, self.physics_engine, 0, stats)
-                case 2: self.rooms[c] = EnemyRoom(room_doors, self.physics_engine, get_random_enemies(3, 0), stats)
-                case 3: self.rooms[c] = Room(room_doors, self.physics_engine); self.rooms[c].complete()
+            if room_types[c] == 0:
+                self.rooms[c] = Room(room_doors, self.physics_engine)
+            elif room_types[c] == 1:
+                self.rooms[c] = BossRoom(room_doors, self.physics_engine, 0, stats)
+            elif room_types[c] == 2:
+                self.rooms[c] = EnemyRoom(room_doors, self.physics_engine, get_random_enemies(3, 0), stats)
+            elif room_types[c] == 3:
+                r = random.random()
+                if r < 0.8:
+                    self.rooms[c] = TreasureRoom(room_doors, self.physics_engine)
+                else:
+                    self.rooms[c] = EnemyRoom(room_doors, self.physics_engine, [Mimic(0)], stats)
 
         self.mini_map = room_types
         self.current_room = (0, 0)
