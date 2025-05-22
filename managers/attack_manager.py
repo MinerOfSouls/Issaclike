@@ -22,7 +22,7 @@ class AttackManager:
         self.boomerang = BoomerangAttack(self.player_sprite, self.physics_engine, self.stats)
         self.ranged_attack = RangedAttack(self.player_sprite, self.physics_engine, self.stats)
 
-        self.set_attack_type(AttackType.RANGED)
+        self.set_attack_type(AttackType.SWORD)
 
     def on_setup(self):
         pass

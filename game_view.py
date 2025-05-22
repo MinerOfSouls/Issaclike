@@ -2,7 +2,6 @@ import arcade
 from arcade import LRBT, PymunkPhysicsEngine
 
 from characters.Abilieties.knight_special_ability import KnightSpecialAbility
-from collectables.buyable_item import BuyableItem
 from managers.damage_manager import DamageManager
 from managers.attack_manager import AttackManager
 from managers.collision_manager import CollisionManager
@@ -16,7 +15,6 @@ from parameters import *
 from characters.player_controller import PlayerController
 from characters.stats import PlayerStatsController
 from characters.Abilieties.mage_special_ability import MageSpecialAbility
-from collectables.pickup_factory import PickupFactory
 from collectables.place_on_map import PlaceOnMap
 from characters.Abilieties.dragon_special_ability import DragonSpecialAbility
 
@@ -36,7 +34,6 @@ class GameView(arcade.View):
         self.attack = None
         self.special_ability = None
         self.UI = None
-        self.pickup_factory = None
         self.melee_attack = None
         self.collision_handler = None
         self.place_on_map = None
@@ -64,6 +61,7 @@ class GameView(arcade.View):
         # physics engine setup
         damping = 0.7
         gravity = (0, 0)
+
         self.physics_engine = PymunkPhysicsEngine(
             damping=damping,
             gravity=gravity,
@@ -81,7 +79,7 @@ class GameView(arcade.View):
             self.special_ability.on_setup()
         elif self.player_class == 2:
             self.player_sprite = Player("resources/images/player_sprite_placeholder.png", scale=SPRITE_SCALING)
-            self.special_ability = DragonSpecialAbility(self.physics_engine, self.player_sprite, self.stats)
+            self.special_ability = DragonSpecialAbility(self.physics_engine, self.player_sprite, self.stats,self.map)
         self.player_sprite.center_x = WINDOW_WIDTH / 2
         self.player_sprite.center_y = WINDOW_HEIGHT / 2
         self.player_list.append(self.player_sprite)
@@ -97,16 +95,15 @@ class GameView(arcade.View):
             elasticity=0.0
         )
 
+        self.map = Map(self.room_number, self.physics_engine, self.stats,self.special_ability)
+        self.map.on_setup()
+
 
         self.damage_dealer = DamageManager(self.stats)
         # add player to physics_engine
 
         self.player_controller = PlayerController(self.player_sprite,self.stats)
 
-
-        self.map = Map(10, self.physics_engine, self.stats)
-        self.map = Map(self.room_number, self.physics_engine, self.stats)
-        self.map.on_setup()
         self.UI = DrawUI(self.stats, self.map)
 
         def next_level_handle(*args):
@@ -125,17 +122,6 @@ class GameView(arcade.View):
         self.attack_manager = AttackManager(self.physics_engine , self.player_sprite , self.stats)
 
 
-        self.pickup_factory = PickupFactory(self.physics_engine, self.pickups_list, self.stats)
-        self.pickup_factory.spawn_coin(100,100)
-        self.pickup_factory.spawn_chest(300,300)
-        self.pickup_factory.spawn_key(200,200)
-        self.pickup_factory.spawn_health_potion(300,100)
-        self.pickup_factory.spawn_bomb(300,200)
-        self.pickup_factory.spawn_speed_potion(300, 100)
-        self.pickup_factory.spawn_damage_potion(300, 100)
-        self.pickup_factory.spawn_range_potion(300, 100)
-
-        self.pickup_factory.spawn_buyable(400,400)
 
         self.place_on_map = PlaceOnMap(self.player_sprite,self.placed_items,self.stats, self.physics_engine)
 
@@ -145,13 +131,12 @@ class GameView(arcade.View):
         self.collision_handler = CollisionManager(self.physics_engine, self.stats)
         self.collision_handler.on_setup()
 
-
         self.inventory = Inventory()
         self.inventory.load()
 
+
     def on_draw(self) -> bool | None:
         self.clear()
-        self.pickups_list.draw()
         self.map.draw()
         self.player_list.draw()
         self.special_ability.draw()
@@ -168,12 +153,9 @@ class GameView(arcade.View):
     def on_update(self, delta_time):
 
         self.difficulty_manager.update()
-        if not self.map.is_loaded():
-            print('enter')
-            self.map.rooms[self.map.current_room].loaded = True # god xd cursed
-            self.pickups_list = self.map.get_object_list()
 
-        self.pickups_list.update()
+        if not self.map.is_loaded():
+            self.map.rooms[self.map.current_room].loaded = True  # god xd cursed
 
         self.player_controller.on_update(self.physics_engine)
 

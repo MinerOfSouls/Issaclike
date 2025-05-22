@@ -5,6 +5,7 @@ from typing import List
 from arcade import PymunkPhysicsEngine
 
 from effects.charge_effect import ChargeEffects
+from effects.item_effects import ItemEffects
 from parameters import *
 
 class Enemy:
@@ -114,7 +115,7 @@ class Enemy:
 
 
 class EnemyController:
-    def __init__(self, enemies: List[Enemy], room, engine: PymunkPhysicsEngine, stats):
+    def __init__(self, enemies: List[Enemy], room, engine: PymunkPhysicsEngine, stats,effect_list):
         self.enemies = enemies
         self.enemy_sprite_list = arcade.SpriteList()
         for e in self.enemies:
@@ -123,6 +124,7 @@ class EnemyController:
         self.room = room
         self.stats = stats
         self.projectiles = EnemyProjectileController(engine, stats, 10)
+        self.effect_list = effect_list
         self.freeze = False
         self.freeze_timer = 0
         self.freeze_time = 2
@@ -174,7 +176,7 @@ class EnemyController:
                 player.properties["inv_timer"] = 0
                 player.properties["invincible"] = False
 
-        if len(self.enemy_sprite_list) == 0:
+        if len(self.enemy_sprite_list) == 0 and not self.room.completed:
             self.room.complete()
             self.enemies.clear()
             return
@@ -203,6 +205,7 @@ class EnemyController:
 
             e.update(delta_time)
             e.move(location, self.physics_engine)
+            e.sprite.update(delta_time)
             e.attack(delta_time, location, self.physics_engine, self.projectiles)
 
         for e in garbage_collect:

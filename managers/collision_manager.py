@@ -23,9 +23,16 @@ class CollisionManager:
         self.ignore_all_collisions("spawn_indicator")
         self.ignore_all_collisions("wisp")
         self.ignore_all_collisions("dash_effect")
+        self.ignore_all_collisions("hit_effect")
+        self.ignore_all_collisions("spawn_effect")
         self.physics_engine.add_collision_handler(
             "static_fire",
             "static_fire",
+            begin_handler=lambda *_: False,  # Ignore all collisions
+        )
+        self.physics_engine.add_collision_handler(
+            "hit_effect",
+            "hit_effect",
             begin_handler=lambda *_: False,  # Ignore all collisions
         )
         self.physics_engine.add_collision_handler(
@@ -36,7 +43,7 @@ class CollisionManager:
 
 
     @staticmethod
-    def handle_effect(effect_type, stats):
+    def handle_effect(item,effect_type, stats):
         if effect_type == 'explosion':
             damage_dealer = DamageManager()
             damage_dealer.deal_damage()
@@ -74,7 +81,16 @@ class CollisionManager:
             return False
         elif effect_type == "shoot_fire":
             return False
+        elif effect_type == "chest":
+            try:
+                if stats.keys > 0 and not item.opened:
+                    item.set_texture(1)
+                    item.spawn_chest_contents()
+                    stats.keys -= 1
+            except KeyError:
+                pass
 
+            return True
 
         return None
 
