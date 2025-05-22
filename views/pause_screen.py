@@ -54,7 +54,7 @@ class PauseView(arcade.View):
         row_spacing = 30
 
         # Column 1 - Core stats
-        arcade.draw_text(f"Speed: {self.stats.max_speed}", column1_x, row_y, arcade.color.BLACK, 18)
+        arcade.draw_text(f"Speed: {self.stats.speed}", column1_x, row_y, arcade.color.BLACK, 18)
         arcade.draw_text(f"Damage: {self.stats.damage}", column1_x, row_y - row_spacing, arcade.color.BLACK, 18)
         arcade.draw_text(f"Luck: {self.stats.luck}", column1_x, row_y - row_spacing*2, arcade.color.BLACK, 18)
         arcade.draw_text(f"Range: {self.stats.range}", column1_x, row_y - row_spacing*3, arcade.color.BLACK, 18)
@@ -69,6 +69,6 @@ class PauseView(arcade.View):
         if key == arcade.key.ESCAPE:   # resume game
             self.window.show_view(self.game_view)
         elif key == arcade.key.ENTER:  # reset game
-            game = GameView()
+            game = GameView(self.game_view.difficulty_options)
             game.setup()
             self.window.show_view(game)

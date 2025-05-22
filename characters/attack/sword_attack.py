@@ -68,7 +68,7 @@ class SwordSwing(Attack):
                 self._create_sword()
                 self.timeout = 0
 
-    def update(self):
+    def attack(self):
         self.timeout += 1
 
         # Update facing direction
@@ -81,6 +81,10 @@ class SwordSwing(Attack):
             if self.swing_angle >= self.swing_range / 2:
                 self._end_swing()
         self.sword_list.update()
+
+    def update(self):
+        if not self.stats.ability_active:
+            self.attack()
 
     def on_draw(self):
         self.sword_list.draw()

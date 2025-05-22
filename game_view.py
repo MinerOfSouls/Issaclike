@@ -1,14 +1,16 @@
 import arcade
 from arcade import LRBT, PymunkPhysicsEngine
 
+from characters.Abilieties.knight_special_ability import KnightSpecialAbility
+from collectables.buyable_item import BuyableItem
 from managers.damage_manager import DamageManager
 from managers.attack_manager import AttackManager
 from managers.collision_manager import CollisionManager
-from draw_ui import DrawUI
+from Ui.draw_ui import DrawUI
 
 from characters.player import Player
-from resource_manager import get_wizard_player_character
 from managers.difficulty_manager import DifficultyOptions
+from resource_manager import get_wizard_player_character
 from rooms import Map
 from parameters import *
 from characters.player_controller import PlayerController
@@ -16,11 +18,14 @@ from characters.stats import PlayerStatsController
 from characters.Abilieties.mage_special_ability import MageSpecialAbility
 from collectables.pickup_factory import PickupFactory
 from collectables.place_on_map import PlaceOnMap
+from characters.Abilieties.dragon_special_ability import DragonSpecialAbility
+
 from items.inventory import Inventory
 
 class GameView(arcade.View):
-    def __init__(self):
+    def __init__(self,difficulty_options):
         super().__init__()
+        self.difficulty_options = difficulty_options
         self.damage_dealer = None
         self.map = None
         self.player_list = None
@@ -33,11 +38,11 @@ class GameView(arcade.View):
         self.UI = None
         self.pickup_factory = None
         self.melee_attack = None
-        self.effect_handler = None
+        self.collision_handler = None
         self.place_on_map = None
         self.effects_list = arcade.SpriteList()
         self.placed_items= arcade.SpriteList()
-        self.difficulty_options = None
+        self.difficulty_manager = None
         self.attack_manager = None
         self.inventory = None
 
@@ -55,32 +60,32 @@ class GameView(arcade.View):
         self.room_number = 10
 
     def setup(self):
-        self.player_list = arcade.SpriteList()
-        #player
-        if self.player_class == 1:
-            self.player_sprite = get_wizard_player_character()
-            self.player_sprite.scale = 1
-        else:
-            self.player_sprite = Player("resources/images/player_sprite_placeholder.png", scale=SPRITE_SCALING)
-        self.player_sprite.center_x = WINDOW_WIDTH / 2
-        self.player_sprite.center_y = WINDOW_HEIGHT / 2
-        self.player_list.append(self.player_sprite)
-
         self.stats = PlayerStatsController()
-        self.damage_dealer = DamageManager(self.stats)
-        self.UI = DrawUI(self.stats)
-
-        self.special_ability = MageSpecialAbility(self.player_sprite)
-
-        self.player_controller = PlayerController(self.player_sprite,self.stats)
-
-        #physics engine setup
+        # physics engine setup
         damping = 0.7
-        gravity = (0,0)
+        gravity = (0, 0)
         self.physics_engine = PymunkPhysicsEngine(
             damping=damping,
             gravity=gravity,
         )
+
+        # player setup
+        self.player_list = arcade.SpriteList()
+        if self.player_class ==0:
+            self.player_sprite = Player("resources/images/player_sprite_placeholder.png", scale=SPRITE_SCALING)
+            self.special_ability = KnightSpecialAbility(self.physics_engine, self.player_sprite, self.stats)
+        if self.player_class == 1:
+            self.player_sprite = get_wizard_player_character()
+            self.player_sprite.scale = 1
+            self.special_ability = MageSpecialAbility(self.physics_engine, self.stats, self.player_sprite)
+            self.special_ability.on_setup()
+        elif self.player_class == 2:
+            self.player_sprite = Player("resources/images/player_sprite_placeholder.png", scale=SPRITE_SCALING)
+            self.special_ability = DragonSpecialAbility(self.physics_engine, self.player_sprite, self.stats)
+        self.player_sprite.center_x = WINDOW_WIDTH / 2
+        self.player_sprite.center_y = WINDOW_HEIGHT / 2
+        self.player_list.append(self.player_sprite)
+        # add player to physics_engine
         self.physics_engine.add_sprite(
             self.player_sprite,
             mass=2,
@@ -89,10 +94,20 @@ class GameView(arcade.View):
             damping=0.01,
             collision_type="player",
             max_velocity=500,
-            elasticity=0.0,
+            elasticity=0.0
         )
+
+
+        self.damage_dealer = DamageManager(self.stats)
+        # add player to physics_engine
+
+        self.player_controller = PlayerController(self.player_sprite,self.stats)
+
+
+        self.map = Map(10, self.physics_engine, self.stats)
         self.map = Map(self.room_number, self.physics_engine, self.stats)
         self.map.on_setup()
+        self.UI = DrawUI(self.stats, self.map)
 
         def next_level_handle(*args):
             self.map.rooms[self.map.current_room].leave()
@@ -105,6 +120,7 @@ class GameView(arcade.View):
 
         self.physics_engine.add_collision_handler("player", "stairs", post_handler=next_level_handle)
         self.physics_engine.add_collision_handler("player", "repulse", pre_handler=no_collision)
+        self.pickups_list = self.map.get_object_list()
 
         self.attack_manager = AttackManager(self.physics_engine , self.player_sprite , self.stats)
 
@@ -115,39 +131,53 @@ class GameView(arcade.View):
         self.pickup_factory.spawn_key(200,200)
         self.pickup_factory.spawn_health_potion(300,100)
         self.pickup_factory.spawn_bomb(300,200)
+        self.pickup_factory.spawn_speed_potion(300, 100)
+        self.pickup_factory.spawn_damage_potion(300, 100)
+        self.pickup_factory.spawn_range_potion(300, 100)
+
+        self.pickup_factory.spawn_buyable(400,400)
 
         self.place_on_map = PlaceOnMap(self.player_sprite,self.placed_items,self.stats, self.physics_engine)
 
-        """self.difficulty_options = DifficultyOptions(self.physics_engine ,self.player_sprite, self.stats , self.effects_list, self.attack_manager)
-        self.difficulty_options.on_setup()"""
+        self.difficulty_manager = DifficultyOptions(self.physics_engine ,self.player_sprite, self.stats , self.attack_manager, self.map, self.effects_list,self.difficulty_options)
+        self.difficulty_manager.on_setup()
 
-        self.effect_handler = CollisionManager(self.physics_engine, self.stats)
-        self.effect_handler.on_setup()
-        # self.difficulty_options.set_slippery()
-        #
+        self.collision_handler = CollisionManager(self.physics_engine, self.stats)
+        self.collision_handler.on_setup()
+
 
         self.inventory = Inventory()
         self.inventory.load()
 
     def on_draw(self) -> bool | None:
         self.clear()
+        self.pickups_list.draw()
         self.map.draw()
         self.player_list.draw()
+        self.special_ability.draw()
 
         if self.attack_manager.current_attack:
             self.attack_manager.current_attack.on_draw()
 
         self.UI.on_draw()
-        self.pickup_factory.on_draw()
         self.place_on_map.on_draw()
-        #self.difficulty_options.draw()
+        self.difficulty_manager.draw()
         self.inventory.draw()
         return None
 
     def on_update(self, delta_time):
+
+        self.difficulty_manager.update()
+        if not self.map.is_loaded():
+            print('enter')
+            self.map.rooms[self.map.current_room].loaded = True # god xd cursed
+            self.pickups_list = self.map.get_object_list()
+
+        self.pickups_list.update()
+
         self.player_controller.on_update(self.physics_engine)
+
         self.damage_dealer.update()
-        self.player_controller.on_update(self.physics_engine)
         self.player_list.update(delta_time)
 
         if self.attack_manager.current_attack:
@@ -155,13 +185,16 @@ class GameView(arcade.View):
 
         self.special_ability.update()
         self.UI.on_update()
-        self.pickup_factory.update()
         self.place_on_map.update()
-        #self.difficulty_options.update()
         self.physics_engine.step()
         self.map.update(delta_time, self.player_sprite)
         self.inventory.update(engine = self.physics_engine, delta_time = delta_time, player = self.player_sprite,
                               pickup_factory = self.pickup_factory, map = self.map, stats = self.stats)
+
+        if self.stats.health <= 0:
+            from views.game_over import GameOverView
+            game_over = GameOverView()
+            self.window.show_view(game_over)
 
 
     def on_key_press(self, key, modifiers):

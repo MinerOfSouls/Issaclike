@@ -38,7 +38,7 @@ class Chest(InteractiveItem):
 
     def on_setup(self):
         def player_chest_handler(sprite_a, sprite_b, arbiter, space, data):
-            if self.stats.keys >0:
+            if self.stats.keys >0 and not self.opened:
                 self.set_texture(1)
                 self.spawn_chest_contents()
                 self.stats.keys -= 1

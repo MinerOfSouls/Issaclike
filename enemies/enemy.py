@@ -3,13 +3,15 @@ import arcade
 import random
 from typing import List
 from arcade import PymunkPhysicsEngine
-from parameters import *
 
+from effects.charge_effect import ChargeEffects
+from parameters import *
 
 class Enemy:
     def __init__(self, health, damage, speed, position, attack_cooldown, attack_range, sprite_handle):
         self.sprite = sprite_handle()
         self.health = health
+        self.max_health = health
         self.damage = damage
         self.speed = speed
         self.position = position

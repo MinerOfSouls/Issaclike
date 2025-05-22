@@ -13,6 +13,7 @@ class Attack:
 
         # Action key
         self.e_pressed = False
+        self.space_pressed = False
 
         # Keep track of diagonal states
         self.diagonal_up_right = False
@@ -24,19 +25,21 @@ class Attack:
         self.direction = 0
 
     def on_key_press(self, key):
-        if key == arcade.key.UP:
-            self.up_pressed = True
-        if key == arcade.key.DOWN:
-            self.down_pressed = True
-        if key == arcade.key.LEFT:
-            self.left_pressed = True
-        if key == arcade.key.RIGHT:
-            self.right_pressed = True
-        if key == arcade.key.E:
-            self.e_pressed = True
+            if key == arcade.key.UP:
+                self.up_pressed = True
+            if key == arcade.key.DOWN:
+                self.down_pressed = True
+            if key == arcade.key.LEFT:
+                self.left_pressed = True
+            if key == arcade.key.RIGHT:
+                self.right_pressed = True
+            if key == arcade.key.E:
+                self.e_pressed = True
+            if key == arcade.key.SPACE:
+                self.space_pressed = True
 
-        # Update diagonal states and direction after any key press
-        self.update_direction()
+            # Update diagonal states and direction after any key press
+            self.update_direction()
 
     def on_key_release(self, key):
         # Use separate if statements for direction keys
@@ -50,6 +53,8 @@ class Attack:
             self.right_pressed = False
         if key == arcade.key.E:
             self.e_pressed = False
+        if key == arcade.key.SPACE:
+            self.space_pressed = False
 
         # Update diagonal states and direction after any key release
         self.update_direction()
@@ -77,3 +82,15 @@ class Attack:
             self.direction = 180  # West
         elif self.down_pressed:
             self.direction = 270  # South
+
+    def reset_keys(self):
+        self.up_pressed = False
+        self.down_pressed = False
+        self.left_pressed = False
+        self.right_pressed = False
+        self.e_pressed = False
+        self.diagonal_up_right = False
+        self.diagonal_up_left = False
+        self.diagonal_down_right = False
+        self.diagonal_down_left = False
+        self.space_pressed = False

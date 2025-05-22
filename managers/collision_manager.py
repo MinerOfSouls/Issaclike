@@ -10,7 +10,7 @@ class CollisionManager:
     def ignore_all_collisions(self,collision_type):
         for other_type in self.physics_engine.collision_types:
             if other_type == collision_type:
-                continue  # Already handled above
+                continue
 
             self.physics_engine.add_collision_handler(
                 collision_type,
@@ -21,10 +21,27 @@ class CollisionManager:
     def on_setup(self):
         self.ignore_all_collisions("leaf")
         self.ignore_all_collisions("spawn_indicator")
+        self.ignore_all_collisions("wisp")
+        self.ignore_all_collisions("dash_effect")
+        self.physics_engine.add_collision_handler(
+            "static_fire",
+            "static_fire",
+            begin_handler=lambda *_: False,  # Ignore all collisions
+        )
+        self.physics_engine.add_collision_handler(
+            "wisp",
+            "static_fire",
+            begin_handler=lambda *_: False,  # Ignore all collisions
+        )
+
 
     @staticmethod
     def handle_effect(effect_type, stats):
-        if effect_type == 'pick_coin':
+        if effect_type == 'explosion':
+            damage_dealer = DamageManager()
+            damage_dealer.deal_damage()
+            return False
+        elif effect_type == 'pick_coin':
             stats.coins+=1
             return True
         elif effect_type == 'pick_key':
@@ -45,13 +62,19 @@ class CollisionManager:
         elif effect_type == 'pick_damage_potion':
             stats.damage+=1
             return True
-        elif effect_type == 'explosion':
-            damage_dealer = DamageManager()
-            damage_dealer.deal_damage()
-            return False
         elif effect_type == 'projectile':
             return False
         elif effect_type == 'placed_bomb':
             return True
+        elif effect_type == 'static_fire':
+            damage_dealer = DamageManager()
+            damage_dealer.deal_damage()
+            return False
+        elif effect_type =="magic_shield":
+            return False
+        elif effect_type == "shoot_fire":
+            return False
+
+
         return None
 

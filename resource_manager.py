@@ -1,3 +1,5 @@
+from arcade import PymunkPhysicsEngine
+
 from parameters import *
 import arcade
 import os
@@ -31,24 +33,47 @@ object_textures["coin"] = object_sheets["coin"].get_texture_grid((80, 80), 8, 8,
 object_textures["leaf"] = object_sheets["ELR_FallLeaf"].get_texture_grid((16, 16), 5, 5, hit_box_algorithm=box)
 object_textures["explosion"] = object_sheets["explosion"].get_texture_grid((64, 64), 30, 30, hit_box_algorithm=box)
 object_textures["bomb"] = object_sheets["granade"].get_texture_grid((13, 16), 1, 1, hit_box_algorithm=box)
+object_textures["placed_bomb"] = object_sheets["granade"].get_texture_grid((13, 16), 1, 1, hit_box_algorithm=box)
 object_textures["health_potion"] = object_sheets["health_potion"].get_texture_grid((16, 18), 3, 3, hit_box_algorithm=box)
+object_textures["damage_potion"] = object_sheets["damage_potion"].get_texture_grid((16, 18), 3, 3, hit_box_algorithm=box)
+object_textures["range_potion"] = object_sheets["range_potion"].get_texture_grid((16, 18), 3, 3, hit_box_algorithm=box)
+object_textures["speed_potion"] = object_sheets["speed_potion"].get_texture_grid((16, 18), 3, 3, hit_box_algorithm=box)
 object_textures["heart"] = object_sheets["heart_animated_1"].get_texture_grid((17, 17), 5, 5, hit_box_algorithm=box)
 object_textures["key"] = object_sheets["key-white"].get_texture_grid((32, 32), 12, 12, hit_box_algorithm=box)
 object_textures["skull"] = object_sheets["skull"].get_texture_grid((16, 16), 1, 1, hit_box_algorithm=box)
-object_textures["boomerang"] = object_sheets["sword"].get_texture_grid((32, 32), 11, 11, hit_box_algorithm=box)
+object_textures["boomerang"] = object_sheets["boomerang"].get_texture_grid((190, 190), 1, 1, hit_box_algorithm=box)
 object_textures["sword"] = object_sheets["swords1"].get_texture_grid((46, 46), 1, 1, hit_box_algorithm=box)
+object_textures["static_fire"] = object_sheets["static_fire"].get_texture_grid((96, 96), 19, 19, hit_box_algorithm=box)
+object_textures["wisp"] = object_sheets["wisp"].get_texture_grid((32, 32), 10, 10, hit_box_algorithm=box)
+object_textures["projectile"] = object_sheets["projectile"].get_texture_grid((512, 512), 5, 5, hit_box_algorithm=box)
+object_textures["magic_shield"] = object_sheets["magic_shield"].get_texture_grid((192,192), 10,10, hit_box_algorithm=box)
+object_textures["shoot_fire"] = object_sheets["shoot_fire"].get_texture_grid((512,512), 4,4, hit_box_algorithm=box)
+object_textures["dash_effect"] = object_sheets["dash_effect"].get_texture_grid((120,109), 30,30, hit_box_algorithm=box)
+
+
 
 object_params = {
     "key":{"speed": 0.3, "scale": 0.75, "looping":True, "collectable":True, "item_type": "pick_key"},
     "coin":{"speed": 0.3, "scale": 0.25, "looping":True, "collectable":True, "item_type": "pick_coin"},
     "chest":{"speed": 0.3, "scale": SPRITE_SCALING, "looping":False},
     "health_potion":{"speed": 0.3, "scale": 1, "looping":True, "collectable":True, "item_type": "pick_health_potion"},
+    "damage_potion":{"speed": 0.3, "scale": 1, "looping":True, "collectable":True, "item_type": "pick_damage_potion"},
+    "range_potion":{"speed": 0.3, "scale": 1, "looping":True, "collectable":True, "item_type": "pick_range_potion"},
+    "speed_potion":{"speed": 0.3, "scale": 1, "looping":True, "collectable":True, "item_type": "pick_speed_potion"},
     "bomb":{"speed": 0.05, "scale": 2, "looping":False, "collectable":True, "item_type": "pick_bomb"},
-    "skull":{"speed": 0.3, "scale": 2, "looping":False, "collectable":False, "item_type": "spawn_indicator"},
+    "skull":{"speed": 0.3, "scale": 2, "looping":False, "collectable":False, "item_type": "spawn_indicator", "body_type":PymunkPhysicsEngine.KINEMATIC},
     "leaf":{"speed": 0.3, "scale": 2, "looping":True, "collectable":False, "item_type": "leaf"},
-    "explosion":{"speed": 0.05, "scale": 3, "looping":False, "collectable":False, "item_type": "explosion"},
-    "heart":{"speed": 0.3, "scale": 2, "looping":False},
-    "boomerang": {"speed": 0.3, "scale": 1.5, "looping": True, "collectable": False, "item_type": "boomerang"}
+    "explosion":{"speed": 0.05, "scale": 3, "looping":False, "collectable":False, "item_type": "explosion", "body_type": PymunkPhysicsEngine.KINEMATIC},
+    "placed_bomb":{"speed": 0.3, "scale": 2, "looping":False, "collectable":False, "item_type": "placed_bomb"},
+    "heart":{"speed": 0.3, "scale": 2, "looping":True, },
+    "boomerang": {"speed": 0.3, "scale": 0.20, "looping": True, "collectable": False, "item_type": "boomerang"},
+    "wisp": {"speed": 0.15, "scale": 1, "looping": True, "collectable": False, "item_type": "wisp","moment_of_inertia":PymunkPhysicsEngine.MOMENT_INF },
+    "static_fire": {"speed": 0.15, "scale": 0.5, "looping": True, "collectable": False, "item_type": "static_fire","moment_of_inertia":PymunkPhysicsEngine.MOMENT_INF,"body_type": PymunkPhysicsEngine.DYNAMIC  },
+    "projectile": {"speed": 0.05, "scale": 0.05, "looping": True, "collectable": False, "item_type": "projectile"},
+    "magic_shield": {"speed": 0.3, "scale": 0.5, "looping": True, "collectable": False, "item_type": "magic_shield","moment_of_inertia":PymunkPhysicsEngine.MOMENT_INF,},
+    "shoot_fire": {"speed": 0.3, "scale": 0.1, "looping": True, "collectable": False, "item_type": "shoot_fire","moment_of_inertia": PymunkPhysicsEngine.MOMENT_INF,"body_type":PymunkPhysicsEngine.DYNAMIC },
+    "dash_effect": {"speed": 0.025, "scale": 1.5, "looping": False, "collectable": False, "item_type": "dash_effect","moment_of_inertia": PymunkPhysicsEngine.MOMENT_INF,"body_type":PymunkPhysicsEngine.KINEMATIC},
+
 }
 
 enemy_textures = {}

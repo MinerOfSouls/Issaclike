@@ -1,3 +1,4 @@
+from Ui.mini_map import MiniMap
 from characters.stats import PlayerStatsController
 import arcade
 import arcade.gui
@@ -6,20 +7,21 @@ from collectables.animation import Animation
 from parameters import *
 from pyglet.graphics import Batch
 from resource_manager import get_object
+
 arcade.resources.load_kenney_fonts()
 
-DEFAULT_LINE_HEIGHT = 50  # Line height to use in pixels
 DEFAULT_FONT_SIZE = 15  # Default font size in points
 
 
 class DrawUI:
-    def __init__(self, stats:PlayerStatsController):
+    def __init__(self, stats:PlayerStatsController , map):
         super().__init__()
 
         self.stats = stats
         self.sprite_list = arcade.SpriteList()
         self.health_list = arcade.SpriteList()
         self.previous_health = 0
+        self.mini_map = MiniMap(map)
 
         self.batch = Batch()
         coin_texture = get_object("coin")[0]
@@ -56,9 +58,12 @@ class DrawUI:
 
     def on_draw(self) -> None:
         self.sprite_list.draw()
+        self.mini_map.draw()
         self.batch.draw()
 
+
     def on_update(self):
+        self.mini_map.update()
         self.update_health()
         start_x = 40
         start_y = WINDOW_HEIGHT- 60
@@ -66,7 +71,7 @@ class DrawUI:
             self.stats.get_coin_number(),
             start_x,
             start_y,
-            arcade.color.BLACK,
+            arcade.color.WHITE,
             DEFAULT_FONT_SIZE,
             font_name="Kenney Blocks",
             batch=self.batch,
@@ -76,7 +81,7 @@ class DrawUI:
             self.stats.get_key_number(),
             start_x,
             start_y,
-            arcade.color.BLACK,
+            arcade.color.WHITE,
             DEFAULT_FONT_SIZE,
             font_name="Kenney Blocks",
             batch=self.batch,
@@ -86,12 +91,11 @@ class DrawUI:
             self.stats.get_bomb_number(),
             start_x,
             start_y,
-            arcade.color.BLACK,
+            arcade.color.WHITE,
             DEFAULT_FONT_SIZE,
             font_name="Kenney Blocks",
             batch=self.batch,
         )
 
         self.sprite_list.update()
-        self.batch.draw()
 

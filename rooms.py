@@ -36,6 +36,7 @@ class Room:
         self.completed = False
         self.physics_engine = engine
         self.objects = arcade.SpriteList()
+        self.loaded = False
 
         def draw_wall(x, y):
             wall = arcade.Sprite(get_wall_texture(x, y), scale=SPRITE_SCALING)
@@ -95,11 +96,19 @@ class Room:
         for door in self.doors:
             self.physics_engine.add_sprite(door, body_type=2, collision_type="door")
 
+        for pickup in self.objects:
+            pickup.on_setup()
+
+
     def leave(self):
+        self.loaded = False
         for s in self.doors:
             self.physics_engine.remove_sprite(s)
         for s in self.wall_list:
             self.physics_engine.remove_sprite(s)
+
+        for pickup in self.objects:
+            self.physics_engine.remove_sprite(pickup)
 
 
 class EnemyRoom(Room):
@@ -151,6 +160,7 @@ class BossRoom(EnemyRoom):
 class Map:
     def __init__(self, n, physics_engine, stats):
         self.physics_engine = physics_engine
+        self.mini_map = {}
         self.rooms = {}
 
         # Room generation
@@ -204,9 +214,12 @@ class Map:
                 case 2: self.rooms[c] = EnemyRoom(room_doors, self.physics_engine, get_random_enemies(3, 0), stats)
                 case 3: self.rooms[c] = Room(room_doors, self.physics_engine); self.rooms[c].complete()
 
+        self.mini_map = room_types
         self.current_room = (0, 0)
         self.rooms[(0, 0)].complete()
-
+        print(self.connections.get(self.current_room))
+        print(room_coordinates)
+        print(room_types)
 
     def on_setup(self):
 
@@ -220,7 +233,6 @@ class Map:
         self.physics_engine.add_collision_handler("player", "door", post_handler=door_interact_handler)
 
         self.rooms[self.current_room].enter()
-        print(self.connections[self.current_room])
 
     def get_current_walls(self):
         return self.rooms[self.current_room].wall_list
@@ -249,6 +261,7 @@ class Map:
                 engine.set_position(player_sprite, pos)
                 self.current_room = self.connections[self.current_room][check]
                 self.rooms[self.current_room].enter()
+                print(self.current_room)
             else:
                 # TODO: add exception here maybe (player exited the room in an illegal direction)
                 pass
@@ -263,6 +276,9 @@ class Map:
 
     def get_object_list(self):
         return self.rooms[self.current_room].objects
+
+    def is_loaded(self):
+        return self.rooms[self.current_room].loaded
 
     def get_enemy_controller(self):
         if type(self.rooms[self.current_room] == EnemyRoom):
