@@ -37,13 +37,13 @@ class Slime(Enemy):
         super().__init__(
             health=int(5*d),
             damage=int(1*d),
-            speed=10,
+            speed=15,
             attack_range=32,
             attack_cooldown=3,
             position = (random.randint(SPRITE_SIZE*4, WINDOW_WIDTH-SPRITE_SIZE*4), random.randint(SPRITE_SIZE*4, WINDOW_WIDTH-SPRITE_SIZE*4)),
             sprite_handle=get_slime_sprite
         )
-        self.sprite.scale = 1
+        self.sprite.scale = 2
 
     def attack(self, delta_time, destination, engine: PymunkPhysicsEngine, projectile_control):
         super().melee_attack(delta_time, destination, engine)
@@ -58,7 +58,7 @@ class Rat(Enemy):
         super().__init__(
             health=int(3*d),
             damage=int(1*d),
-            speed=10,
+            speed=15,
             attack_range=32,
             attack_cooldown=3,
             position = (random.randint(SPRITE_SIZE*4, WINDOW_WIDTH-SPRITE_SIZE*4), random.randint(SPRITE_SIZE*4, WINDOW_WIDTH-SPRITE_SIZE*4)),
@@ -78,13 +78,13 @@ class Wizard(Enemy):
         super().__init__(
             health=int(7*d),
             damage=int(1*d),
-            speed=10,
+            speed=15,
             attack_range=32,
             attack_cooldown=2,
             position = (random.randint(SPRITE_SIZE*4, WINDOW_WIDTH-SPRITE_SIZE*4), random.randint(SPRITE_SIZE*4, WINDOW_WIDTH-SPRITE_SIZE*4)),
             sprite_handle=get_wizard_sprite
         )
-        self.sprite.scale = 1
+        self.sprite.scale = 1.5
 
     def attack(self, delta_time, destination, engine: PymunkPhysicsEngine, projectile_control):
         super().ranged_attack(delta_time,destination, projectile_control)
@@ -98,7 +98,7 @@ class Mimic(Enemy):
         super().__init__(
             health=int(6*d),
             damage=int(2*d),
-            speed=10,
+            speed=15,
             attack_range=32,
             attack_cooldown=3,
             position = (WINDOW_WIDTH/2, WINDOW_HEIGHT/2),
@@ -122,7 +122,7 @@ class Goblin(Enemy):
         super().__init__(
             health=int(5*d),
             damage=int(1*d),
-            speed=8,
+            speed=10,
             attack_range=32,
             attack_cooldown=3,
             position = (random.randint(SPRITE_SIZE*4, WINDOW_WIDTH-SPRITE_SIZE*4), random.randint(SPRITE_SIZE*4, WINDOW_WIDTH-SPRITE_SIZE*4)),

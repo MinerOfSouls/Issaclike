@@ -70,7 +70,7 @@ class GameView(arcade.View):
         # player setup
         self.player_list = arcade.SpriteList()
         if self.player_class ==0:
-            self.player_sprite = Player("resources/images/player_sprite_placeholder.png", scale=SPRITE_SCALING)
+            self.player_sprite = get_knight_player_character()
             self.special_ability = KnightSpecialAbility(self.physics_engine, self.player_sprite, self.stats)
         if self.player_class == 1:
             self.player_sprite = get_wizard_player_character()
@@ -78,7 +78,7 @@ class GameView(arcade.View):
             self.special_ability = MageSpecialAbility(self.physics_engine, self.stats, self.player_sprite)
             self.special_ability.on_setup()
         elif self.player_class == 2:
-            self.player_sprite = Player("resources/images/player_sprite_placeholder.png", scale=SPRITE_SCALING)
+            self.player_sprite = get_dragon_player_character()
             self.special_ability = DragonSpecialAbility(self.physics_engine, self.player_sprite, self.stats,self.map)
         self.player_sprite.center_x = WINDOW_WIDTH / 2
         self.player_sprite.center_y = WINDOW_HEIGHT / 2

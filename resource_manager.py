@@ -162,6 +162,7 @@ def get_wizard_player_character():
     sprite.moving_animations["south"] = player_sheets["wizard_down"].get_texture_grid((128, 128), 6, 6)
     sprite.moving_animations["west"] = player_sheets["wizard_right"].get_texture_grid((128, 128), 6, 6)
     sprite.moving_animation_length = 6
+    sprite.texture_update_distance = 20
     return sprite
 
 def get_knight_player_character():
@@ -175,7 +176,9 @@ def get_knight_player_character():
     sprite.moving_animations["east"] = player_sheets["knight_left"].get_texture_grid((128, 128), 2, 2)
     sprite.moving_animations["south"] = player_sheets["knight_down"].get_texture_grid((128, 128), 2, 2)
     sprite.moving_animations["west"] = player_sheets["knight_right"].get_texture_grid((128, 128), 2, 2)
-    sprite.moving_animation_length = 6
+    sprite.moving_animation_length = 2
+    sprite.texture_update_distance = 20
+    sprite.scale = (0.5, 0.5)
     return sprite
 
 def get_dragon_player_character():
@@ -189,7 +192,9 @@ def get_dragon_player_character():
     sprite.moving_animations["east"] = player_sheets["dragon_left"].get_texture_grid((128, 128), 3, 3)
     sprite.moving_animations["south"] = player_sheets["dragon_down"].get_texture_grid((128, 128), 3, 3)
     sprite.moving_animations["west"] = player_sheets["dragon_right"].get_texture_grid((128, 128), 3, 3)
-    sprite.moving_animation_length = 6
+    sprite.moving_animation_length = 3
+    sprite.texture_update_distance = 20
+    sprite.scale = (0.8, 0.8)
     return sprite
 
 def enemy_facing(angle):

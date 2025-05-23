@@ -23,17 +23,22 @@ class AnimatedMovingSprite(arcade.Sprite):
         self.current_standing_texture_index = 0
         self.standing_animation_length = 0 #have to set
         self.moving_animation_length = 0
-        self.texture_update_distance = 10
+        self.texture_update_distance = 5
         self.last_update = (self.center_x, self.center_y)
         self.facing_calc = facing_to_direction
+        self.standing_time = 0
 
     def update(self, delta_time: float = 1 / 60, *args, **kwargs):
         dx = self.last_update[0] - self.center_x
         dy = self.last_update[1] - self.center_y
         dist = math.sqrt(dx ** 2 + dy ** 2)
         if dist == 0:
-            self.texture = self.standing_animations[self.facing_calc(self.facing)][self.current_standing_texture_index]
-            self.current_standing_texture_index = (self.current_standing_texture_index + 1)%self.standing_animation_length
+            self.standing_time += 1
+            if self.standing_time > 5:
+                self.texture = self.standing_animations[self.facing_calc(self.facing)][
+                    self.current_standing_texture_index]
+                self.current_standing_texture_index = (self.current_standing_texture_index + 1) % self.standing_animation_length
+        self.standing_time = 0
         if dist < self.texture_update_distance:
             return
         self.facing = math.degrees(math.atan2(dx, dy) - math.pi/2)%360
