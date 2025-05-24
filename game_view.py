@@ -16,10 +16,8 @@ from characters.stats import PlayerStatsController
 from characters.Abilieties.mage_special_ability import MageSpecialAbility
 from collectables.place_on_map import PlaceOnMap
 from characters.Abilieties.dragon_special_ability import DragonSpecialAbility
-import cProfile
-import pstats
 
-# from items.inventory import Inventory
+from items.inventory import Inventory
 
 class GameView(arcade.View):
     def __init__(self,difficulty_options):
@@ -58,9 +56,6 @@ class GameView(arcade.View):
         self.room_number = 10
 
     def setup(self):
-
-        profiler = cProfile.Profile()
-        profiler.enable()
 
         self.stats = PlayerStatsController()
         # physics engine setup
@@ -140,12 +135,10 @@ class GameView(arcade.View):
         self.collision_handler = CollisionManager(self.physics_engine, self.stats)
         self.collision_handler.on_setup()
 
-        # self.inventory = Inventory()
-        # self.inventory.load()
+        self.inventory = Inventory()
+        self.inventory.load()
 
-        profiler.disable()
-        stats = pstats.Stats(profiler).sort_stats('cumulative')
-        stats.print_stats(30)  # Show top 30 time-consuming functions
+
 
 
     def on_draw(self) -> bool | None:
@@ -160,7 +153,7 @@ class GameView(arcade.View):
         self.UI.on_draw()
         self.place_on_map.on_draw()
         self.difficulty_manager.draw()
-        # self.inventory.draw()
+        self.inventory.draw()
         return None
 
     def on_update(self, delta_time):
@@ -183,8 +176,8 @@ class GameView(arcade.View):
         self.place_on_map.update()
         self.physics_engine.step()
         self.map.update(delta_time, self.player_sprite)
-        # self.inventory.update(engine = self.physics_engine, delta_time = delta_time, player = self.player_sprite,
-        #                       map = self.map, stats = self.stats)
+        self.inventory.update(engine = self.physics_engine, delta_time = delta_time, player = self.player_sprite,
+                              map = self.map, stats = self.stats)
 
         if self.stats.health <= 0:
             # self.inventory.save()
@@ -207,8 +200,8 @@ class GameView(arcade.View):
             pause = PauseView(self)
             self.window.show_view(pause)
 
-        # self.inventory.on_key_press(key, engine = self.physics_engine, player = self.player_sprite,
-        #                             map = self.map, stats = self.stats)
+        self.inventory.on_key_press(key, engine = self.physics_engine, player = self.player_sprite,
+                                    map = self.map, stats = self.stats)
 
 
     def on_key_release(self, key, modifiers):

@@ -34,3 +34,6 @@ class SpecialAbility:
             self.d_pressed = False
         elif key == arcade.key.SPACE:
             self.space_pressed = False
+
+    def delete_effect_on_room_transition(self):
+        pass

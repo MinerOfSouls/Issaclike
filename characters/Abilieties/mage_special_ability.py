@@ -16,9 +16,6 @@ class MageSpecialAbility(SpecialAbility):
         self.magic_shield = None
 
 
-    def delete_effect_on_room_transition(self):
-        pass
-
     def on_setup(self):
         shield_sprite = get_object("magic_shield")
         self.magic_shield = InteractiveItem(self.physics_engine, self.stats, shield_sprite[0], shield_sprite[1])
