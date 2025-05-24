@@ -85,6 +85,9 @@ class SwordSwing(Attack):
     def update(self):
         if not self.stats.ability_active:
             self.attack()
+        elif self.is_swinging:
+            self._end_swing()
+
 
     def on_draw(self):
         self.sword_list.draw()

@@ -19,8 +19,8 @@ random.seed(1234)
 NEXT_ROOM_POSITIONS = {
     "north":(SPRITE_SIZE * ((WINDOW_WIDTH/SPRITE_SIZE)//2) - SPRITE_SIZE//2, 2*SPRITE_SIZE),
     "south":(SPRITE_SIZE * ((WINDOW_WIDTH/SPRITE_SIZE)//2) - SPRITE_SIZE//2, WINDOW_HEIGHT - 2*SPRITE_SIZE),
-    "east":(2*SPRITE_SIZE, SPRITE_SIZE * ((WINDOW_HEIGHT/SPRITE_SIZE)//2) - SPRITE_SIZE//2),
-    "west":(WINDOW_WIDTH - 2*SPRITE_SIZE, SPRITE_SIZE * ((WINDOW_HEIGHT/SPRITE_SIZE)//2) - SPRITE_SIZE//2)
+    "west":(2*SPRITE_SIZE, SPRITE_SIZE * ((WINDOW_HEIGHT/SPRITE_SIZE)//2) - SPRITE_SIZE//2),
+    "east":(WINDOW_WIDTH - 2*SPRITE_SIZE, SPRITE_SIZE * ((WINDOW_HEIGHT/SPRITE_SIZE)//2) - SPRITE_SIZE//2)
 }
 
 def door_side(x, y):
@@ -94,17 +94,18 @@ class Room:
         self.effects_list.draw()
         self.objects.draw()
 
-    def complete(self):
-        self.completed = True
-        for door in self.doors:
-            door.texture = get_door_texture(door.left, door.bottom, self.completed)
-
-    def update(self, delta_time, player):
-
+    def spawn_reward_fun(self):
         if self.completed and not self.reward_spawned:
             item =self.spawn_reward.on_room_clear()
             self.reward_spawned = True
 
+    def complete(self):
+        self.completed = True
+        for door in self.doors:
+            door.texture = get_door_texture(door.left, door.bottom, self.completed)
+        self.spawn_reward_fun()
+
+    def update(self, delta_time, player):
         self.effects_list.update()
         self.objects.update()
 
@@ -116,7 +117,12 @@ class Room:
 
 
     def enter(self):
+        self.loaded = True
         print("entered")
+        print(self.completed)
+        print(self.reward_spawned)
+        for object in self.objects:
+            print(object, end=" ")
         for wall in self.wall_list:
             self.physics_engine.add_sprite(wall, body_type=2, collision_type="wall")
         for door in self.doors:
@@ -124,7 +130,7 @@ class Room:
 
         for pickup in self.objects:
             pickup.on_setup()
-
+            print("pickup setup", pickup)
 
     def leave(self):
         self.loaded = False
@@ -194,11 +200,20 @@ class BossRoom(EnemyRoom):
 class TreasureRoom(Room):
     def __init__(self, doors, engine):
         super().__init__(doors, engine)
-        self.spawn_reward._spawn_chest()
-        self.reward_spawned = True
+
+        # for object in self.objects:
+        #     self.physics_engine.remove_sprite(object)
+    def enter(self):
         self.complete()
-        for sprite in self.objects:
-            sprite.remove_from_physics_engine()
+        super().enter()
+
+
+    def spawn_reward_fun(self):
+        if self.completed and not self.reward_spawned:
+            item =self.spawn_reward._spawn_chest()
+            item.on_setup()
+
+            self.reward_spawned = True
 
 class Map:
     def __init__(self, n, physics_engine, stats, special_ability):
@@ -334,7 +349,7 @@ class Map:
         return self.rooms[self.current_room].loaded
 
     def get_enemy_controller(self):
-        if type(self.rooms[self.current_room] == EnemyRoom):
+        if type(self.rooms[self.current_room]) == EnemyRoom:
             return self.rooms[self.current_room].enemy_controller
         else:
             return False

@@ -2,6 +2,7 @@ import math
 import arcade
 from characters.attack.attack import Attack
 from characters.player_controller import PlayerController
+from collectables.animation import Animation
 from collectables.interactive_item import InteractiveItem
 from resource_manager import get_object
 
@@ -25,20 +26,16 @@ class KnightSpecialAbility(PlayerController):
 
 
     def delete_effect_on_room_transition(self):
-        for effect in self.effects_list:
-            self.effects_list.remove(effect)
-            self.physics_engine.remove_sprite(effect)
+        self.effects_list.clear()
 
     def spawn_effect(self):
         dash_effect_sprite = get_object("dash_effect")
-        dash_effect = InteractiveItem(
-            self.physics_engine,
-            self.stats,
+        dash_effect = Animation(
             dash_effect_sprite[0],
             dash_effect_sprite[1]
         )
         dash_effect.position = self.player_sprite.position
-        dash_effect.on_setup()
+        # dash_effect.on_setup()
         self.effects_list.append(dash_effect)
 
     def calculate_roll_vector(self, target_angle_deg):
@@ -66,7 +63,6 @@ class KnightSpecialAbility(PlayerController):
         for effect in self.effects_list:
             if effect.should_delete:
                 self.effects_list.remove(effect)
-                self.physics_engine.remove_sprite(effect)
 
     def draw(self):
         self.effects_list.draw()

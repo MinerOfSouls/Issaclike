@@ -1,5 +1,4 @@
 import arcade
-from game_view import GameView
 import arcade.gui
 from parameters import *
 
@@ -102,16 +101,19 @@ class CharacterSelection(arcade.View):
             # Activate the selected button
             match self.selected_index:
                 case 0:
+                    from game_view import GameView
                     game_view = GameView(self.difficulty_options)
                     game_view.player_class = 0
                     game_view.setup()
                     self.window.show_view(game_view)
                 case 1:
+                    from game_view import GameView
                     game_view = GameView(self.difficulty_options)
                     game_view.player_class = 1
                     game_view.setup()
                     self.window.show_view(game_view)
                 case 2:
+                    from game_view import GameView
                     game_view = GameView(self.difficulty_options)
                     game_view.player_class = 2
                     game_view.setup()

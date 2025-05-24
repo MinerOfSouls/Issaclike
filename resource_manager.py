@@ -6,7 +6,7 @@ import os
 from animations.animated import AnimatedMovingSprite
 from collectables.animation import Animation
 
-box = arcade.hitbox.algo_detailed
+box = arcade.hitbox.algo_simple
 
 doors = {filename.split(".")[0]:arcade.load_texture(os.path.join("resources/images/door_textures", filename))
          for filename in os.listdir("resources/images/door_textures")}

@@ -7,9 +7,8 @@ from managers.attack_manager import AttackManager
 from managers.collision_manager import CollisionManager
 from Ui.draw_ui import DrawUI
 
-from characters.player import Player
 from managers.difficulty_manager import DifficultyOptions
-from resource_manager import get_wizard_player_character, get_dragon_player_character, get_knight_player_character
+
 from rooms import Map
 from parameters import *
 from characters.player_controller import PlayerController
@@ -17,8 +16,10 @@ from characters.stats import PlayerStatsController
 from characters.Abilieties.mage_special_ability import MageSpecialAbility
 from collectables.place_on_map import PlaceOnMap
 from characters.Abilieties.dragon_special_ability import DragonSpecialAbility
+import cProfile
+import pstats
 
-from items.inventory import Inventory
+# from items.inventory import Inventory
 
 class GameView(arcade.View):
     def __init__(self,difficulty_options):
@@ -57,6 +58,10 @@ class GameView(arcade.View):
         self.room_number = 10
 
     def setup(self):
+
+        profiler = cProfile.Profile()
+        profiler.enable()
+
         self.stats = PlayerStatsController()
         # physics engine setup
         damping = 0.7
@@ -70,14 +75,17 @@ class GameView(arcade.View):
         # player setup
         self.player_list = arcade.SpriteList()
         if self.player_class ==0:
+            from resource_manager import get_knight_player_character
             self.player_sprite = get_knight_player_character()
             self.special_ability = KnightSpecialAbility(self.physics_engine, self.player_sprite, self.stats)
         if self.player_class == 1:
+            from resource_manager import get_wizard_player_character
             self.player_sprite = get_wizard_player_character()
             self.player_sprite.scale = 1
             self.special_ability = MageSpecialAbility(self.physics_engine, self.stats, self.player_sprite)
             self.special_ability.on_setup()
         elif self.player_class == 2:
+            from resource_manager import get_dragon_player_character
             self.player_sprite = get_dragon_player_character()
             self.special_ability = DragonSpecialAbility(self.physics_engine, self.player_sprite, self.stats,self.map)
         self.player_sprite.center_x = WINDOW_WIDTH / 2
@@ -132,8 +140,12 @@ class GameView(arcade.View):
         self.collision_handler = CollisionManager(self.physics_engine, self.stats)
         self.collision_handler.on_setup()
 
-        self.inventory = Inventory()
-        self.inventory.load()
+        # self.inventory = Inventory()
+        # self.inventory.load()
+
+        profiler.disable()
+        stats = pstats.Stats(profiler).sort_stats('cumulative')
+        stats.print_stats(30)  # Show top 30 time-consuming functions
 
 
     def on_draw(self) -> bool | None:
@@ -148,7 +160,7 @@ class GameView(arcade.View):
         self.UI.on_draw()
         self.place_on_map.on_draw()
         self.difficulty_manager.draw()
-        self.inventory.draw()
+        # self.inventory.draw()
         return None
 
     def on_update(self, delta_time):
@@ -171,11 +183,11 @@ class GameView(arcade.View):
         self.place_on_map.update()
         self.physics_engine.step()
         self.map.update(delta_time, self.player_sprite)
-        self.inventory.update(engine = self.physics_engine, delta_time = delta_time, player = self.player_sprite,
-                              map = self.map, stats = self.stats)
+        # self.inventory.update(engine = self.physics_engine, delta_time = delta_time, player = self.player_sprite,
+        #                       map = self.map, stats = self.stats)
 
         if self.stats.health <= 0:
-            self.inventory.save()
+            # self.inventory.save()
             from views.game_over import GameOverView
             game_over = GameOverView()
             self.window.show_view(game_over)
@@ -190,13 +202,13 @@ class GameView(arcade.View):
         self.special_ability.on_key_press(key)
         self.place_on_map.on_key_press(key)
         if key == arcade.key.ESCAPE:
-            self.inventory.save()
+            # self.inventory.save()
             from views.pause_screen import PauseView
             pause = PauseView(self)
             self.window.show_view(pause)
 
-        self.inventory.on_key_press(key, engine = self.physics_engine, player = self.player_sprite,
-                                    map = self.map, stats = self.stats)
+        # self.inventory.on_key_press(key, engine = self.physics_engine, player = self.player_sprite,
+        #                             map = self.map, stats = self.stats)
 
 
     def on_key_release(self, key, modifiers):

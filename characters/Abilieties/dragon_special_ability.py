@@ -27,9 +27,9 @@ class DragonSpecialAbility(Attack):
         self.shoot_counter = 0
 
     def delete_effect_on_room_transition(self):
-        self.effects_list.clear()
         for effect in self.effects_list:
             self.physics_engine.remove_sprite(effect)
+            self.effects_list.remove(effect)
 
     def shoot_fire(self):
         self.update_direction()
