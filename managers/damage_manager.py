@@ -1,4 +1,7 @@
 # damage manager singleton
+from effects.charge_effect import ChargeEffects
+
+
 class DamageManager:
     _instance = None
     def __new__(cls, stats=None):

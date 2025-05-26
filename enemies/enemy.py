@@ -1,18 +1,26 @@
 import math
 import arcade
-import random
 from typing import List
 from arcade import PymunkPhysicsEngine
 
 from effects.charge_effect import ChargeEffects
-from effects.item_effects import ItemEffects
+from effects.indicator_bar import IndicatorBar
 from parameters import *
 
+HEALTH_BAR_HEIGHT_ENEMY = 4
+HEALTH_BAR_BORDER_ENEMY = 1  # Thickness of border on EACH side
+HEALTH_BAR_Y_OFFSET_ENEMY = 10
+ENEMY_BAR_COLOR = arcade.color.RED
+ENEMY_BAR_BG_COLOR = arcade.color.DARK_GRAY
+ENEMY_BAR_SCALE = 0.5  # Visual scale of the health bar itself
+
+
 class Enemy:
+
     def __init__(self, health, damage, speed, position, attack_cooldown, attack_range, sprite_handle):
         self.sprite = sprite_handle()
         self.health = health
-        self.max_health = health
+        self.max_health = float(health)
         self.damage = damage
         self.speed = speed
         self.position = position
@@ -27,6 +35,32 @@ class Enemy:
         self.sprite.properties["health"] = self.health
         self.sprite.properties["damage"] = self.damage
         self.sprite.properties["interact"] = False
+        self.sprite.properties["invincible"] = False
+        self.sprite.properties["inv_timer"] = 1.0
+
+        self.health_bar: IndicatorBar | None = None
+
+    def setup_health_bar(self, health_bar_sprite_list: arcade.SpriteList):
+        """Creates and configures the health bar for this enemy."""
+        if not self.sprite:
+            return
+
+        # Use sprite's unscaled texture width as base for bar width
+        bar_base_unscaled_width = self.sprite.texture.width if self.sprite.texture else 50
+        bar_base_unscaled_width *= 0.4
+
+        self.health_bar = IndicatorBar(
+            owner=self,
+            sprite_list=health_bar_sprite_list,
+            position=(self.sprite.center_x, 0),
+            full_color=ENEMY_BAR_COLOR,
+            background_color=ENEMY_BAR_BG_COLOR,
+            width=int(bar_base_unscaled_width),
+            height=HEALTH_BAR_HEIGHT_ENEMY,
+            border_size=HEALTH_BAR_BORDER_ENEMY,  # Border on EACH side
+            bar_scale=ENEMY_BAR_SCALE
+        )
+        # Fullness is 1.0 by default in IndicatorBar init
 
     def add_to_engine(self, engine: PymunkPhysicsEngine):
         engine.add_sprite(
@@ -50,7 +84,32 @@ class Enemy:
     def update(self, delta_time):
         self.position = (self.sprite.center_x, self.sprite.center_y)
         self.health = self.sprite.properties["health"]
+
+        if self.sprite.properties["invincible"]:
+            self.sprite.properties["inv_timer"] -= delta_time
+            if self.sprite.properties["inv_timer"] <= 0:
+                self.sprite.properties["inv_timer"] = 0
+                self.sprite.properties["invincible"] = False
+                ChargeEffects.clean_damage_indicator(self.sprite)
+
+        if self.health_bar:
+            # scaled_sprite_half_height = (self.sprite.height * self.sprite.scale) / 2
+            # hb_y_pos = self.sprite.center_y + scaled_sprite_half_height + HEALTH_BAR_Y_OFFSET_ENEMY
+            self.health_bar.position = (self.sprite.center_x, self.sprite.center_y- self.sprite.center_y /9)
+
+            if self.max_health > 0:
+                # for better visibility /2
+                self.health_bar.fullness = self.health / (self.max_health*2)
+            else:
+                self.health_bar.fullness = 0.0
+
         self.sprite.update(delta_time)
+
+    def on_destroy(self):
+        """Called when the enemy is being removed to clean up its resources."""
+        if self.health_bar:
+            self.health_bar.kill()
+            self.health_bar = None
 
     def __move_calc(self, destination):
         x_goal = destination[0]
@@ -115,11 +174,16 @@ class Enemy:
 
 
 class EnemyController:
-    def __init__(self, enemies: List[Enemy], room, engine: PymunkPhysicsEngine, stats,effect_list):
+    def __init__(self, enemies: List[Enemy], room, engine: PymunkPhysicsEngine, stats, effect_list):
         self.enemies = enemies
         self.enemy_sprite_list = arcade.SpriteList()
+        self.health_bar_list = arcade.SpriteList()
+
+        # Add enemy sprites and setup health bars
         for e in self.enemies:
             self.enemy_sprite_list.append(e.sprite)
+            e.setup_health_bar(self.health_bar_list)
+
         self.physics_engine = engine
         self.room = room
         self.stats = stats
@@ -140,12 +204,13 @@ class EnemyController:
                 enemy_sprite.remove_from_sprite_lists()
             return False
 
-        def projectile_collision_handler(
-                                         enemy_sprite: arcade.Sprite,
-                                         projectile_sprite: arcade.Sprite, *args):
+        def projectile_collision_handler(enemy_sprite: arcade.Sprite, projectile_sprite: arcade.Sprite, *args):
             projectile_sprite.remove_from_sprite_lists()
 
+            ChargeEffects.hit_effect(enemy_sprite)
             enemy_sprite.properties["health"] -= self.stats.damage
+            enemy_sprite.properties["invincible"] = True
+            enemy_sprite.properties["inv_timer"] = 0.1
             if enemy_sprite.properties["health"] <= 0:
                 enemy_sprite.remove_from_sprite_lists()
             return False
@@ -164,11 +229,12 @@ class EnemyController:
     def draw(self):
         self.projectiles.draw()
         self.enemy_sprite_list.draw()
+        self.health_bar_list.draw()
 
-    #temprarly removed room completion logic
     def update(self, delta_time, player: arcade.Sprite):
-
+        ChargeEffects.update(delta_time)
         self.projectiles.update()
+        self.health_bar_list.update()
 
         if player.properties["invincible"]:
             player.properties["inv_timer"] -= delta_time
@@ -176,9 +242,9 @@ class EnemyController:
                 player.properties["inv_timer"] = 0
                 player.properties["invincible"] = False
 
+        # spawn room reward
         if len(self.enemy_sprite_list) == 0 and not self.room.completed:
             self.room.complete()
-            self.enemies.clear()
             return
 
         if self.freeze:
@@ -190,16 +256,19 @@ class EnemyController:
 
         location = (player.center_x, player.center_y)
         garbage_collect = []
+
         for e in self.enemies:
+            # Check if enemy sprite was removed from sprite list (died)
             if e.sprite not in self.enemy_sprite_list:
+                e.on_destroy()  # Clean up health bar
                 garbage_collect.append(e)
                 continue
-            if e.sprite.center_x < 0 or e.sprite.center_x > WINDOW_WIDTH:
+
+            # Check if enemy is out of bounds
+            if (e.sprite.center_x < 0 or e.sprite.center_x > WINDOW_WIDTH or
+                    e.sprite.center_y < 0 or e.sprite.center_y > WINDOW_HEIGHT):
                 e.sprite.remove_from_sprite_lists()
-                garbage_collect.append(e)
-                continue
-            elif e.sprite.center_y < 0 or e.sprite.center_y > WINDOW_HEIGHT:
-                e.sprite.remove_from_sprite_lists()
+                e.on_destroy()  # Clean up health bar
                 garbage_collect.append(e)
                 continue
 
@@ -208,8 +277,10 @@ class EnemyController:
             e.sprite.update(delta_time)
             e.attack(delta_time, location, self.physics_engine, self.projectiles)
 
+        # Remove dead enemies from list
         for e in garbage_collect:
-            self.enemies.remove(e)
+            if e in self.enemies:
+                self.enemies.remove(e)
 
     def add_enemies_to_engine(self):
         for e in self.enemies:
@@ -219,6 +290,8 @@ class EnemyController:
         print(self.enemies, len(self.enemy_sprite_list))
         for e in self.enemies:
             e.remove_from_engine(self.physics_engine)
+            e.on_destroy()  # Clean up health bars when removing from engine
+
 
 class EnemyProjectileController:
     def __init__(self, engine: PymunkPhysicsEngine, stats, speed):
@@ -229,12 +302,12 @@ class EnemyProjectileController:
 
         def player_hit_handler(enemy_projectile_sprite: arcade.Sprite, player_sprite: arcade.Sprite, *args):
             if not player_sprite.properties["invincible"]:
-                self.stats.health = min(0, self.stats.health - enemy_projectile_sprite.properties["damage"])
+                self.stats.health = max(0, self.stats.health - enemy_projectile_sprite.properties[
+                    "damage"])  # Fixed: was min(0, ...)
                 player_sprite.properties["invincible"] = True
                 player_sprite.properties["inv_timer"] = 1.0
                 enemy_projectile_sprite.remove_from_sprite_lists()
             return False
-
 
         def wall_hit_handler(sprite_a, sprite_b, arbiter, space, data):
             """ Called for bullet/rock collision """
@@ -268,7 +341,7 @@ class EnemyProjectileController:
             vel_magnitude = math.sqrt(vel_x ** 2 + vel_y ** 2)
 
             # If velocity is too low, remove the projectile
-            min_velocity = 30.0  # Adjust this threshold as needed
+            min_velocity = 30.0
             if vel_magnitude < min_velocity:
                 projectile.remove_from_sprite_lists()
         self.projectiles.update()
@@ -282,8 +355,8 @@ class EnemyProjectileController:
         x_delta = x_goal - enemy.position[0]
         y_delta = y_goal - enemy.position[1]
         angle = math.atan2(y_delta, x_delta)
-        change_x = math.cos(angle) * self.projectile_speed*5
-        change_y = math.sin(angle) * self.projectile_speed*5
+        change_x = math.cos(angle) * self.projectile_speed * 5
+        change_y = math.sin(angle) * self.projectile_speed * 5
         projectile = arcade.SpriteSolidColor(width=10, height=10, color=arcade.color.BLUE)
         projectile.center_x = enemy.position[0]
         projectile.center_y = enemy.position[1]
