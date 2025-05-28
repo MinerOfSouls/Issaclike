@@ -77,7 +77,6 @@ object_params = {
     "spawn_effect": {"speed": 0.025, "scale": 0.1, "looping": False, "collectable": False, "item_type": "spawn_effect","moment_of_inertia": PymunkPhysicsEngine.MOMENT_INF, "body_type": PymunkPhysicsEngine.KINEMATIC},
 
 }
-
 enemy_textures = {}
 enemy_textures["slime_idle"] = enemy_sheets["slime_idle"].get_texture_grid((64, 64), 4, 4, hit_box_algorithm=box)
 enemy_textures["slime_move_west"] = enemy_sheets["slime_move"].get_texture_grid((64, 64), 4, 4, hit_box_algorithm=box)

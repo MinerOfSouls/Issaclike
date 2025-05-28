@@ -36,14 +36,14 @@ def door_side(x, y):
 class Room:
     #wall_sprites is a dictionary based on position with keys:
     #"north", "east", "west", "south" and values being paths to sprite pngs
-    def __init__(self, doors, engine):
+    def __init__(self, doors, engine,stats):
         self.wall_list = arcade.SpriteList()
         self.doors = arcade.SpriteList()
         self.completed = False
         self.physics_engine = engine
         self.objects = arcade.SpriteList()
         self.effects_list = arcade.SpriteList()
-        self.stats = PlayerStatsController()
+        self.stats = stats
         self.loaded = False
         self.spawn_reward = SpawnRandomReward(self.physics_engine , self.objects, self.effects_list ,self.stats)
         self.reward_spawned = False
@@ -117,7 +117,6 @@ class Room:
 
 
     def enter(self):
-        self.loaded = True
         print("entered")
         print(self.completed)
         print(self.reward_spawned)
@@ -153,7 +152,7 @@ class Room:
 
 class EnemyRoom(Room):
     def __init__(self,doors, engine, enemies, stats):
-        super().__init__(doors, engine)
+        super().__init__(doors, engine,stats)
         self.enemy_controller = EnemyController(enemies, self, engine, stats, self.objects)
 
     def update(self, delta_time, player):
@@ -198,8 +197,8 @@ class BossRoom(EnemyRoom):
             self.physics_engine.add_sprite(s, body_type=2, collision_type="stairs")
 
 class TreasureRoom(Room):
-    def __init__(self, doors, engine):
-        super().__init__(doors, engine)
+    def __init__(self, doors, engine,stats):
+        super().__init__(doors, engine,stats)
 
         # for object in self.objects:
         #     self.physics_engine.remove_sprite(object)
@@ -268,7 +267,7 @@ class Map:
         for c in room_coordinates:
             room_doors = {k for k in self.connections[c].keys()}
             if room_types[c] == 0:
-                self.rooms[c] = Room(room_doors, self.physics_engine)
+                self.rooms[c] = Room(room_doors, self.physics_engine,stats)
             elif room_types[c] == 1:
                 self.rooms[c] = BossRoom(room_doors, self.physics_engine, 0, stats)
             elif room_types[c] == 2:
@@ -276,7 +275,7 @@ class Map:
             elif room_types[c] == 3:
                 r = random.random()
                 if r < 0.8:
-                    self.rooms[c] = TreasureRoom(room_doors, self.physics_engine)
+                    self.rooms[c] = TreasureRoom(room_doors, self.physics_engine,stats)
                 else:
                     self.rooms[c] = EnemyRoom(room_doors, self.physics_engine, [Mimic(0)], stats)
 

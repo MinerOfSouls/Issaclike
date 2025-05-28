@@ -1,18 +1,20 @@
 import arcade
 from views.character_selection import CharacterSelection
 import arcade.gui
-
+from parameters import *
 
 class StartScreenView(arcade.View):
     """ View to show instructions """
 
     def __init__(self):
         super().__init__()
+        self.background = arcade.load_texture("resources/images/StartScreen.png")
+
         self.manager = arcade.gui.UIManager()
 
         # Create buttons
         self.start_new_game = arcade.gui.UIFlatButton(text="Start New Game", width=200)
-        self.options = arcade.gui.UIFlatButton(text="Options", width=200)
+        self.options = arcade.gui.UIFlatButton(text="How to play", width=200)
         self.exit = arcade.gui.UIFlatButton(text="Exit", width=200)
 
         # Store buttons in a list for easier keyboard navigation
@@ -57,6 +59,10 @@ class StartScreenView(arcade.View):
 
     def on_draw(self):
         self.clear()
+        arcade.draw_texture_rect(
+            self.background,
+            arcade.LBWH(0, 0, screen_width, screen_height),
+        )
         self.manager.draw()
 
         # Draw the selection indicator (an arrow)
@@ -74,6 +80,14 @@ class StartScreenView(arcade.View):
         )
 
     def on_key_press(self, key, modifiers):
+        if key == arcade.key.F11:
+            screen_width, screen_height = arcade.get_display_size()
+            global resizable_scale
+            resizable_scale = min(screen_width/WINDOW_WIDTH , screen_height/WINDOW_HEIGHT)
+            print(screen_width, screen_height)
+            print(resizable_scale)
+            self.window.set_fullscreen(not self.window.fullscreen)
+
         if key == arcade.key.UP:
             # Move selection up
             self.selected_index = (self.selected_index - 1) % len(self.buttons)

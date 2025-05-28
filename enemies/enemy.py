@@ -72,7 +72,10 @@ class Enemy:
         )
 
     def remove_from_engine(self, engine: PymunkPhysicsEngine):
-        engine.remove_sprite(self.sprite)
+        try:
+            engine.remove_sprite(self.sprite)
+        except KeyError:
+            pass
 
     def move(self, destination, engine: PymunkPhysicsEngine, **kwargs):
         self.basic_move(destination, engine)

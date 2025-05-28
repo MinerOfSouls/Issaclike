@@ -1,4 +1,5 @@
 import arcade
+from PIL import ImageFilter,Image
 from arcade import LRBT, PymunkPhysicsEngine
 
 from characters.Abilieties.knight_special_ability import KnightSpecialAbility
@@ -22,6 +23,17 @@ from items.inventory import Inventory
 class GameView(arcade.View):
     def __init__(self,difficulty_options):
         super().__init__()
+        self.fullscreen = False
+        temp_background = arcade.load_texture("resources/images/background.webp")
+
+        pil_image = Image.frombytes("RGBA",
+                                    (temp_background.width, temp_background.height),
+                                    temp_background.image.tobytes())
+        blurred_image = pil_image.filter(ImageFilter.GaussianBlur(radius=5))
+
+        # Convert back to Arcade texture
+        self.background = arcade.Texture(blurred_image)
+
         self.difficulty_options = difficulty_options
         self.damage_dealer = None
         self.map = None
@@ -47,13 +59,20 @@ class GameView(arcade.View):
         self.coin_list = arcade.SpriteList()
         self.pickups_list = arcade.SpriteList()
 
+
         self.camera = arcade.Camera2D(
-            position=(0, 0),
-            projection=LRBT(left=0, right=WINDOW_WIDTH, bottom=0, top=WINDOW_HEIGHT),
-            viewport=self.window.rect
-        )
+            position= (-(screen_width - WINDOW_WIDTH) / 8, 0),  # Center camera
+            projection=LRBT(
+                left=0,
+                right=screen_width,
+                bottom=0,
+                top=screen_height
+            ),
+            viewport=LRBT(0, screen_width, 0, screen_height),
+            zoom=1.0 * resizable_scale,)
 
         self.room_number = 10
+
 
     def setup(self):
 
@@ -115,6 +134,10 @@ class GameView(arcade.View):
             self.map = Map(self.room_number, self.physics_engine, self.stats,self.special_ability)
             self.UI = DrawUI(self.stats, self.map)
             self.map.on_setup()
+            self.difficulty_manager = DifficultyOptions(self.physics_engine, self.player_sprite, self.stats,
+                                                        self.attack_manager, self.map, self.effects_list,
+                                                        self.difficulty_options)
+            self.difficulty_manager.on_setup()
 
         def no_collision(*args):
             return False
@@ -143,24 +166,31 @@ class GameView(arcade.View):
 
     def on_draw(self) -> bool | None:
         self.clear()
-        self.map.draw()
-        self.player_list.draw()
-        self.special_ability.draw()
+        arcade.draw_texture_rect(
+            self.background,
+            arcade.LBWH(0, 0, screen_width, screen_height),
+        )
 
-        if self.attack_manager.current_attack:
-            self.attack_manager.current_attack.on_draw()
+        with self.camera.activate():
+            self.map.draw()
+            self.player_list.draw()
+            self.special_ability.draw()
 
-        self.UI.on_draw()
-        self.place_on_map.on_draw()
-        self.difficulty_manager.draw()
-        self.inventory.draw()
-        return None
+            if self.attack_manager.current_attack:
+                self.attack_manager.current_attack.on_draw()
+
+            self.UI.on_draw()
+            self.place_on_map.on_draw()
+            self.difficulty_manager.draw()
+            self.inventory.draw()
+            return None
 
     def on_update(self, delta_time):
 
         self.difficulty_manager.update()
 
         if not self.map.is_loaded():
+            print("huj")
             self.map.rooms[self.map.current_room].loaded = True  # god xd cursed
 
         self.player_controller.on_update(self.physics_engine)
@@ -187,6 +217,31 @@ class GameView(arcade.View):
 
 
     def on_key_press(self, key, modifiers):
+        if key == arcade.key.F11 and not self.fullscreen:
+            self.camera.position = (-(screen_width - WINDOW_WIDTH) / 8, 0)  # Center camera
+            self.camera.projection = LRBT(
+                left=0,
+                right=screen_width,
+                bottom=0,
+                top=screen_height
+            )
+            self.camera.viewport = LRBT(0, screen_width, 0, screen_height)
+            self.camera.zoom = 1.0 * resizable_scale
+            self.window.set_fullscreen()
+            self.fullscreen = True
+        elif key == arcade.key.F11 and self.fullscreen:
+            self.camera.position=(0, 0)
+            self.camera.projection=LRBT(
+                left=0,
+                right=WINDOW_WIDTH,
+                bottom=0,
+                top=WINDOW_HEIGHT
+            )
+            self.camera.viewport=LRBT(0, WINDOW_WIDTH, 0, WINDOW_HEIGHT)
+            self.camera.zoom=1.0
+            self.window.set_fullscreen()
+            self.fullscreen = False
+
         self.player_controller.on_key_press(key)
 
         if self.attack_manager.current_attack:

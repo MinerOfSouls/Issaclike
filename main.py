@@ -5,7 +5,7 @@ from parameters import *
 
 def main():
 
-    window = arcade.Window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE)
+    window = arcade.Window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, fullscreen=True)
     start_screen = StartScreenView()
     window.show_view(start_screen)
     arcade.run()

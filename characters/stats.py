@@ -7,7 +7,7 @@ class PlayerStatsController:
             cls._instance.__initialized = False
         return cls._instance
 
-    def __init__(self, speed=10, damage=1, projectile_speed=100, projectile_cooldown=25,
+    def __init__(self, speed=10, damage=10, projectile_speed=100, projectile_cooldown=25,
                  luck=0, range=400, health=6, coins=5, keys=99, bombs=1):
         if getattr(self, '__initialized', False):
             return
