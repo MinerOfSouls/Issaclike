@@ -5,6 +5,7 @@ from arcade import PymunkPhysicsEngine
 
 from effects.charge_effect import ChargeEffects
 from effects.indicator_bar import IndicatorBar
+from managers.damage_manager import DamageManager
 from parameters import *
 
 HEALTH_BAR_HEIGHT_ENEMY = 4
@@ -109,7 +110,6 @@ class Enemy:
         self.sprite.update(delta_time)
 
     def on_destroy(self):
-        """Called when the enemy is being removed to clean up its resources."""
         if self.health_bar:
             self.health_bar.kill()
             self.health_bar = None
@@ -198,10 +198,8 @@ class EnemyController:
 
         def player_collision_handler(enemy_sprite: arcade.Sprite, player_sprite: arcade.Sprite, *args):
             enemy_sprite.properties["interact"] = True
-            if not player_sprite.properties["invincible"]:
-                self.stats.health = max(1, self.stats.health - enemy_sprite.properties["damage"])
-                player_sprite.properties["invincible"] = True
-                player_sprite.properties["inv_timer"] = 1.0
+            damage_dealer= DamageManager(stats , player_sprite)
+            damage_dealer.deal_damage(enemy_sprite.properties["damage"])
             if "tmp" in enemy_sprite.properties.keys():
                 print("hit")
                 enemy_sprite.remove_from_sprite_lists()
@@ -214,12 +212,18 @@ class EnemyController:
             enemy_sprite.properties["health"] -= self.stats.damage
             enemy_sprite.properties["invincible"] = True
             enemy_sprite.properties["inv_timer"] = 0.1
+
             if enemy_sprite.properties["health"] <= 0:
                 enemy_sprite.remove_from_sprite_lists()
             return False
 
         def enemy_hit_handle(enemy_sprite: arcade.Sprite, *args):
-            enemy_sprite.properties["health"] -= self.stats.damage
+            ChargeEffects.hit_effect(enemy_sprite)
+            enemy_sprite.properties["health"] -= self.stats.damage*0.1
+            enemy_sprite.properties["invincible"] = True
+            enemy_sprite.properties["inv_timer"] = 0.1
+
+            enemy_sprite.properties["health"] -= self.stats.damage*0.1
             if enemy_sprite.properties["health"] <= 0:
                 enemy_sprite.remove_from_sprite_lists()
             return False
@@ -228,6 +232,7 @@ class EnemyController:
         self.physics_engine.add_collision_handler("enemy", "player", begin_handler=player_collision_handler)
         self.physics_engine.add_collision_handler("enemy", "sword", post_handler=enemy_hit_handle)
         self.physics_engine.add_collision_handler("enemy", "boomerang", post_handler=enemy_hit_handle)
+        self.physics_engine.add_collision_handler("enemy", "shoot_fire", post_handler=projectile_collision_handler)
 
     def draw(self):
         self.projectiles.draw()
@@ -235,15 +240,8 @@ class EnemyController:
         self.health_bar_list.draw()
 
     def update(self, delta_time, player: arcade.Sprite):
-        ChargeEffects.update(delta_time)
         self.projectiles.update()
         self.health_bar_list.update()
-
-        if player.properties["invincible"]:
-            player.properties["inv_timer"] -= delta_time
-            if player.properties["inv_timer"] <= 0:
-                player.properties["inv_timer"] = 0
-                player.properties["invincible"] = False
 
         # spawn room reward
         if len(self.enemy_sprite_list) == 0 and not self.room.completed:
@@ -304,12 +302,10 @@ class EnemyProjectileController:
         self.stats = stats
 
         def player_hit_handler(enemy_projectile_sprite: arcade.Sprite, player_sprite: arcade.Sprite, *args):
-            if not player_sprite.properties["invincible"]:
-                self.stats.health = max(0, self.stats.health - enemy_projectile_sprite.properties[
-                    "damage"])  # Fixed: was min(0, ...)
-                player_sprite.properties["invincible"] = True
-                player_sprite.properties["inv_timer"] = 1.0
-                enemy_projectile_sprite.remove_from_sprite_lists()
+            damage_dealer= DamageManager(stats , player_sprite)
+            damage_dealer.deal_damage(max(0, self.stats.health - enemy_projectile_sprite.properties[
+                    "damage"]))
+            enemy_projectile_sprite.remove_from_sprite_lists()
             return False
 
         def wall_hit_handler(sprite_a, sprite_b, arbiter, space, data):

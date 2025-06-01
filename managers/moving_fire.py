@@ -1,5 +1,4 @@
-import arcade
-from collectables.interactive_item import InteractiveItem
+from collectables.base.interactive_item import InteractiveItem
 from parameters import *
 import math
 
@@ -7,7 +6,7 @@ from resource_manager import get_object
 
 
 class MovingFire:
-    def __init__(self,physics_engine ,player_sprite,effects_list, stats):
+    def __init__(self, physics_engine, player_sprite, effects_list, stats):
         self.physics_engine = physics_engine
         self.player_sprite = player_sprite
         self.stats = stats
@@ -34,17 +33,18 @@ class MovingFire:
 
     def spawn_more_fire(self):
         static_fire = get_object("static_fire")
-        static_fire = InteractiveItem(self.physics_engine,self.stats, static_fire[0], static_fire[1])
+        static_fire = InteractiveItem(self.physics_engine, self.stats, static_fire[0], static_fire[1])
         static_fire.position = self.moving_fire.position
         static_fire.on_setup()
         self.effects_list.append(static_fire)
 
     def on_setup(self):
-        x = WINDOW_WIDTH -30
+        x = WINDOW_WIDTH - 30
         y = WINDOW_HEIGHT - 30
+        self.moving_fire = None
         fire_sprite = get_object("wisp")
-        self.moving_fire = InteractiveItem(self.physics_engine,self.stats, fire_sprite[0], fire_sprite[1])
-        self.moving_fire.position = (x,y)
+        self.moving_fire = InteractiveItem(self.physics_engine, self.stats, fire_sprite[0], fire_sprite[1])
+        self.moving_fire.position = (x, y)
         self.moving_fire.on_setup()
         self.effects_list.append(self.moving_fire)
 
@@ -55,13 +55,13 @@ class MovingFire:
         self.effects_list.update()
         self.fire_timeout += 1
 
-        if self.fire_timeout >10:
+        if self.fire_timeout > 10:
             self.spawn_more_fire()
             self.fire_timeout = 0
 
         for effect in self.effects_list:
             if effect.item_type == "wisp":
                 self.basic_move(effect, self.player_sprite.position)
-            if effect.item_type == "static_fire" and effect.item_lifetime >90:
+            if effect.item_type == "static_fire" and effect.item_lifetime > 90:
                 self.physics_engine.remove_sprite(effect)
                 self.effects_list.remove(effect)

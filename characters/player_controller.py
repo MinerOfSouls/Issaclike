@@ -1,7 +1,11 @@
 import arcade
 import math
+
+from characters.stats import Stats
+
+
 class PlayerController:
-    def __init__(self, player_sprite, stats):
+    def __init__(self, player_sprite :arcade.Sprite, stats :Stats):
         self.stats = stats
         self.player = player_sprite
         self.a_pressed = False
@@ -34,7 +38,6 @@ class PlayerController:
 
         # Normalize diagonal movement
         if dx != 0 and dy != 0:
-            # Calculate normalization factor (1/sqrt(2))
             norm_factor = 1 / math.sqrt(2)
             dx *= norm_factor
             dy *= norm_factor

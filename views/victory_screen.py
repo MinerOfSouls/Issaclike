@@ -4,7 +4,7 @@ from parameters import *
 from views.start_screen import StartScreenView
 
 
-class GameOverView(arcade.View):
+class VictoryView(arcade.View):
     """ Class to manage the game overview """
 
     def on_update(self, dt):
@@ -20,7 +20,7 @@ class GameOverView(arcade.View):
 
         self.clear()
 
-        arcade.draw_text("Game Over - press SPACE to advance", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2,
+        arcade.draw_text("Thanks for playing", screen_width / 2, screen_height / 2,
 
                          arcade.color.WHITE, 30, anchor_x="center")
 

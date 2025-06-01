@@ -1,9 +1,8 @@
 from Ui.mini_map import MiniMap
-from characters.stats import PlayerStatsController
-import arcade
+from characters.stats import Stats
 import arcade.gui
 
-from collectables.animation import Animation
+from collectables.base.animation import Animation
 from parameters import *
 from pyglet.graphics import Batch
 from resource_manager import get_object
@@ -14,7 +13,7 @@ DEFAULT_FONT_SIZE = 15  # Default font size in points
 
 
 class DrawUI:
-    def __init__(self, stats:PlayerStatsController , map):
+    def __init__(self, stats: Stats, map):
         super().__init__()
 
         self.stats = stats
@@ -25,16 +24,16 @@ class DrawUI:
 
         self.batch = Batch()
         coin_texture = get_object("coin")[0]
-        key_texture =get_object("key")[0]
+        key_texture = get_object("key")[0]
 
         self.update_health()
 
-        self.coin_UI = arcade.Sprite(coin_texture[0] , scale=0.25)
-        self.coin_UI.position = 25, WINDOW_HEIGHT- 50
+        self.coin_UI = arcade.Sprite(coin_texture[0], scale=0.25)
+        self.coin_UI.position = 25, WINDOW_HEIGHT - 50
         self.sprite_list.append(self.coin_UI)
 
-        self.key_UI = arcade.Sprite(key_texture[0] , scale=0.75)
-        self.key_UI.position  = 25, WINDOW_HEIGHT- 75
+        self.key_UI = arcade.Sprite(key_texture[0], scale=0.75)
+        self.key_UI.position = 25, WINDOW_HEIGHT - 75
         self.sprite_list.append(self.key_UI)
 
     def update_health(self):
@@ -61,12 +60,11 @@ class DrawUI:
         self.mini_map.draw()
         self.batch.draw()
 
-
     def on_update(self):
         self.mini_map.update()
         self.update_health()
         start_x = 40
-        start_y = WINDOW_HEIGHT- 60
+        start_y = WINDOW_HEIGHT - 60
         self.coin_count = arcade.Text(
             self.stats.get_coin_number(),
             start_x,
@@ -98,4 +96,3 @@ class DrawUI:
         )
 
         self.sprite_list.update()
-

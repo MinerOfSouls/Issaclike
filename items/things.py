@@ -1,11 +1,9 @@
 import arcade
 
-from collectables.interactive_item import InteractiveItem
 from items.item import Item
 from random import randint
 from parameters import SPRITE_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT
-from collectables.pickup_factory import PickupFactory, PickupType
-from resource_manager import get_object
+from collectables.pickup_factory import PickupType
 
 
 class Repulsor(Item):

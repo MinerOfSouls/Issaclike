@@ -1,4 +1,4 @@
-class PlayerStatsController:
+class Stats:
     _instance = None
 
     def __new__(cls, *args, **kwargs):
@@ -7,8 +7,8 @@ class PlayerStatsController:
             cls._instance.__initialized = False
         return cls._instance
 
-    def __init__(self, speed=10, damage=10, projectile_speed=100, projectile_cooldown=25,
-                 luck=0, range=400, health=6, coins=5, keys=99, bombs=1):
+    def __init__(self, speed=10, damage=1, projectile_speed=150, projectile_cooldown=25,
+                 luck=0, projectile_range=800, health=6, coins=0, keys=1, bombs=0):
         if getattr(self, '__initialized', False):
             return
 
@@ -17,7 +17,7 @@ class PlayerStatsController:
         self.projectile_speed = projectile_speed
         self.projectile_cooldown = projectile_cooldown
         self.luck = luck
-        self.range = range
+        self.range = projectile_range
         self.health = health
         self.coins = coins
         self.keys = keys

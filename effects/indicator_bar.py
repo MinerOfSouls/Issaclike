@@ -1,4 +1,4 @@
-# indicator_bar.py (Your new/updated file for this class)
+# from basic python arcade
 import arcade
 from arcade.types import Color
 
@@ -132,7 +132,7 @@ class IndicatorBar:
             # background_box.width (scaled) vs self._base_bar_width * self._bar_scale (scaled)
             # Scaled border thickness on one side:
             scaled_border_thickness_one_side = (self._background_box.width - (
-                        self._base_bar_width * self._bar_scale)) / 2.0
+                    self._base_bar_width * self._bar_scale)) / 2.0
 
             self.full_box.left = self._background_box.left + scaled_border_thickness_one_side
 

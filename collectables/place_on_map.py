@@ -17,17 +17,17 @@ class PlaceOnMap:
             self.placed_items.append(item)
             self.stats.bombs -= 1
 
-    def place_item(self,item,x,y):
-        item.position = (x,y)
+    def place_item(self, item, x, y):
+        item.position = (x, y)
         item.on_setup()
         self.placed_items.append(item)
 
-    def place_bomb(self,x,y):
+    def place_bomb(self, x, y):
         bomb_sprite = Bomb(self.physics_engine, self.stats, self.effects, self.placed_items)
-        self.place_item(bomb_sprite,x,y)
+        self.place_item(bomb_sprite, x, y)
 
     def place_bomb_by_player(self):
-        bomb_sprite = Bomb(self.physics_engine, self.stats, self.effects,self.placed_items)
+        bomb_sprite = Bomb(self.physics_engine, self.stats, self.effects, self.placed_items)
         self.place_item_by_player(bomb_sprite)
 
     def update(self, delta_time: float = 1 / 60):

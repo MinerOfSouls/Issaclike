@@ -1,19 +1,7 @@
-from pyglet import sprite
-from collectables.animation import Animation
-from collectables.bomb import Bomb
-from collectables.interactive_item import InteractiveItem
+from enums.pickup_type import PickupType
+from collectables.base.interactive_item import InteractiveItem
 from resource_manager import get_object
 from enum import Enum, auto
-
-
-class PickupType(Enum):
-    COIN = auto()
-    KEY = auto()
-    BOMB = auto()
-    HEALTH_POTION = auto()
-    DAMAGE_POTION = auto()
-    RANGE_POTION = auto()
-    SPEED_POTION = auto()
 
 
 class PickupFactory:

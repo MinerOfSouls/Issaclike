@@ -1,18 +1,24 @@
 import math
 import random
 
+import arcade
 from arcade import PymunkPhysicsEngine
-from collectables.interactive_item import InteractiveItem
+
+from characters.stats import Stats
+from collectables.base.interactive_item import InteractiveItem
 from resource_manager import get_object
 
 
 class ProjectileFactory:
-    def __init__(self, physics_engine, player_sprite, stats, projectile_list):
+    def __init__(self, physics_engine: PymunkPhysicsEngine, player_sprite: arcade.Sprite, stats: Stats,
+                 projectile_list: arcade.SpriteList):
+
         self.physics_engine = physics_engine
         self.player_sprite = player_sprite
         self.stats = stats
         self.projectile_list = projectile_list
         self.inaccuracy_degrees = 0
+
         sprite = get_object("projectile")
         self.projectile_url = sprite[0]
         self.projectile_details = sprite[1]
@@ -20,17 +26,16 @@ class ProjectileFactory:
         # Set up wall collision handler
         self.physics_engine.add_collision_handler(
             "projectile", "wall",
-            post_handler=lambda s_a, s_b, arb, *_: self._handle_wall_collision(arb)
+            post_handler=lambda s_a, s_b, arb, *_: self.__handle_wall_collision(arb)
         )
 
-    def _handle_wall_collision(self, arbiter):
+    def __handle_wall_collision(self, arbiter) -> bool:
         """Handle projectile-wall collisions"""
         bullet_sprite = self.physics_engine.get_sprite_for_shape(arbiter.shapes[0])
         bullet_sprite.remove_from_sprite_lists()
-        print("Wall")
+        return False
 
-    def spawn_projectile(self, target_angle_deg):
-        # Create and position projectile
+    def spawn_projectile(self, target_angle_deg) -> None:
         projectile = InteractiveItem(
             self.physics_engine,
             self.stats,
@@ -40,7 +45,6 @@ class ProjectileFactory:
         projectile.center_x = self.player_sprite.center_x
         projectile.center_y = self.player_sprite.center_y
         projectile.on_setup()
-
 
         if self.inaccuracy_degrees > 0:
             angle_offset = random.uniform(-self.inaccuracy_degrees / 2.0, self.inaccuracy_degrees / 2.0)

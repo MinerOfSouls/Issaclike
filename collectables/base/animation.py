@@ -3,7 +3,7 @@ from physics_util import update_sprite
 #rewrite to use texture animation or use only one row sprites
 
 class Animation(arcade.Sprite):
-    def __init__(self,texture_list,sprite_details):
+    def __init__(self, texture_list ,sprite_details :dict):
         self.animation_speed = sprite_details.get("speed")
         super().__init__(texture_list[0],scale=sprite_details.get("scale"))
         self.time_elapsed = 0
