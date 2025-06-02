@@ -8,7 +8,7 @@ from managers.wind_effect import Wind
 
 
 class DifficultyOptions:
-    def __init__(self,physics_engine ,player_sprite, stats,attack_manager,map,effects_list, difficulty_options):
+    def __init__(self, physics_engine, player_sprite, stats, attack_manager, map, effects_list, difficulty_options):
         self.physics_engine = physics_engine
         self.player_sprite = player_sprite
         self.stats = stats

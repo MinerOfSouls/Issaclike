@@ -28,7 +28,7 @@ def get_random_boss(d):
         e = Goblin(d + 2)
     else:
         e = Rat(d + 2)
-    e.sprite.scale = (e.sprite.scale[0] * 3, e.sprite.scale[1] * 3)
+    e.sprite.scale = (e.sprite.scale[0] * 3, e.sprite.scale[1] * 3 )
     return e
 
 class Slime(Enemy):
@@ -43,7 +43,7 @@ class Slime(Enemy):
             position = (random.randint(SPRITE_SIZE*4, WINDOW_WIDTH-SPRITE_SIZE*4), random.randint(SPRITE_SIZE*4, WINDOW_WIDTH-SPRITE_SIZE*4)),
             sprite_handle=get_slime_sprite
         )
-        self.sprite.scale = 2
+        self.sprite.scale = 2 *resizable_scale
 
     def attack(self, delta_time, destination, engine: PymunkPhysicsEngine, projectile_control):
         super().melee_attack(delta_time, destination, engine)
@@ -104,7 +104,7 @@ class Mimic(Enemy):
             position = (WINDOW_WIDTH/2, WINDOW_HEIGHT/2),
             sprite_handle=get_mimic_sprite
         )
-        self.sprite.scale = 1
+        self.sprite.scale = 1 *resizable_scale
 
     def attack(self, delta_time, destination, engine: PymunkPhysicsEngine, projectile_control):
         super().melee_attack(delta_time, destination, engine)

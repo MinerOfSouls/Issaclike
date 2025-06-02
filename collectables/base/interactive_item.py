@@ -1,18 +1,20 @@
 from arcade import PymunkPhysicsEngine
 
+from characters.stats import Stats
 from managers.collision_manager import CollisionManager
-from collectables.animation import Animation
+from collectables.base.animation import Animation
+
 
 class InteractiveItem(Animation):
-    def __init__(self, physics_engine, stats, textures, sprite_details):
-        super().__init__(textures, sprite_details)
+    def __init__(self, physics_engine: PymunkPhysicsEngine, stats: Stats, texture_list, sprite_details: dict):
+        super().__init__(texture_list, sprite_details)
         self.physics_engine = physics_engine
         self.stats = stats
         self.item_type = sprite_details.get("item_type")
         self.collectable = sprite_details.get("collectable", False)
         self.item_lifetime = 0
-        self.body_type = sprite_details.get("body_type", PymunkPhysicsEngine.DYNAMIC )
-        self.mass = sprite_details.get("mass" , 0.1)
+        self.body_type = sprite_details.get("body_type", PymunkPhysicsEngine.DYNAMIC)
+        self.mass = sprite_details.get("mass", 0.1)
         self.map = map
         self.moment_of_inertia = sprite_details.get("moment_of_inertia", None)
         self.is_physics_setup = False
@@ -20,10 +22,11 @@ class InteractiveItem(Animation):
     def __str__(self):
         return self.item_type
 
-    def apply_force(self,force):
-        self.physics_engine.apply_force(self ,force)
-    def apply_impulse(self,impulse):
-        self.physics_engine.apply_impulse(self ,impulse)
+    def apply_force(self, force):
+        self.physics_engine.apply_force(self, force)
+
+    def apply_impulse(self, impulse):
+        self.physics_engine.apply_impulse(self, impulse)
 
     def on_setup(self):
         if self.is_physics_setup:
@@ -37,6 +40,7 @@ class InteractiveItem(Animation):
                                        moment_of_inertia=self.moment_of_inertia,
                                        collision_type=self.item_type,
                                        elasticity=0.9)
+
         def item_player_handle(sprite_a, sprite_b, arbiter, space, data):
             if self.collectable:
                 item_sprite = arbiter.shapes[0]
@@ -46,8 +50,7 @@ class InteractiveItem(Animation):
                     item_sprite.remove_from_sprite_lists()
                 except KeyError:
                     pass
-            return CollisionManager.handle_effect(self,self.item_type, self.stats)
-
+            return CollisionManager.handle_effect(self, self.item_type, self.stats)
 
         self.physics_engine.add_collision_handler(
             self.item_type,
@@ -59,9 +62,6 @@ class InteractiveItem(Animation):
     def remove_from_physics_engine(self):
         self.physics_engine.remove_sprite(self)
 
-
-
-    def update(self, delta_time: float = 1/60, *args, **kwargs):
+    def update(self, delta_time: float = 1 / 60, *args, **kwargs):
         super().update()
-        self.item_lifetime+=1
-
+        self.item_lifetime += 1

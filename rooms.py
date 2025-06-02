@@ -1,27 +1,22 @@
 import random
-from abc import abstractmethod
-from os import remove
 
-import arcade
+import arcade.types
 from arcade import PymunkPhysicsEngine
-from arcade.hitbox import pymunk
-
 from collectables.room_clear_reward import SpawnRandomReward
 from enemies.premade import get_random_enemies, get_random_boss, Mimic
 from enemies.enemy import EnemyController
 from parameters import *
-from collectables.pickup_factory import PickupFactory
-from characters.stats import  PlayerStatsController
 from resource_manager import get_door_texture, get_wall_texture, get_floor, get_stairs
 
 random.seed(1234)
 
 NEXT_ROOM_POSITIONS = {
-    "north":(SPRITE_SIZE * ((WINDOW_WIDTH/SPRITE_SIZE)//2) - SPRITE_SIZE//2, 2*SPRITE_SIZE),
-    "south":(SPRITE_SIZE * ((WINDOW_WIDTH/SPRITE_SIZE)//2) - SPRITE_SIZE//2, WINDOW_HEIGHT - 2*SPRITE_SIZE),
-    "west":(2*SPRITE_SIZE, SPRITE_SIZE * ((WINDOW_HEIGHT/SPRITE_SIZE)//2) - SPRITE_SIZE//2),
-    "east":(WINDOW_WIDTH - 2*SPRITE_SIZE, SPRITE_SIZE * ((WINDOW_HEIGHT/SPRITE_SIZE)//2) - SPRITE_SIZE//2)
+    "north": (SPRITE_SIZE * ((WINDOW_WIDTH / SPRITE_SIZE) // 2) - SPRITE_SIZE // 2, 2 * SPRITE_SIZE),
+    "south": (SPRITE_SIZE * ((WINDOW_WIDTH / SPRITE_SIZE) // 2) - SPRITE_SIZE // 2, WINDOW_HEIGHT - 2 * SPRITE_SIZE),
+    "west": (2 * SPRITE_SIZE, SPRITE_SIZE * ((WINDOW_HEIGHT / SPRITE_SIZE) // 2) - SPRITE_SIZE // 2),
+    "east": (WINDOW_WIDTH - 2 * SPRITE_SIZE, SPRITE_SIZE * ((WINDOW_HEIGHT / SPRITE_SIZE) // 2) - SPRITE_SIZE // 2)
 }
+
 
 def door_side(x, y):
     if y == 0:
@@ -33,26 +28,28 @@ def door_side(x, y):
     else:
         return "west"
 
+
 class Room:
-    #wall_sprites is a dictionary based on position with keys:
-    #"north", "east", "west", "south" and values being paths to sprite pngs
-    def __init__(self, doors, engine):
+    # wall_sprites is a dictionary based on position with keys:
+    # "north", "east", "west", "south" and values being paths to sprite pngs
+    def __init__(self, doors, engine, stats, color):
         self.wall_list = arcade.SpriteList()
         self.doors = arcade.SpriteList()
         self.completed = False
         self.physics_engine = engine
         self.objects = arcade.SpriteList()
         self.effects_list = arcade.SpriteList()
-        self.stats = PlayerStatsController()
+        self.stats = stats
         self.loaded = False
-        self.spawn_reward = SpawnRandomReward(self.physics_engine , self.objects, self.effects_list ,self.stats)
+        self.spawn_reward = SpawnRandomReward(self.physics_engine, self.objects, self.effects_list, self.stats)
         self.reward_spawned = False
-
+        self.color = color
 
         def draw_wall(x, y):
             wall = arcade.Sprite(get_wall_texture(x, y), scale=SPRITE_SCALING)
             wall.left = x
             wall.bottom = y
+            wall.color = self.color
             self.wall_list.append(wall)
 
         def draw_door(x, y):
@@ -65,21 +62,23 @@ class Room:
             )
             door.left = x
             door.bottom = y
+            door.color = color
             self.doors.append(door)
 
-        #Generating top and bottom walls
+        # Generating top and bottom walls
         for y in (0, WINDOW_HEIGHT - SPRITE_SIZE):
             for x in range(0, WINDOW_WIDTH, SPRITE_SIZE):
-                if x != SPRITE_SIZE * ((WINDOW_WIDTH/SPRITE_SIZE)//2) and x != SPRITE_SIZE * ((WINDOW_WIDTH/SPRITE_SIZE)//2 - 1):
-                    draw_wall(x, y)
+                if x != SPRITE_SIZE * ((WINDOW_WIDTH / SPRITE_SIZE) // 2) and x != SPRITE_SIZE * (
+                        (WINDOW_WIDTH / SPRITE_SIZE) // 2 - 1):
+                    draw_wall(x, y, )
                 else:
                     draw_door(x, y)
 
-
-        #Generating the left right walls
+        # Generating the left right walls
         for x in (0, WINDOW_WIDTH - SPRITE_SIZE):
             for y in range(SPRITE_SIZE, WINDOW_HEIGHT - SPRITE_SIZE, SPRITE_SIZE):
-                if y != SPRITE_SIZE * ((WINDOW_HEIGHT/SPRITE_SIZE)//2) and y != SPRITE_SIZE * ((WINDOW_HEIGHT/SPRITE_SIZE)//2 - 1):
+                if y != SPRITE_SIZE * ((WINDOW_HEIGHT / SPRITE_SIZE) // 2) and y != SPRITE_SIZE * (
+                        (WINDOW_HEIGHT / SPRITE_SIZE) // 2 - 1):
                     draw_wall(x, y)
                 else:
                     draw_door(x, y)
@@ -87,7 +86,8 @@ class Room:
     def draw(self):
         arcade.draw_texture_rect(
             get_floor(),
-            rect=arcade.LBWH(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
+            rect=arcade.LBWH(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, ),
+            color=self.color
         )
         self.wall_list.draw(pixelated=True)
         self.doors.draw(pixelated=True)
@@ -96,7 +96,7 @@ class Room:
 
     def spawn_reward_fun(self):
         if self.completed and not self.reward_spawned:
-            item =self.spawn_reward.on_room_clear()
+            item = self.spawn_reward.on_room_clear()
             self.reward_spawned = True
 
     def complete(self):
@@ -115,9 +115,7 @@ class Room:
                 self.effects_list.remove(effect)
                 self.physics_engine.remove_sprite(effect)
 
-
     def enter(self):
-        self.loaded = True
         print("entered")
         print(self.completed)
         print(self.reward_spawned)
@@ -144,16 +142,16 @@ class Room:
             self.physics_engine.remove_sprite(effect)
 
         for item_obj in self.objects:
-                try:
-                    item_obj.is_physics_setup = False
-                    item_obj.remove_from_physics_engine()
-                except KeyError:
-                    pass
+            try:
+                item_obj.is_physics_setup = False
+                item_obj.remove_from_physics_engine()
+            except KeyError:
+                pass
 
 
 class EnemyRoom(Room):
-    def __init__(self,doors, engine, enemies, stats):
-        super().__init__(doors, engine)
+    def __init__(self, doors, engine, enemies, stats, color):
+        super().__init__(doors, engine, stats, color)
         self.enemy_controller = EnemyController(enemies, self, engine, stats, self.objects)
 
     def update(self, delta_time, player):
@@ -172,15 +170,16 @@ class EnemyRoom(Room):
         super().leave()
         self.enemy_controller.remove_enemies_from_engine()
 
+
 class BossRoom(EnemyRoom):
-    def __init__(self, doors, engine, d, stats):
-        super().__init__(doors, engine, [get_random_boss(d)], stats)
+    def __init__(self, doors, engine, d, stats, color):
+        super().__init__(doors, engine, [get_random_boss(d)], stats, color)
         self.stairs = arcade.SpriteList()
         self.item_given = False
 
     def complete(self):
         super().complete()
-        stairs = arcade.Sprite(get_stairs(), SPRITE_SCALING, WINDOW_WIDTH/2, WINDOW_HEIGHT/2)
+        stairs = arcade.Sprite(get_stairs(), SPRITE_SCALING, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
         self.physics_engine.add_sprite(stairs, body_type=2, collision_type="stairs")
         self.stairs.append(stairs)
 
@@ -198,30 +197,44 @@ class BossRoom(EnemyRoom):
         for s in self.stairs:
             self.physics_engine.add_sprite(s, body_type=2, collision_type="stairs")
 
+
 class TreasureRoom(Room):
-    def __init__(self, doors, engine):
-        super().__init__(doors, engine)
+    def __init__(self, doors, engine, stats, color):
+        super().__init__(doors, engine, stats, color)
 
         # for object in self.objects:
         #     self.physics_engine.remove_sprite(object)
+
     def enter(self):
         self.complete()
         super().enter()
 
-
     def spawn_reward_fun(self):
         if self.completed and not self.reward_spawned:
-            item =self.spawn_reward._spawn_chest()
+            item = self.spawn_reward._spawn_chest()
             item.on_setup()
 
             self.reward_spawned = True
 
+
 class Map:
-    def __init__(self, n, physics_engine, stats, special_ability):
+    def __init__(self, n, physics_engine, stats, special_ability, level):
         self.physics_engine = physics_engine
         self.special_ability = special_ability
         self.mini_map = {}
         self.rooms = {}
+        self.level = level
+        self.colorTable = [
+            arcade.color.AERO_BLUE,
+            arcade.color.BRINK_PINK,  # Różowy
+            arcade.color.DARK_MAGENTA,  # Fioletowy
+            arcade.color.DARK_POWDER_BLUE,  # Niebieski
+            arcade.color.APPLE_GREEN,  # Niebiesko-cyjan
+            arcade.color.BANANA_YELLOW,  # Zielony
+            arcade.color.CARROT_ORANGE,  # Żółto-zielony
+            arcade.color.CARNELIAN,  # Pomarańczowy
+        ]
+        self.color = self.colorTable[self.level]
 
         # Room generation
         room_coordinates = [(0, 0)]
@@ -237,8 +250,8 @@ class Map:
                 room_coordinates.append(new)
                 i += 1
 
-        self.connections = {coords:{} for coords in room_coordinates}
-        #Connecting rooms
+        self.connections = {coords: {} for coords in room_coordinates}
+        # Connecting rooms
         for r in room_coordinates:
             neighbours = [(r[0] + d[0], r[1] + d[1]) for d in directions]
             for n_i in range(4):
@@ -256,30 +269,30 @@ class Map:
                 if nb in room_coordinates:
                     self.connections[r][key] = nb
         direction_keys = ["north", "south", "east", "west"]
-        #Assing room types
+        # Assing room types
         # 0 - start, 1 - end, 2 - enemy room, 3 - treasure room
-        room_types = {(0,0):0, room_coordinates[-1]:1}
-        for i in range(1, n-1):
+        room_types = {(0, 0): 0, room_coordinates[-1]: 1}
+        for i in range(1, n - 1):
             r = random.random()
             if r < 0.2:
                 room_types[room_coordinates[i]] = 3
             else:
                 room_types[room_coordinates[i]] = 2
-        #Generating Room objects
+        # Generating Room objects
         for c in room_coordinates:
             room_doors = {k for k in self.connections[c].keys()}
             if room_types[c] == 0:
-                self.rooms[c] = Room(room_doors, self.physics_engine)
+                self.rooms[c] = Room(room_doors, self.physics_engine, stats, self.color)
             elif room_types[c] == 1:
-                self.rooms[c] = BossRoom(room_doors, self.physics_engine, 0, stats)
+                self.rooms[c] = BossRoom(room_doors, self.physics_engine, 0, stats, self.color)
             elif room_types[c] == 2:
-                self.rooms[c] = EnemyRoom(room_doors, self.physics_engine, get_random_enemies(3, 0), stats)
+                self.rooms[c] = EnemyRoom(room_doors, self.physics_engine, get_random_enemies(3, 0), stats, self.color)
             elif room_types[c] == 3:
                 r = random.random()
                 if r < 0.8:
-                    self.rooms[c] = TreasureRoom(room_doors, self.physics_engine)
+                    self.rooms[c] = TreasureRoom(room_doors, self.physics_engine, stats, self.color)
                 else:
-                    self.rooms[c] = EnemyRoom(room_doors, self.physics_engine, [Mimic(0)], stats)
+                    self.rooms[c] = EnemyRoom(room_doors, self.physics_engine, [Mimic(0)], stats, self.color)
 
         self.mini_map = room_types
         self.current_room = (0, 0)
@@ -308,7 +321,7 @@ class Map:
     def check_room_move(self, door):
         if int(door.left) == 0:
             return "east"
-        elif int(door.left) ==  WINDOW_WIDTH - SPRITE_SIZE:
+        elif int(door.left) == WINDOW_WIDTH - SPRITE_SIZE:
             return "west"
         elif int(door.bottom) == 0:
             return "south"

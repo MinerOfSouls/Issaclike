@@ -1,14 +1,17 @@
 from characters.attack.projectile_factory import ProjectileFactory
 from characters.attack.ranged_attack import RangedAttack
 from characters.attack.boomerang_attack import BoomerangAttack
-from characters.attack.sword_attack import SwordSwing
+from characters.attack.sword_attack import SwordAttack
 from random import randint, choice
 
 from enum import Enum, auto
+
+
 class AttackType(Enum):
     SWORD = auto()
     BOOMERANG = auto()
     RANGED = auto()
+
 
 class AttackManager:
     def __init__(self, physics_engine, player_sprite, stats):
@@ -18,11 +21,11 @@ class AttackManager:
         self.current_attack = None
         self.change_weapon_timout = 0
 
-        self.sword = SwordSwing(self.player_sprite, self.physics_engine, self.stats)
+        self.sword = SwordAttack(self.player_sprite, self.physics_engine, self.stats)
         self.boomerang = BoomerangAttack(self.player_sprite, self.physics_engine, self.stats)
         self.ranged_attack = RangedAttack(self.player_sprite, self.physics_engine, self.stats)
 
-        self.set_attack_type(AttackType.SWORD)
+        self.set_attack_type(AttackType.BOOMERANG)
 
     def on_setup(self):
         pass
@@ -46,7 +49,7 @@ class AttackManager:
         pass
 
     def update(self):
-        self.change_weapon_timout+=1
+        self.change_weapon_timout += 1
         if self.change_weapon_timout >= 300:
             self.set_random_attack()
-            self.change_weapon_timout =0
+            self.change_weapon_timout = 0

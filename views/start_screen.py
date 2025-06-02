@@ -1,6 +1,11 @@
 import arcade
 from views.character_selection import CharacterSelection
 import arcade.gui
+from parameters import *
+
+start_bitton_url = "resources/images/start_button.png"
+how_to_play_url = "resources/images/how_to_play.png"
+exit_url = "resources/images/exit_button.png"
 
 
 class StartScreenView(arcade.View):
@@ -8,15 +13,20 @@ class StartScreenView(arcade.View):
 
     def __init__(self):
         super().__init__()
+        self.background = arcade.load_texture("resources/images/StartScreen.png")
+        self.start_button = arcade.load_texture(start_bitton_url)
+        self.how_to_play = arcade.load_texture(how_to_play_url)
+        self.exit_button = arcade.load_texture(exit_url)
         self.manager = arcade.gui.UIManager()
 
         # Create buttons
-        self.start_new_game = arcade.gui.UIFlatButton(text="Start New Game", width=200)
-        self.options = arcade.gui.UIFlatButton(text="Options", width=200)
-        self.exit = arcade.gui.UIFlatButton(text="Exit", width=200)
+        # self.knight = arcade.gui.UITextureButton(texture=self.start_button, scale=1)
+        self.start_new_game = arcade.gui.UITextureButton(texture=self.start_button, scale=0.3)
+        self.how_to_play = arcade.gui.UITextureButton(texture=self.how_to_play, scale=0.3)
+        self.exit = arcade.gui.UITextureButton(texture=self.exit_button, scale=0.3)
 
         # Store buttons in a list for easier keyboard navigation
-        self.buttons = [self.start_new_game, self.options, self.exit]
+        self.buttons = [self.start_new_game, self.how_to_play, self.exit]
         self.selected_index = 0
 
         # Set up grid layout
@@ -24,14 +34,15 @@ class StartScreenView(arcade.View):
             column_count=1, row_count=3, horizontal_spacing=50, vertical_spacing=50
         )
         self.grid.add(self.start_new_game, column=0, row=0)
-        self.grid.add(self.options, column=0, row=1)
+        self.grid.add(self.how_to_play, column=0, row=1)
         self.grid.add(self.exit, column=0, row=2)
 
         self.anchor = self.manager.add(arcade.gui.UIAnchorLayout())
 
         self.anchor.add(
             anchor_x="center_x",
-            anchor_y="center_y",
+            anchor_y="bottom",
+            align_y=screen_height / 4,
             child=self.grid,
         )
 
@@ -41,7 +52,7 @@ class StartScreenView(arcade.View):
             character_selection = CharacterSelection()
             self.window.show_view(character_selection)
 
-        @self.options.event("on_click")
+        @self.how_to_play.event("on_click")
         def on_options(event):
             # Add your options view code here
             pass
@@ -57,6 +68,10 @@ class StartScreenView(arcade.View):
 
     def on_draw(self):
         self.clear()
+        arcade.draw_texture_rect(
+            self.background,
+            arcade.LBWH(0, 0, screen_width, screen_height),
+        )
         self.manager.draw()
 
         # Draw the selection indicator (an arrow)
@@ -74,6 +89,14 @@ class StartScreenView(arcade.View):
         )
 
     def on_key_press(self, key, modifiers):
+        if key == arcade.key.F11:
+            screen_width, screen_height = arcade.get_display_size()
+            global resizable_scale
+            resizable_scale = min(screen_width / WINDOW_WIDTH, screen_height / WINDOW_HEIGHT)
+            print(screen_width, screen_height)
+            print(resizable_scale)
+            self.window.set_fullscreen(not self.window.fullscreen)
+
         if key == arcade.key.UP:
             # Move selection up
             self.selected_index = (self.selected_index - 1) % len(self.buttons)

@@ -1,8 +1,11 @@
 import arcade
 
-class Attack:
-    def __init__(self, player_sprite, stats):
-        self.player = player_sprite
+from characters.stats import Stats
+
+
+class AimingController:
+    def __init__(self, player_sprite: arcade.Sprite, stats: Stats):
+        self.player_sprite = player_sprite
         self.stats = stats
 
         # Direction keys
@@ -24,24 +27,24 @@ class Attack:
         # Current direction angle (in degrees, 0 = right, 90 = up, etc.)
         self.direction = 0
 
-    def on_key_press(self, key):
-            if key == arcade.key.UP:
-                self.up_pressed = True
-            if key == arcade.key.DOWN:
-                self.down_pressed = True
-            if key == arcade.key.LEFT:
-                self.left_pressed = True
-            if key == arcade.key.RIGHT:
-                self.right_pressed = True
-            if key == arcade.key.E:
-                self.e_pressed = True
-            if key == arcade.key.SPACE:
-                self.space_pressed = True
+    def on_key_press(self, key) -> None:
+        if key == arcade.key.UP:
+            self.up_pressed = True
+        if key == arcade.key.DOWN:
+            self.down_pressed = True
+        if key == arcade.key.LEFT:
+            self.left_pressed = True
+        if key == arcade.key.RIGHT:
+            self.right_pressed = True
+        if key == arcade.key.E:
+            self.e_pressed = True
+        if key == arcade.key.SPACE:
+            self.space_pressed = True
 
-            # Update diagonal states and direction after any key press
-            self.update_direction()
+        # Update diagonal states and direction after any key press
+        self.update_direction()
 
-    def on_key_release(self, key):
+    def on_key_release(self, key) -> None:
         # Use separate if statements for direction keys
         if key == arcade.key.UP:
             self.up_pressed = False
@@ -59,7 +62,7 @@ class Attack:
         # Update diagonal states and direction after any key release
         self.update_direction()
 
-    def update_direction(self):
+    def update_direction(self) -> None:
         self.diagonal_up_right = self.up_pressed and self.right_pressed
         self.diagonal_up_left = self.up_pressed and self.left_pressed
         self.diagonal_down_right = self.down_pressed and self.right_pressed
@@ -83,7 +86,7 @@ class Attack:
         elif self.down_pressed:
             self.direction = 270  # South
 
-    def reset_keys(self):
+    def reset_keys(self) -> None:
         self.up_pressed = False
         self.down_pressed = False
         self.left_pressed = False

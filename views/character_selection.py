@@ -1,27 +1,36 @@
-import arcade
 import arcade.gui
 from parameters import *
 
 CHARACTER_WIDTH = WINDOW_WIDTH / 3
 CHARACTER_HEIGHT = WINDOW_HEIGHT / 2
-DIFFICULTY_WIDTH = WINDOW_WIDTH /8
+DIFFICULTY_WIDTH = WINDOW_WIDTH / 8
 
-empty_checkbox_url ="resources/images/checkbox_empty.png"
-filled_checkbox_url ="resources/images/checkbox_filled.png"
+empty_checkbox_url = "resources/images/checkbox_empty.png"
+filled_checkbox_url = "resources/images/checkbox_filled.png"
+knight_url = "resources/images/characters/knight_idle.png"
+mage_url = "resources/images/characters/wizard_idle.png"
+dragon_url = "resources/images/characters/dragon_idle (Edited).png"
+
 
 class CharacterSelection(arcade.View):
     def __init__(self):
 
         super().__init__()
+        self.background = arcade.load_texture("resources/images/character_select.png")
+
         self.empty_checkbox_texture = arcade.load_texture(empty_checkbox_url)
         self.filled_checkbox_texture = arcade.load_texture(filled_checkbox_url)
+        self.knight_texture = arcade.load_texture(knight_url)
+        self.mage_texture = arcade.load_texture(mage_url)
+        self.dragon_texture = arcade.load_texture(dragon_url)
+
         self.manager = arcade.gui.UIManager()
-        self.difficulty_options = {"wind": False, "explosions": False, "moving_fire": False , "weapon_change": False}
+        self.difficulty_options = {"wind": False, "explosions": False, "moving_fire": False, "weapon_change": False}
 
         # Create buttons
-        self.knight = arcade.gui.UIFlatButton(text="Knight", width=CHARACTER_WIDTH, height=CHARACTER_HEIGHT)
-        self.mage = arcade.gui.UIFlatButton(text="Mage", width=CHARACTER_WIDTH,height=CHARACTER_HEIGHT)
-        self.dragon = arcade.gui.UIFlatButton(text="Dragon", width=CHARACTER_WIDTH,height=CHARACTER_HEIGHT)
+        self.knight = arcade.gui.UITextureButton(texture=self.knight_texture, scale=1)
+        self.mage = arcade.gui.UITextureButton(texture=self.mage_texture, scale=2)
+        self.dragon = arcade.gui.UITextureButton(texture=self.dragon_texture, scale=2)
 
         self.wind_button = arcade.gui.UITextureButton(texture=self.empty_checkbox_texture)
         self.explosions_button = arcade.gui.UITextureButton(texture=self.empty_checkbox_texture)
@@ -29,12 +38,13 @@ class CharacterSelection(arcade.View):
         self.random_weapons_button = arcade.gui.UITextureButton(texture=self.empty_checkbox_texture)
 
         # Store buttons in a list for easier keyboard navigation
-        self.buttons = [self.knight, self.mage, self.dragon , self.wind_button, self.explosions_button, self.moving_fire_button, self.random_weapons_button]
+        self.buttons = [self.knight, self.mage, self.dragon, self.wind_button, self.explosions_button,
+                        self.moving_fire_button, self.random_weapons_button]
         self.selected_index = 0
 
         # Set up grid layout
         self.grid1 = arcade.gui.UIGridLayout(
-            column_count=3, row_count=1, horizontal_spacing=20, vertical_spacing=20
+            column_count=3, row_count=1, horizontal_spacing=500, vertical_spacing=100
         )
         self.grid1.add(self.knight, column=0, row=0)
         self.grid1.add(self.mage, column=1, row=0)
@@ -44,28 +54,29 @@ class CharacterSelection(arcade.View):
             column_count=8, row_count=1, horizontal_spacing=20, vertical_spacing=20
         )
         self.grid2.add(self.wind_button, column=0, row=0)
-        self.grid2.add(arcade.gui.UILabel(text="Wind"), column=1, row=0)
+        self.grid2.add(arcade.gui.UILabel(text="Wind"), column=1, row=0, font_name="Kenney Pixel")
         self.grid2.add(self.explosions_button, column=2, row=0)
-        self.grid2.add(arcade.gui.UILabel(text="Random explosions"), column=3, row=0)
+        self.grid2.add(arcade.gui.UILabel(text="Random explosions"), column=3, row=0, font_name="Kenney Pixel")
         self.grid2.add(self.moving_fire_button, column=4, row=0)
-        self.grid2.add(arcade.gui.UILabel(text="Relentless fire"), column=5, row=0)
+        self.grid2.add(arcade.gui.UILabel(text="Relentless fire"), column=5, row=0, font_name="Kenney Pixel")
         self.grid2.add(self.random_weapons_button, column=6, row=0)
-        self.grid2.add(arcade.gui.UILabel(text="Random weapon"), column=7, row=0)
+        self.grid2.add(arcade.gui.UILabel(text="Random weapon"), column=7, row=0, font_name="Kenney Pixel")
 
         self.anchor = self.manager.add(arcade.gui.UIAnchorLayout())
 
         self.anchor.add(
-            align_y= 100,
+            align_y=screen_height * 0.3,
             anchor_x="center_x",
-            anchor_y="center_y",
+            anchor_y="bottom",
             child=self.grid1,
         )
         self.anchor.add(
-            align_y=-100,
+            align_y=100,
             anchor_x="center_x",
-            anchor_y="center_y",
+            anchor_y="bottom",
             child=self.grid2,
         )
+
     def on_show_view(self):
         self.window.background_color = arcade.csscolor.DARK_SLATE_BLUE
         self.window.default_camera.use()
@@ -73,18 +84,23 @@ class CharacterSelection(arcade.View):
 
     def on_draw(self):
         self.clear()
+        arcade.draw_texture_rect(
+            self.background,
+            arcade.LBWH(0, 0, screen_width, screen_height),
+        )
+
         self.manager.draw()
 
         # Draw the selection indicator (an arrow)
         button = self.buttons[self.selected_index]
         # Get the button position
         x = button.center_x
-        y = button.center_y - button.width / 2  - 10
+        y = button.center_y - button.width / 2 - 10
 
         arcade.draw_triangle_filled(
             x, y,
             x + 10, y,
-            x +5, y +10,
+            x + 5, y + 10,
             arcade.color.YELLOW
         )
 
@@ -101,19 +117,19 @@ class CharacterSelection(arcade.View):
             # Activate the selected button
             match self.selected_index:
                 case 0:
-                    from game_view import GameView
+                    from views.game_view import GameView
                     game_view = GameView(self.difficulty_options)
                     game_view.player_class = 0
                     game_view.setup()
                     self.window.show_view(game_view)
                 case 1:
-                    from game_view import GameView
+                    from views.game_view import GameView
                     game_view = GameView(self.difficulty_options)
                     game_view.player_class = 1
                     game_view.setup()
                     self.window.show_view(game_view)
                 case 2:
-                    from game_view import GameView
+                    from views.game_view import GameView
                     game_view = GameView(self.difficulty_options)
                     game_view.player_class = 2
                     game_view.setup()
@@ -144,6 +160,6 @@ class CharacterSelection(arcade.View):
                         self.random_weapons_button.texture = self.empty_checkbox_texture
 
         elif key == arcade.key.ESCAPE:
-            from start_screen import StartScreenView
+            from views.start_screen import StartScreenView
             start_screen = StartScreenView()
             self.window.show_view(start_screen)
