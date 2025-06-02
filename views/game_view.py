@@ -19,7 +19,6 @@ from characters.abilities.dragon_special_ability import DragonSpecialAbility
 
 from items.inventory import Inventory
 
-
 class GameView(arcade.View):
     def __init__(self, difficulty_options):
         super().__init__()
@@ -96,7 +95,6 @@ class GameView(arcade.View):
         if self.player_class == 1:
             from resource_manager import get_wizard_player_character
             self.player_sprite = get_wizard_player_character()
-
             self.special_ability = MageSpecialAbility(self.physics_engine, self.stats, self.player_sprite)
             self.special_ability.on_setup()
             self.attack_manager = AttackManager(self.physics_engine, self.player_sprite, self.stats)
@@ -214,7 +212,7 @@ class GameView(arcade.View):
                               map=self.map, stats=self.stats)
 
         if self.stats.health <= 0:
-            # self.inventory.save()
+            self.inventory.save()
             from views.game_over import GameOverView
             game_over = GameOverView()
             self.window.show_view(game_over)

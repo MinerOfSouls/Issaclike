@@ -27,6 +27,9 @@ player_sheets = {filename.split(".")[0]: arcade.load_spritesheet(os.path.join("r
 object_sheets = {filename.split(".")[0]: arcade.load_spritesheet(os.path.join("resources/images/objects", filename))
                  for filename in os.listdir("resources/images/objects")}
 
+item_textures = {filename.split(".")[0]:arcade.load_texture(os.path.join("resources/images/items", filename))
+                 for filename in os.listdir("resources/images/items")}
+
 object_textures = {}
 object_textures["chest"] = object_sheets["chest"].get_texture_grid((128, 128), 5, 5, hit_box_algorithm=box)
 object_textures["coin"] = object_sheets["coin"].get_texture_grid((80, 80), 8, 8, hit_box_algorithm=box)
@@ -279,3 +282,6 @@ def get_goblin_sprite():
 
 def get_mimic_sprite():
     return Animation(enemy_textures["mimic"], object_params["chest"])
+
+def get_item(name):
+    return arcade.Sprite(item_textures[name])
