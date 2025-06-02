@@ -5,7 +5,7 @@ from items.item import Item
 from random import randint
 from parameters import SPRITE_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT
 from collectables.pickup_factory import PickupFactory, PickupType
-from resource_manager import get_object
+from resource_manager import get_item
 
 
 class Repulsor(Item):
@@ -148,11 +148,17 @@ class Totem(Item):
 
 def name_to_item(name: str) -> Item:
     match name:
-        case "Repulsor": return Repulsor(arcade.SpriteCircle(10, arcade.color.WHITE))
-        case "Wallet": return Wallet(arcade.SpriteCircle(10, arcade.color.BLUE))
-        case "Grace": return Grace(arcade.SpriteCircle(10, arcade.color.GREEN))
-        case "Sacrifice": return Sacrifice(arcade.SpriteCircle(10, arcade.color.RED))
-        case "Snowflake": return Snowflake(arcade.SpriteCircle(10, arcade.color.ICEBERG))
-        case "Totem": return Totem(arcade.SpriteCircle(10, arcade.color.GOLD))
+        case "Repulsor": return Repulsor(get_item("repulsor"))
+        case "Wallet": return Wallet(get_item("wallet"))
+        case "Grace": return Grace(get_item("grace"))
+        case "Sacrifice": return Sacrifice(get_item("sacrifice"))
+        case "Snowflake": return Snowflake(get_item("snowflake"))
+        case "Totem": return Totem(get_item("totem"))
         case _: raise ValueError("Invalid save / Invalid item name")
 
+def get_new_item(items):
+    names = set([str(i) for i in items])
+    new = {"Repulsor", "Wallet", "Grace", "Sacrifice", "Snowflake", "Totem"} - names
+    if len(new) == 0:
+        return False
+    return name_to_item(new.pop())

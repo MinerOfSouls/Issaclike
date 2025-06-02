@@ -180,7 +180,7 @@ class GameView(arcade.View):
                               map = self.map, stats = self.stats)
 
         if self.stats.health <= 0:
-            # self.inventory.save()
+            self.inventory.save()
             from views.game_over import GameOverView
             game_over = GameOverView()
             self.window.show_view(game_over)
@@ -195,7 +195,7 @@ class GameView(arcade.View):
         self.special_ability.on_key_press(key)
         self.place_on_map.on_key_press(key)
         if key == arcade.key.ESCAPE:
-            # self.inventory.save()
+            self.inventory.save()
             from views.pause_screen import PauseView
             pause = PauseView(self)
             self.window.show_view(pause)
