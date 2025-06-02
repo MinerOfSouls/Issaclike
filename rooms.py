@@ -176,6 +176,7 @@ class BossRoom(EnemyRoom):
     def __init__(self, doors, engine, d, stats):
         super().__init__(doors, engine, [get_random_boss(d)], stats)
         self.stairs = arcade.SpriteList()
+        self.item_given = False
 
     def complete(self):
         super().complete()
